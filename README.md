@@ -1,4 +1,4 @@
-#🎼 Conservatorio Nacional de Música - Backend del Sistema de Gestión Académica
+# 🎼 Conservatorio Nacional de Música - Backend del Sistema de Gestión Académica
 
 ##📌 Descripción del Proyecto
 Este backend es el núcleo del sistema de gestión académica desarrollado para el Conservatorio Nacional de Música. Su propósito es proporcionar una infraestructura robusta y segura que permita a la institución administrar estudiantes, profesores, asignaturas y calificaciones de manera eficiente.
