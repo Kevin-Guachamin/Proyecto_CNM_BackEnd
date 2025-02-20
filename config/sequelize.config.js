@@ -1,3 +1,4 @@
+require('dotenv').config();
 const { Sequelize } = require('sequelize')
 const username = process.env.DB_USERNAME;
 const password = process.env.DB_PASSWORD;
@@ -14,7 +15,7 @@ const main =async()=>{
         await sequelize.sync()
         console.log('Base de datos sincronizada');
     } catch (error) {
-        console.log('Error al sincronizar la BDD', err);
+        console.log('Error al sincronizar la BDD', error);
     }
 }
 main()
