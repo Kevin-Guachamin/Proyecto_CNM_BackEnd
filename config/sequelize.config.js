@@ -12,11 +12,11 @@ const sequelize = new Sequelize(db_name, username, password, {
 });
 const main =async()=>{
     try {
-        await sequelize.sync()
+        await sequelize.sync({alter: true})
         console.log('Base de datos sincronizada');
     } catch (error) {
         console.log('Error al sincronizar la BDD', error);
     }
 }
 main()
-
+module.exports=sequelize
