@@ -10,13 +10,13 @@ const sequelize = new Sequelize(db_name, username, password, {
     host: hostName,
     dialect: 'mysql'
 });
-const main =async()=>{
+const conexion =async()=>{
     try {
-        await sequelize.sync({alter: true})
-        console.log('Base de datos sincronizada');
+        await sequelize.sync() //Usar {alter: true} o {force: true} en caso de hacer cambios en los modelos
+        return 'Base de datos sincronizada';
     } catch (error) {
-        console.log('Error al sincronizar la BDD', error);
+        return'Error al sincronizar la BDD ' + error;
     }
 }
-main()
-module.exports=sequelize
+
+module.exports={sequelize, conexion}

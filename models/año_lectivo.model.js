@@ -1,5 +1,5 @@
 const {DataTypes}= require('sequelize')
-const sequelize= require('../config/sequelize.config')
+const {sequelize}= require('../config/sequelize.config')
 
 const Año_Lectivo = sequelize.define('Año_Lectivo',{
     ID: {

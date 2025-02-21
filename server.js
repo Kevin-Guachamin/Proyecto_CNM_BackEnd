@@ -1,4 +1,4 @@
-require('./config/sequelize.config');
+const sequelize=require('./config/sequelize.config');
 require('./models/docente.model')
 require('./models/perfil.model')
 require('./models/año_lectivo.model')
@@ -18,7 +18,19 @@ app.use(express.urlencoded({extended: true}))
 app.use(cors())
 
 const port=8000;
+const startServer = async () => {
+    try {
+        const mensaje = await sequelize.conexion(); // Espera a que la BD se sincronice
+        console.log(mensaje);
 
-app.listen(port, () => {
-    console.log("Server listening at port", port);
-    })
+        // Una vez sincronizada, inicia el servidor
+        app.listen(port, () => {
+            console.log("Server listening at port", port);
+        });
+    } catch (error) {
+        console.error("Error al sincronizar la base de datos:", error);
+    }
+};
+
+// Llamar a la función para iniciar
+startServer();

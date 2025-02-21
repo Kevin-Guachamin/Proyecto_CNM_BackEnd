@@ -1,5 +1,5 @@
 const {DataTypes}=require('sequelize')
-const sequelize= require('../config/sequelize.config')
+const {sequelize}= require('../config/sequelize.config')
 const Matricula_Asignacion=require('./matricula_asignacion.model')
 
 const Calificaciones= sequelize.define("Calificaciones",
@@ -55,4 +55,6 @@ const Calificaciones= sequelize.define("Calificaciones",
     },
     {tableName: "calificaciones"}
 )
+Calificaciones.belongsTo(Matricula_Asignacion,{foreignKey: "id_matricula_asignacion", targetKey: "ID"})
+Matricula_Asignacion.hasMany(Calificaciones, {foreignKey: "id_matricula_asignacion", sourceKey: "ID"})
 module.exports=Calificaciones
