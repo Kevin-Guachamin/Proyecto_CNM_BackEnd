@@ -7,6 +7,7 @@ const Estudiante= sequelize.define('Estudiante',{
             type: DataTypes.STRING,
             allowNull: false,
             primaryKey: true,
+            unique: {msg: "la cedula ya existe"},
             validate: {
                 notNull: { msg: "El número de cédula es requerido" },
                 notEmpty: { msg: "El número de cédula no puede estar vacío" },
@@ -29,7 +30,11 @@ const Estudiante= sequelize.define('Estudiante',{
                 notNull: { msg: "El primer nombre es requerido" },
                 notEmpty: { msg: "El primer nombre no puede estar vacío" },
                 len: { args: [2, 50], msg: "El primer nombre debe tener entre 2 y 50 caracteres" },
-                isAlpha: { msg: "El primer nombre solo puede contener letras" }
+                isOnlyLetters(value) {
+                    if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(value)) {
+                        throw new Error("El primer nombre solo puede contener letras y espacios");
+                    }
+                }
             }
         },
         segundo_nombre: {
@@ -39,7 +44,11 @@ const Estudiante= sequelize.define('Estudiante',{
                 notNull: { msg: "El segundo nombre es requerido" },
                 notEmpty: { msg: "El segundo nombre no puede estar vacío" },
                 len: { args: [2, 50], msg: "El segundo nombre debe tener entre 2 y 50 caracteres" },
-                isAlpha: { msg: "El segundo nombre solo puede contener letras" }
+                isOnlyLetters(value) {
+                    if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(value)) {
+                        throw new Error("El primer nombre solo puede contener letras y espacios");
+                    }
+                }
             }
         },
         primer_apellido: {
@@ -49,7 +58,11 @@ const Estudiante= sequelize.define('Estudiante',{
                 notNull: { msg: "El primer apellido es requerido" },
                 notEmpty: { msg: "El primer apellido no puede estar vacío" },
                 len: { args: [2, 50], msg: "El primer apellido debe tener entre 2 y 50 caracteres" },
-                isAlpha: { msg: "El primer apellido solo puede contener letras" }
+                isOnlyLetters(value) {
+                    if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(value)) {
+                        throw new Error("El primer nombre solo puede contener letras y espacios");
+                    }
+                }
             }
         },
         segundo_apellido: {
@@ -59,7 +72,11 @@ const Estudiante= sequelize.define('Estudiante',{
                 notNull: { msg: "El segundo apellido es requerido" },
                 notEmpty: { msg: "El segundo apellido no puede estar vacío" },
                 len: { args: [2, 50], msg: "El segundo apellido debe tener entre 2 y 50 caracteres" },
-                isAlpha: { msg: "El segundo apellido solo puede contener letras" }
+                isOnlyLetters(value) {
+                    if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(value)) {
+                        throw new Error("El primer nombre solo puede contener letras y espacios");
+                    }
+                }
             }
         },
         cedula_PDF: {
