@@ -15,7 +15,11 @@ const Perfil = sequelize.define('Perfil', {
             notNull: { msg: "El nombre del perfil es requerido" },
             notEmpty: { msg: "El nombre del perfil no puede estar vacío" },
             len: { args: [2, 50], msg: "El perfil debe tener entre 2 y 50 caracteres" },
-            isAlpha: { msg: "Solo puede contener letras" }
+            isOnlyLetters(value) {
+                if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(value)) {
+                    throw new Error("El primer nombre solo puede contener letras y espacios");
+                }
+            }
         }
     },
 },

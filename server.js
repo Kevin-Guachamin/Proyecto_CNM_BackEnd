@@ -31,6 +31,8 @@ const startServer = async () => {
         console.error("Error al sincronizar la base de datos:", error);
     }
 };
-
+const allDocente= require('./routes/docente.routes')
+allDocente(app)
 // Llamar a la función para iniciar
 startServer();
+
