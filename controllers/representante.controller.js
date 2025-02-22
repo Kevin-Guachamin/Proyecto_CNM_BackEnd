@@ -2,10 +2,13 @@
 
 const Representante = require('.models/representante.model');
 const { validarCedulaEcuatoriana } = require('.utils/validarCedulaEcuatoriana');
+const path = require('path');
 
 // Create REPRESENTANTE
 const crearRepresentante = async (request, response) => {
     const usuario = request.body;
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/; // Validar email
+
 
     if(!usuario)
         return response.status(400).json({ message: 'Campos vacios, todos son obligatorios!' });
@@ -78,7 +81,21 @@ const crearRepresentante = async (request, response) => {
     }
 
     // Validacion del email
+    if(usuario?.email) {
+        if(!emailRegex.test(usuario.email))
+            return response.status(400).json({ message: 'Formato de email no valido!'});
+    }else {
+        return response.status(400).json({ message: 'Email no valido!'});
+    }
     
+    // Validar extension archivo PDF
+    if (usuario?.cedula_PDF) {
+        if(path.extname(usuario.cedula_PDF.toLowerCase() === '.pdf')) // Comprueba que la extension sea PDF
+            return response.status(400).json({ message: 'Extension de archivo no valida!'});
+    } else {
+        return response.status(400).json({ message: 'Ruta de archivo no valida!'})
+    }
+
     try {
         const representanteEncontrado = await Representante.findOne({ 
             where: { nroCedula: usuario.nroCedula }
