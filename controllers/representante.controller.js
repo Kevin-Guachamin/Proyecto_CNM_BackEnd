@@ -88,13 +88,15 @@ const crearRepresentante = async (request, response) => {
         return response.status(400).json({ message: 'Email no valido!'});
     }
     
-    // Validar extension archivo PDF
+    // Validar extension archivo cedula PDF 
     if (usuario?.cedula_PDF) {
         if(path.extname(usuario.cedula_PDF.toLowerCase() === '.pdf')) // Comprueba que la extension sea PDF
             return response.status(400).json({ message: 'Extension de archivo no valida!'});
     } else {
         return response.status(400).json({ message: 'Ruta de archivo no valida!'})
     }
+
+    // Validar extension archivo croquis PDF
 
     try {
         const representanteEncontrado = await Representante.findOne({ 
