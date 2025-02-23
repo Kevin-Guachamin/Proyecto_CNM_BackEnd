@@ -1,6 +1,6 @@
 const {DataTypes}=require('sequelize')
 const {sequelize}=require('../config/sequelize.config')
-
+const {validarCedulaEcuatoriana}= require('../utils/validarCedulaEcuatoriana')
 
 const Estudiante= sequelize.define('Estudiante',{
     nroCedula: {

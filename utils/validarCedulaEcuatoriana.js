@@ -1,5 +1,5 @@
 function validarCedulaEcuatoriana(cedula) {
-    if (!/^\d{10}$/.test(cedula)) return false; // Debe ser numérica y de 10 dígitos
+    
 
     const provincia = parseInt(cedula.substring(0, 2), 10);
     if (provincia < 1 || provincia > 24) return false; // Provincia inválida

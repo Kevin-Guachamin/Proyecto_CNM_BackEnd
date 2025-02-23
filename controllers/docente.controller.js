@@ -1,10 +1,8 @@
-require("dotenv").config();
+
 const bcrypt = require("bcryptjs")
 const Docente = require('../models/docente.model')
 
-const generateToken = (params) => {
-    return jwt.sign(params, process.env.JWT_SECRET, { expiresIn: '30d' })
-}
+
 
 const createDocente = async (req, res) => {
     try {
@@ -12,9 +10,6 @@ const createDocente = async (req, res) => {
         const docenteFound = await Docente.findByPk(docente.nroCedula)
         if (docenteFound) {
             return res.status(409).json({ message: "Error el usuario ya existe" })
-        }
-        if (!docente.contraseña) {
-            return res.status(400).json({ message: "Error no existe contraseña" })
         }
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(docente.contraseña, salt);
@@ -24,7 +19,12 @@ const createDocente = async (req, res) => {
         res.status(201).json(result)
     } catch (error) {
         console.error("Error al crear docente", error)
-        res.status(500).json({message: "Error al crear docente en el servidor"})
+        if (error.name === "SequelizeValidationError") {
+            // Extraer solo los mensajes de error de validación
+            const mensajes = error.errors.map(err => err.message);
+            return res.status(400).json({ errores: mensajes });
+        }
+        res.status(500).json({message: `Error al crear docente en el servidor:`})
     }
 }
 
