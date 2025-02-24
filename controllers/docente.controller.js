@@ -49,7 +49,28 @@ const editDocente= async (req, res)=>{
         res.status(500).json({message: `Error al editar docente en el servidor:`})
     }
 }
+const getDocente = async(req, res)=>{
+    const nroCedula= req.params.cedula
+    try {
+        const docente = await Docente.findByPk(nroCedula)
+        if(!docente){
+            return res.status(404).json({message: "Usuario no encontrado"})
+        }
+        
+        const {contraseña: _, ...result}=docente.toJSON()
+        res.status(200).json(result)
+    } catch (error) {
+        console.error("Error al obtener docente", error)
+        if (error.name === "SequelizeValidationError") {
+            // Extraer solo los mensajes de error de validación
+            const mensajes = error.errors.map(err => err.message);
+            return res.status(400).json({ message: mensajes });
+        }
+        res.status(500).json({message: `Error al obtener docente en el servidor:`})
+    }
+}
 module.exports= {
     createDocente,
-    editDocente
+    editDocente,
+    getDocente,
 }
