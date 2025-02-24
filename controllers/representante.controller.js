@@ -157,7 +157,54 @@ const crearRepresentante = async (request, response) => {
         return response.status(500).json({ message: 'No hubo respuesta desde el servidor' });
     }
 }
+
 // Read REPRESENTANTE
+const getRepresentante = async (request, response) => {
+    const nroCedula = request.params.cedula;
+    try {
+        const representante = await Representante.findByPk(nroCedula);
+        if(!representante)
+            return response.status(404).json({ message: 'Usuario no encontrado'});
+
+        const {contraseña: _, ...result} = representante.toJSON(); // Omite la contrasena
+        return response.status(200).json(result);
+
+    } catch (error) {
+        console.log('Error al obtener el representante');
+        if(error.name === 'SequelizeValidationError') {
+            const mensajes = error.errors.map(err => err.message);
+            return response.status(400).json({ message: mensajes});
+        }
+
+        return response.status(500).json({ message: 'Error al obtener el representante en el servidor'});
+    }
+}
+
+// Read todos los representantes
+const getAllRepresentantes = async (request, response) => {
+    try {
+        const allRepresentantes = await Representante.findAll();
+
+        if(allRepresentantes.length === 0)
+            return response.status(404).json({ message: 'No se encontro ningun representante!'});
+
+        const result = allRepresentantes.map(representante => {
+            const {contraseña: _, ...rest} = representante.toJSON();
+            return rest;
+        });
+               
+        return response.status(200).json(result);
+
+    } catch (error) {
+        console.log('Error al obtener todos los representantes');
+        if(error.name === 'SequelizeValidationError') {
+            const mensajes = error.errors.map(err => err.message);
+            return response.status(400).json({ message: mensajes});
+        }
+
+        return response.status(500).json({ message: 'Error al obtener los representantes en el servidor'});
+    }
+}
 
 // Update REPRESENTANTE
 
