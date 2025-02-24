@@ -8,7 +8,7 @@ const Docente = sequelize.define('Docente', {
         type: DataTypes.STRING,
         allowNull: false,
         primaryKey: true,
-        unique: {msg: "la cedula ya existe"},
+        
         validate: {
             notNull: { msg: "El número de cédula es requerido" },
             notEmpty: { msg: "El número de cédula no puede estar vacío" },
@@ -83,6 +83,7 @@ const Docente = sequelize.define('Docente', {
     celular: {
         type: DataTypes.STRING,
         allowNull: false,
+        unique: {msg: "El celular ya esta registrado"},
         validate: {
             notNull: { msg: "El celular es requerido" },
             notEmpty: { msg: "El celular no puede estar vacío" },
@@ -93,7 +94,7 @@ const Docente = sequelize.define('Docente', {
     email: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true, // Evita correos duplicados
+        unique: {msg: "El email ya esta registrado"},
         validate: {
             notNull: { msg: "El correo electrónico es requerido" },
             notEmpty: { msg: "El correo electrónico no puede estar vacío" },
