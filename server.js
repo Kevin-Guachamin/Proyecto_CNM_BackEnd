@@ -1,5 +1,5 @@
 const sequelize=require('./config/sequelize.config');
-require('./models/docente.model')
+
 require('./models/perfil.model')
 require('./models/año_lectivo.model')
 require('./models/asignacion.model')
