@@ -38,19 +38,32 @@ const Calificaciones= sequelize.define("Calificaciones",
             }
         },
         comportamiento: {
-            type: DataTypes.STRING,
+            type: DataTypes.JSON, // Para MySQL
             allowNull: false,
             validate: {
-                notNull: {msg: "no se permiten valores nulos"},
-                notEmpty: {msg: "no puede ser vacío"},
-                len: {args: [1,2], msg: "Solo se pueden tener 1 o 2 caracteres" }
+              isArrayOfBinaryValues(value) {
+                // 1. Verifica que sea un array
+                if (!Array.isArray(value)) {
+                  throw new Error("comportamiento debe ser un array");
+                }
+          
+                // 2. Verifica que tenga 10 elementos
+                if (value.length !== 10) {
+                  throw new Error("comportamiento debe tener 10 valores");
+                }
+          
+                // 3. Verifica que cada valor sea 0 o 1
+                for (const val of value) {
+                  if (val !== 0 && val !== 1) {
+                    throw new Error("Cada valor en comportamiento debe ser 0 o 1");
+                  }
+                }
+              }
             }
         },
         quimistre: {
             type: DataTypes.ENUM("Q1", "Q2"),
             allowNull: true,
-            
-            
         }
     },
     {tableName: "calificaciones"}
