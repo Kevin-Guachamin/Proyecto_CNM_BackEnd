@@ -29,7 +29,7 @@ const crearRepresentante = async (request, response) => {
         const nuevoRepresentante = await Representante.create(usuario);
         const {contraseña: _, ...result} = nuevoRepresentante.toJSON();
         
-        return response.status(200).json({ 
+        return response.status(201).json({ 
             message: 'Usuario creado exitosamente', 
             result
         });
