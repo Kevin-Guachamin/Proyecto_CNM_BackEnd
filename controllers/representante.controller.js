@@ -207,5 +207,92 @@ const getAllRepresentantes = async (request, response) => {
 }
 
 // Update REPRESENTANTE
+const updateRepresentante = async (request, response) => {
+    const nroCedula = request.params.cedula;
+    const usuario = request.body;
+
+    try {
+        // Verificar si el representante existe
+        const representanteExistente = await Representante.findByPk(nroCedula);
+        if (!representanteExistente) {
+            return response.status(404).json({ message: 'Usuario no encontrado!' });
+        }
+
+        // Si se está actualizando la contraseña, hashearla
+        if (usuario.contraseña) {
+            if (usuario.contraseña.length < 8 || usuario.contraseña.length > 100) {
+                return response.status(400).json({ message: 'La contraseña debe tener al menos 8 caracteres!' });
+            }
+            usuario.contraseña = await hashPassword(usuario.contraseña);
+        }
+
+        // Actualizar el representante
+        const [updatedRows] = await Representante.update(usuario, {
+            where: { nroCedula }
+        });
+
+        if (updatedRows === 0) {
+            return response.status(404).json({ message: 'No se pudo actualizar el usuario!' });
+        }
+
+        // Obtener el representante actualizado
+        const representanteActualizado = await Representante.findByPk(nroCedula);
+        const { contraseña: _, ...result } = representanteActualizado.toJSON();
+
+        return response.status(200).json({ 
+            message: 'Usuario actualizado exitosamente',
+            result 
+        });
+
+    } catch (error) {
+        console.log('Error al actualizar el representante:', error);
+        if (error.name === 'SequelizeValidationError') {
+            const mensajes = error.errors.map(err => err.message);
+            return response.status(400).json({ message: mensajes });
+        }
+        return response.status(500).json({ message: 'Error al actualizar el representante en el servidor' });
+    }
+}
 
 // Delete REPRESENTANTE
+const deleteRepresentante = async (request, response) => {
+    const nroCedula = request.params.cedula;
+
+    try {
+        const representante = await Representante.findByPk(nroCedula);
+        
+        if(!representante)
+            return response.status(404).json({ message: 'Usuario no encontrado'});
+
+        const rowsDeleted = await Representante.destroy({ where: {nroCedula} });
+        
+        if(rowsDeleted > 0) {
+            return response.status(200).json({ 
+                message: 'Usuario eliminado exitosamente',
+                cedula: nroCedula
+            });
+        } else {
+            return response.status(400).json({ 
+                message: 'No se pudo eliminar el usuario'
+            });
+        }
+
+    } catch (error) {
+        console.log('Error al eliminar el representante:', error);
+        if(error.name === 'SequelizeError') {
+            const mensajes = error.errors.map(err => err.message);
+            return response.status(400).json({ message: mensajes});
+        }
+        return response.status(500).json({ 
+            message: 'Error al eliminar el representante en el servidor'
+        });
+    }
+}
+
+module.exports = {
+    crearRepresentante,
+    getRepresentante,
+    getAllRepresentantes,
+    updateRepresentante,
+    deleteRepresentante
+}
