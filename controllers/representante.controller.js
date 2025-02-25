@@ -10,15 +10,16 @@ const crearRepresentante = async (request, response) => {
     const usuario = request.body;
 
     try {
+        // Verificar si el representante existe
+        const representanteEncontrado = await Representante.findByPk(usuario.nroCedula);
+        if(representanteEncontrado) {
+            return response.status(409).json({ message: 'El usuario ya existe!' }); // 409 conflict
+        }
+        
         // Validar todos los campos del usuario (isUpdate = false para creación)
         const validationResult = validarUsuario(usuario, false);
         if (!validationResult.isValid) {
             return response.status(400).json({ message: validationResult.message });
-        }
-
-        const representanteEncontrado = await Representante.findByPk(usuario.nroCedula);
-        if(representanteEncontrado) {
-            return response.status(409).json({ message: 'El usuario ya existe!' }); // 409 conflict
         }
 
         // Hash de la contraseña
@@ -103,7 +104,12 @@ const updateRepresentante = async (request, response) => {
             return response.status(404).json({ message: 'Usuario no encontrado!' });
         }
 
-        // Validar los campos que se van a actualizar (isUpdate = true para actualización)
+        // Verificar que haya datos para actualizar
+        if (Object.keys(usuario).length === 0) {
+            return response.status(400).json({ message: 'No hay datos para actualizar' });
+        }
+
+        // Validar los campos que se van a actualizar
         const validationResult = validarUsuario(usuario, true);
         if (!validationResult.isValid) {
             return response.status(400).json({ message: validationResult.message });
@@ -120,10 +126,10 @@ const updateRepresentante = async (request, response) => {
         });
 
         if (updatedRows === 0) {
-            return response.status(404).json({ message: 'No se pudo actualizar el usuario!' });
+            return response.status(400).json({ message: 'No se pudo actualizar el usuario!' });
         }
 
-        // Obtener el representante actualizado
+        // Obtener y retornar el representante actualizado
         const representanteActualizado = await Representante.findByPk(nroCedula);
         const { contraseña: _, ...result } = representanteActualizado.toJSON();
 
