@@ -64,6 +64,10 @@ const Calificaciones= sequelize.define("Calificaciones",
         quimistre: {
             type: DataTypes.ENUM("Q1", "Q2"),
             allowNull: true,
+        },
+        parcial:{
+            type: DataTypes.ENUM("P1","P2"),
+            allowNull: true
         }
     },
     {tableName: "calificaciones"}

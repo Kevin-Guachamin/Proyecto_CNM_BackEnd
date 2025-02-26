@@ -33,6 +33,10 @@ const startServer = async () => {
 };
 const allDocente= require('./routes/docente.routes')
 allDocente(app)
+
+const allCalificaciones= require('./routes/calificaciones.routes')
+allCalificaciones(app)
+
 // Llamar a la función para iniciar
 startServer();
 
