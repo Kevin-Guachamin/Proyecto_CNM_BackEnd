@@ -12,7 +12,7 @@ const sequelize = new Sequelize(db_name, username, password, {
 });
 const conexion =async()=>{
     try {
-        await sequelize.sync() //Usar {alter: true} o {force: true} en caso de hacer cambios en los modelos
+        await sequelize.sync({ alter: true });
         return 'Base de datos sincronizada';
     } catch (error) {
         return'Error al sincronizar la BDD ' + error;
