@@ -40,6 +40,7 @@ const Asignación = sequelize.define("Asignación",{
             len: { args: [2,50], msg: "El año debe tener entre 2 y 50 caracteres"}
     }
 
+}
 },
 {
     tableName: "asignaciones"
