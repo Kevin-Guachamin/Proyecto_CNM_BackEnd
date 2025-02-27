@@ -1,149 +1,202 @@
-const { Op } = require('sequelize');
 const Calificaciones = require('../models/calificaciones.model');
-const Matricula_Asignacion = require('../models/matricula_asignacion.model');
 
-// Helpers para cálculos parciales (los mismos que usas en parciales)
-const calculateLearningAvg = (notas) => {
-  return (parseFloat(notas[0]) + parseFloat(notas[1])) / 2;
-};
-
-const calculatePartialFinal = (notas, exam) => {
-  const learningAvg = calculateLearningAvg(notas);
-  const learningPonderado = learningAvg * 0.7;
-  const examPonderado = parseFloat(exam) * 0.3;
+// Función para calcular la nota final de un parcial
+function calculatePartialFinal(notas, examen) {
+  const average = (parseFloat(notas[0]) + parseFloat(notas[1])) / 2;
+  const learningPonderado = average * 0.7;
+  const examPonderado = parseFloat(examen) * 0.3;
   return parseFloat((learningPonderado + examPonderado).toFixed(2));
-};
+}
 
-const calculateBehavior = (behaviorArray) => {
-  const sum = behaviorArray.reduce((acc, val) => acc + val, 0);
-  let letter = '';
-  if (sum >= 0 && sum <= 4) letter = 'E';
-  else if (sum >= 5 && sum <= 6) letter = 'D';
-  else if (sum >= 7 && sum <= 8) letter = 'C';
-  else if (sum === 9) letter = 'B';
-  else if (sum === 10) letter = 'A';
-  return letter;
-};
-
-// Helpers para el quimestre
-// La nota final del quimestre se calcula de la siguiente forma:
-//   - Se obtiene la nota final de cada parcial (P1 y P2)
-//   - Se calcula su promedio, ponderado al 70%
-//   - Se suma el 30% de la nota del examen quimestral (recibida en el request)
-const calculateQuimestreFinal = (partial1Final, partial2Final, examenQuimestre) => {
-  const avgPartials = (partial1Final + partial2Final) / 2;
-  const weightedPartials = avgPartials * 0.7;
-  const examWeighted = parseFloat(examenQuimestre) * 0.3;
-  return parseFloat((weightedPartials + examWeighted).toFixed(2));
-};
+// Función para calcular la nota final del quimestre
+function calculateQuimestreFinal(partial1Final, partial2Final, examenQuimestre) {
+  const promedioParciales = (partial1Final + partial2Final) / 2;
+  return parseFloat(((promedioParciales * 0.7) + (examenQuimestre * 0.3)).toFixed(2));
+}
 
 /**
- * UPDATE o CREATE registro de Quimestre
+ * Calcula el comportamiento quimestral como un NÚMERO.
+ * 1. Suma el array de comportamiento de P1 y de P2 (cada uno puede ir de 0 a 10).
+ * 2. Promedia las sumas.
+ * 3. Redondea hacia arriba (Math.ceil).
+ * 4. Retorna ese número (entre 0 y 10).
+ */
+function calculateQuimestreBehaviorNumber(behaviorArray1, behaviorArray2) {
+  const sum1 = behaviorArray1.reduce((acc, val) => acc + val, 0); // máx 10
+  const sum2 = behaviorArray2.reduce((acc, val) => acc + val, 0); // máx 10
+  const average = (sum1 + sum2) / 2; // promedio entre 0 y 10
+  const rounded = Math.ceil(average); // redondea hacia arriba
+  return rounded; // Ej: 7, 8, 9, etc.
+}
+
+/**
+ * Convierte un número (0 a 10) en la letra correspondiente:
+ * 0-4 => E, 5-6 => D, 7-8 => C, 9 => B, 10 => A
+ */
+function convertBehaviorNumberToLetter(num) {
+  if (num >= 0 && num <= 4) return 'E';
+  if (num >= 5 && num <= 6) return 'D';
+  if (num >= 7 && num <= 8) return 'C';
+  if (num === 9) return 'B';
+  if (num === 10) return 'A';
+  return '';
+}
+// Calcula los campos "al vuelo" para mostrar en GET
+function getQuimestreCalculatedFields(record) {
+  const nota1 = parseFloat(record.nota1);
+  const nota2 = parseFloat(record.nota2);
+  const examen = parseFloat(record.examen);
+  const comportamientoNum = parseFloat(record.comportamiento) || 0;
+
+  const promedioParciales = (nota1 + nota2) / 2;
+  const promedioPonderado = parseFloat((promedioParciales * 0.7).toFixed(2));
+  const examenPonderado = parseFloat((examen * 0.3).toFixed(2));
+  const notaFinalQuimestre = parseFloat((promedioPonderado + examenPonderado).toFixed(2));
+
+  const comportamientoLetter = convertBehaviorNumberToLetter(comportamientoNum);
+
+  return {
+    promedioParciales,
+    promedioPonderado,
+    examenPonderado,
+    notaFinalQuimestre,
+    comportamientoLetter
+  };
+}
+/**
+ * CREATE Quimestre
  * POST /api/quimestres
- * 
- * Se espera en el body:
+ *
+ * Body esperado:
  * {
  *   "id_matricula_asignacion": <number>,
  *   "quimistre": "Q1" o "Q2",
  *   "examenQuimestre": <number>
  * }
- * 
- * La lógica es:
- *   1. Buscar los dos parciales (P1 y P2) para ese id_matricula_asignacion y quimistre.
- *   2. Calcular la nota final de cada parcial usando calculatePartialFinal.
- *   3. Calcular la nota final del quimestre combinando (70% promedio de parciales + 30% examen quimestral).
- *   4. Crear (o actualizar) un registro en Calificaciones con:
- *         - quimistre definido (Q1 o Q2)
- *         - parcial: null (para distinguirlo de los parciales)
- *         - nota1: se guarda la nota final del quimestre
- *         - examen: la nota del examen quimestral
- *         - comportamiento: se puede calcular según tu lógica (por ejemplo, podrías combinar el comportamiento de los parciales)
  */
-module.exports.updateQuimestre = async (req, res) => {
+module.exports.createQuimestre = async (req, res) => {
   try {
     const { id_matricula_asignacion, quimistre, examenQuimestre } = req.body;
     if (!id_matricula_asignacion || !quimistre || examenQuimestre === undefined) {
       return res.status(400).json({ message: "Faltan datos requeridos." });
     }
-
-    // Buscamos los parciales para el quimestre (filtrando por id_matricula_asignacion y quimistre)
-    const partial1 = await Calificaciones.findOne({
-      where: {
-        id_matricula_asignacion,
-        quimistre,
-        parcial: 'P1'
-      }
+    
+    // Verificar que no exista ya un registro quimestral para este id_matricula_asignacion y quimistre
+    const existingRecord = await Calificaciones.findOne({
+      where: { id_matricula_asignacion, quimistre, parcial: null }
     });
-    const partial2 = await Calificaciones.findOne({
-      where: {
-        id_matricula_asignacion,
-        quimistre,
-        parcial: 'P2'
-      }
+    if (existingRecord) {
+      return res.status(400).json({ message: "Ya existe un registro quimestral para este estudiante y quimestre." });
+    }
+    
+    // Recuperar los parciales P1 y P2
+    const parcial1 = await Calificaciones.findOne({
+      where: { id_matricula_asignacion, quimistre, parcial: 'P1' }
     });
-
-    if (!partial1 || !partial2) {
+    const parcial2 = await Calificaciones.findOne({
+      where: { id_matricula_asignacion, quimistre, parcial: 'P2' }
+    });
+    
+    if (!parcial1 || !parcial2) {
       return res.status(400).json({ message: "No se encontraron ambos parciales (P1 y P2) para este quimestre." });
     }
-
-    // Calcular la nota final de cada parcial
-    const partial1Final = calculatePartialFinal(
-      [partial1.nota1, partial1.nota2],
-      partial1.examen
-    );
-    const partial2Final = calculatePartialFinal(
-      [partial2.nota1, partial2.nota2],
-      partial2.examen
-    );
-
-    // (Opcional) Calcular un comportamiento combinado si lo necesitas
-    const partial1Behavior = calculateBehavior(partial1.comportamiento);
-    const partial2Behavior = calculateBehavior(partial2.comportamiento);
-    // Puedes definir una lógica para combinar las letras, aquí se podría elegir la mejor o un promedio basado en un mapeo.
-    // En este ejemplo, simplemente dejamos el de P1.
-    const quimestreBehavior = partial1Behavior; 
-
-    // Calcular la nota final del quimestre
-    const quimestreFinal = calculateQuimestreFinal(partial1Final, partial2Final, examenQuimestre);
-
-    // Buscamos si ya existe un registro quimestral para este id_matricula_asignacion y quimistre
-    let quimestreRecord = await Calificaciones.findOne({
-      where: {
-        id_matricula_asignacion,
-        quimistre,
-        parcial: null  // Indica que es un registro de quimestre
-      }
+    
+    // 1. Calcular la nota final de cada parcial
+    const partial1Final = calculatePartialFinal([parcial1.nota1, parcial1.nota2], parcial1.examen);
+    const partial2Final = calculatePartialFinal([parcial2.nota1, parcial2.nota2], parcial2.examen);
+    
+    // 2. Calcular la nota final del quimestre (al vuelo)
+    const quimestreFinal = calculateQuimestreFinal(partial1Final, partial2Final, parseFloat(examenQuimestre));
+    
+    // 3. Calcular el comportamiento quimestral como número
+    const quimestreBehaviorNumber = calculateQuimestreBehaviorNumber(parcial1.comportamiento, parcial2.comportamiento);
+    
+    // 4. Crear el registro de quimestre (con parcial en null)
+    const quimestreRecord = await Calificaciones.create({
+      id_matricula_asignacion,
+      quimistre,
+      parcial: null,
+      nota1: partial1Final,   // nota final de P1
+      nota2: partial2Final,   // nota final de P2
+      examen: parseFloat(examenQuimestre),
+      comportamiento: quimestreBehaviorNumber  // Guardamos el número (ej: 8)
     });
-
-    if (!quimestreRecord) {
-      // Crear el registro quimestral
-      quimestreRecord = await Calificaciones.create({
-        id_matricula_asignacion,
-        quimistre,
-        parcial: null,
-        nota1: quimestreFinal,      // Guardamos la nota final del quimestre en nota1
-        examen: examenQuimestre,    // Nota del examen quimestral
-        comportamiento: quimestreBehavior
-      });
-    } else {
-      // Actualizar el registro existente
-      await quimestreRecord.update({
-        nota1: quimestreFinal,
-        examen: examenQuimestre,
-        comportamiento: quimestreBehavior
-      });
+    
+    return res.status(201).json({
+      message: "Registro quimestral creado exitosamente.",
+      record: quimestreRecord.toJSON()
+    });
+    
+  } catch (error) {
+    console.error("Error en createQuimestre:", error);
+    if (error.name === "SequelizeValidationError") {
+      const msgs = error.errors.map(e => e.message);
+      return res.status(400).json({ message: msgs });
     }
+    return res.status(500).json({ message: "Error en el servidor" });
+  }
+};
 
-    return res.status(200).json({
-      record: quimestreRecord.toJSON(),
-      details: {
-        partial1Final,
-        partial2Final,
-        examenQuimestre,
-        quimestreFinal,
-        quimestreBehavior
-      }
+/**
+ * UPDATE Quimestre
+ * PUT /api/quimestres/:id
+ *
+ * Body esperado:
+ * {
+ *   "examenQuimestre": <number>
+ * }
+ */
+module.exports.updateQuimestre = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { examenQuimestre } = req.body;
+    
+    if (examenQuimestre === undefined) {
+      return res.status(400).json({ message: "Faltan datos para actualizar." });
+    }
+    
+    // Buscar el registro quimestral (donde parcial es null)
+    const quimestreRecord = await Calificaciones.findByPk(id);
+    if (!quimestreRecord || quimestreRecord.parcial !== null) {
+      return res.status(404).json({ message: "Registro quimestral no encontrado." });
+    }
+    
+    // Recuperar los parciales (P1, P2) asociados a este quimestre
+    const { id_matricula_asignacion, quimistre } = quimestreRecord;
+    const parcial1 = await Calificaciones.findOne({
+      where: { id_matricula_asignacion, quimistre, parcial: 'P1' }
     });
+    const parcial2 = await Calificaciones.findOne({
+      where: { id_matricula_asignacion, quimistre, parcial: 'P2' }
+    });
+    
+    if (!parcial1 || !parcial2) {
+      return res.status(400).json({ message: "No se encontraron ambos parciales para recalcular el quimestre." });
+    }
+    
+    // 1. Calcular la nota final de cada parcial
+    const partial1Final = calculatePartialFinal([parcial1.nota1, parcial1.nota2], parcial1.examen);
+    const partial2Final = calculatePartialFinal([parcial2.nota1, parcial2.nota2], parcial2.examen);
+    
+    // 2. Recalcular la nota final del quimestre
+    const quimestreFinal = calculateQuimestreFinal(partial1Final, partial2Final, parseFloat(examenQuimestre));
+    
+    // 3. Recalcular el comportamiento quimestral como número
+    const quimestreBehaviorNumber = calculateQuimestreBehaviorNumber(parcial1.comportamiento, parcial2.comportamiento);
+    
+    // 4. Actualizar el registro
+    await quimestreRecord.update({
+      nota1: partial1Final,
+      nota2: partial2Final,
+      examen: parseFloat(examenQuimestre),
+      comportamiento: quimestreBehaviorNumber
+    });
+    
+    return res.status(200).json({
+      message: "Registro quimestral actualizado exitosamente.",
+      record: quimestreRecord.toJSON()
+    });
+    
   } catch (error) {
     console.error("Error en updateQuimestre:", error);
     if (error.name === "SequelizeValidationError") {
@@ -155,60 +208,21 @@ module.exports.updateQuimestre = async (req, res) => {
 };
 
 /**
- * GET registro de Quimestre por ID
+ * GET Quimestre por ID
  * GET /api/quimestres/:id
- * 
- * Devuelve el registro quimestral (donde parcial es null) y opcionalmente se pueden incluir
- * los datos de los parciales (P1 y P2) que lo componen.
  */
 module.exports.getQuimestre = async (req, res) => {
   try {
     const id = req.params.id;
     const quimestreRecord = await Calificaciones.findByPk(id);
-    if (!quimestreRecord) {
-      return res.status(404).json({ message: "Registro de quimestre no encontrado." });
+    if (!quimestreRecord || quimestreRecord.parcial !== null) {
+      return res.status(404).json({ message: "Registro quimestral no encontrado." });
     }
-    if (quimestreRecord.parcial !== null) {
-      return res.status(400).json({ message: "El ID proporcionado no corresponde a un registro de quimestre." });
-    }
-    
-    // Opcional: buscar los parciales asociados para mayor detalle
-    const partial1 = await Calificaciones.findOne({
-      where: {
-        id_matricula_asignacion: quimestreRecord.id_matricula_asignacion,
-        quimistre: quimestreRecord.quimistre,
-        parcial: 'P1'
-      }
-    });
-    const partial2 = await Calificaciones.findOne({
-      where: {
-        id_matricula_asignacion: quimestreRecord.id_matricula_asignacion,
-        quimistre: quimestreRecord.quimistre,
-        parcial: 'P2'
-      }
-    });
-    
-    let partial1Data = null;
-    let partial2Data = null;
-    if (partial1) {
-      const p1Final = calculatePartialFinal([partial1.nota1, partial1.nota2], partial1.examen);
-      partial1Data = {
-        ...partial1.toJSON(),
-        partialFinal: p1Final
-      };
-    }
-    if (partial2) {
-      const p2Final = calculatePartialFinal([partial2.nota1, partial2.nota2], partial2.examen);
-      partial2Data = {
-        ...partial2.toJSON(),
-        partialFinal: p2Final
-      };
-    }
-    
+
+    const calculated = getQuimestreCalculatedFields(quimestreRecord);
     return res.status(200).json({
-      quimestre: quimestreRecord.toJSON(),
-      partial1: partial1Data,
-      partial2: partial2Data
+      ...quimestreRecord.toJSON(),
+      calculated
     });
   } catch (error) {
     console.error("Error en getQuimestre:", error);
@@ -217,42 +231,42 @@ module.exports.getQuimestre = async (req, res) => {
 };
 
 /**
- * GET ALL quimestres
+ * GET All Quimestres
  * GET /api/quimestres
- * 
- * Devuelve todos los registros quimestrales (donde parcial es null).
  */
 module.exports.getAllQuimestres = async (req, res) => {
   try {
     const quimestres = await Calificaciones.findAll({
-      where: {
-        parcial: null
-      }
+      where: { parcial: null }
     });
-    return res.status(200).json(quimestres);
+    const results = quimestres.map(record => {
+      const base = record.toJSON();
+      const calculated = getQuimestreCalculatedFields(base);
+      return {
+        ...base,
+        calculated
+      };
+    });
+    return res.status(200).json(results);
   } catch (error) {
     console.error("Error en getAllQuimestres:", error);
     return res.status(500).json({ message: "Error en el servidor" });
   }
 };
-
 /**
- * DELETE quimestre por ID
+ * DELETE Quimestre por ID
  * DELETE /api/quimestres/:id
  */
 module.exports.deleteQuimestre = async (req, res) => {
   try {
     const id = req.params.id;
     const quimestreRecord = await Calificaciones.findByPk(id);
-    if (!quimestreRecord) {
-      return res.status(404).json({ message: "Registro de quimestre no encontrado." });
-    }
-    if (quimestreRecord.parcial !== null) {
-      return res.status(400).json({ message: "El ID proporcionado no corresponde a un registro de quimestre." });
+    if (!quimestreRecord || quimestreRecord.parcial !== null) {
+      return res.status(404).json({ message: "Registro quimestral no encontrado." });
     }
     await Calificaciones.destroy({ where: { ID: id } });
     return res.status(200).json({
-      message: "Registro de quimestre eliminado correctamente.",
+      message: "Registro quimestral eliminado exitosamente.",
       record: quimestreRecord
     });
   } catch (error) {
@@ -260,3 +274,4 @@ module.exports.deleteQuimestre = async (req, res) => {
     return res.status(500).json({ message: "Error en el servidor" });
   }
 };
+

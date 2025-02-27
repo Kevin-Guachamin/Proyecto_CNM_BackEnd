@@ -139,13 +139,24 @@ module.exports.getParcial = async (req, res) => {
  */
 module.exports.getAllParciales = async (req, res) => {
   try {
-    const parciales = await Calificaciones.findAll();
+    // Filtra registros donde parcial sea 'P1' o 'P2'
+    const parciales = await Calificaciones.findAll({
+      where: {
+        parcial: {
+          [Op.in]: ["P1", "P2"]
+        }
+      }
+    });
+
     const results = parciales.map(record => {
       const rec = record.toJSON();
       const rawNotas = [parseFloat(rec.nota1), parseFloat(rec.nota2)];
       const rawExamen = parseFloat(rec.examen);
+
+      // Aquí asumes que estas funciones calculan sólo para parciales
       const computedPartial = calculatePartialFinal(rawNotas, rawExamen);
       const computedBehavior = calculateBehavior(rec.comportamiento);
+
       return {
         ...rec,
         computed: {
@@ -154,13 +165,13 @@ module.exports.getAllParciales = async (req, res) => {
         }
       };
     });
+
     return res.status(200).json(results);
   } catch (error) {
     console.error("Error en getAllParciales:", error);
     return res.status(500).json({ message: "Error en el servidor" });
   }
 };
-
 /**
  * UPDATE parcial por ID
  * PUT /api/parciales/:id

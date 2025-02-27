@@ -11,7 +11,8 @@ module.exports = (app) => {
   app.get('/api/parciales', ParcialesController.getAllParciales);
 
   // Rutas para Quimestres
-  app.post('/api/quimestres', QuimestresController.updateQuimestre);
+  app.post('/api/quimestres', QuimestresController.createQuimestre);
+  app.put('/api/quimestres/:id', QuimestresController.updateQuimestre);
   app.get('/api/quimestres/:id', QuimestresController.getQuimestre);
   app.get('/api/quimestres', QuimestresController.getAllQuimestres);
 
