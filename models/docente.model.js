@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize')
 const {sequelize} = require('../config/sequelize.config')
 const {validarCedulaEcuatoriana}= require('../utils/validarCedulaEcuatoriana')
-const Perfil = require('./perfil.model')
+
 
 const Docente = sequelize.define('Docente', {
     nroCedula: {
@@ -133,7 +133,6 @@ const Docente = sequelize.define('Docente', {
 
 
 
-Docente.belongsToMany(Perfil, { through: 'Docente_Perfil', foreignKey: 'nroCedula' });
-Perfil.belongsToMany(Docente, { through: 'Docente_Perfil', foreignKey: 'ID' });
+
 
 module.exports=Docente;

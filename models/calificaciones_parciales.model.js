@@ -2,7 +2,7 @@ const {DataTypes}=require('sequelize')
 const {sequelize}= require('../config/sequelize.config')
 const Matricula_Asignacion=require('./matricula_asignacion.model')
 
-const Calificaciones= sequelize.define("Calificaciones",
+const Calificaciones_parciales= sequelize.define("Calificaciones_parciales",
     {
         ID: {
             type: DataTypes.INTEGER,
@@ -10,7 +10,7 @@ const Calificaciones= sequelize.define("Calificaciones",
             autoIncrement: true,
             primaryKey: true,
         },
-        nota1: {
+        insumo1: {
             type: DataTypes.DECIMAL(4, 2), // 4 dígitos en total, 2 después del punto decimal
             allowNull: false, // No puede ser null
             validate: {
@@ -19,7 +19,7 @@ const Calificaciones= sequelize.define("Calificaciones",
                 max: { args: [10], msg: "La nota debe ser como máximo 10" }
             }
         },
-        nota2: {
+        insumo2: {
             type: DataTypes.DECIMAL(4, 2), // 4 dígitos en total, 2 después del punto decimal
             allowNull: false, // No puede ser null
             validate: {
@@ -28,7 +28,7 @@ const Calificaciones= sequelize.define("Calificaciones",
                 max: { args: [10], msg: "La nota debe ser como máximo 10" }
             }
         },
-        examen: {
+        evaluacion: {
             type: DataTypes.DECIMAL(4, 2), // 4 dígitos en total, 2 después del punto decimal
             allowNull: false, // No puede ser null
             validate: {
@@ -70,8 +70,8 @@ const Calificaciones= sequelize.define("Calificaciones",
             allowNull: true
         }
     },
-    {tableName: "calificaciones"}
+    {tableName: "calificaciones_parciales"}
 )
 Calificaciones.belongsTo(Matricula_Asignacion,{foreignKey: "id_matricula_asignacion", targetKey: "ID"})
 Matricula_Asignacion.hasMany(Calificaciones, {foreignKey: "id_matricula_asignacion", sourceKey: "ID"})
-module.exports=Calificaciones
+module.exports=Calificaciones_parciales
