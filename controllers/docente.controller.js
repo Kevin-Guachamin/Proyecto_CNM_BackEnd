@@ -62,11 +62,6 @@ const getDocente = async(req, res)=>{
         res.status(200).json(result)
     } catch (error) {
         console.error("Error al obtener docente", error)
-        if (error.name === "SequelizeValidationError") {
-            // Extraer solo los mensajes de error de validación
-            const mensajes = error.errors.map(err => err.message);
-            return res.status(400).json({ message: mensajes });
-        }
         res.status(500).json({message: `Error al obtener docente en el servidor:`})
     }
 }
@@ -79,11 +74,6 @@ const getDocentes = async(req, res)=>{
         res.status(200).json(Docentes)
     } catch (error) {
         console.error("Error al obtener docentes", error)
-        if (error.name === "SequelizeValidationError") {
-            // Extraer solo los mensajes de error de validación
-            const mensajes = error.errors.map(err => err.message);
-            return res.status(400).json({ message: mensajes });
-        }
         res.status(500).json({message: `Error al obtener docentes en el servidor:`})
     }
 }
@@ -101,11 +91,6 @@ const eliminarDocente = async(req, res)=>{
         res.status(200).json(result)
     } catch (error) {
         console.error("Error al eliminar docente", error)
-        if (error.name === "SequelizeValidationError") {
-            // Extraer solo los mensajes de error de validación
-            const mensajes = error.errors.map(err => err.message);
-            return res.status(400).json({ message: mensajes });
-        }
         res.status(500).json({message: `Error al eliminar docente en el servidor:`})
     }
 }

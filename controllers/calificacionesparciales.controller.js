@@ -84,9 +84,7 @@ module.exports.createParcial = async (req, res) => {
     const newPartial = await Calificaciones.create(createData);
     
     // Respuesta sin los valores computados
-    return res.status(201).json({
-      dbRecord: newPartial.toJSON()
-    });
+    return res.status(201).json(newPartial);
     
   } catch (error) {
     console.error("Error en createParcial:", error);

@@ -20,6 +20,24 @@ const Asignación = sequelize.define("Asignación",{
             notEmpty: { msg: "El paralelo no puede estar vacío" },
             len: { args: [1, 50], msg: "El paralelo tener entre 1 y 50 caracteres" },
         }
+    },
+    horario: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+            notNull: {msg: "El horario es requerido"},
+            notEmpty: {msg: "El horario no debe ser vacío"},
+            len: { args: [2,50], msg: "El horario debe tener entre 2 y 50 caracteres"}
+
+        }
+    },
+    año: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+            notNull: {msg: "El año es requerido"},
+            notEmpty: {msg: "El año no debe ser vacío"},
+            len: { args: [2,50], msg: "El año debe tener entre 2 y 50 caracteres"}
     }
 
 },
