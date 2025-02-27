@@ -1,7 +1,5 @@
-const { where } = require('sequelize')
+
 const Materia = require('../models/docente.model')
-
-
 
 const createMateria = async (req, res) => {
     try {
