@@ -5,10 +5,9 @@ require('./models/año_lectivo.model')
 require('./models/asignacion.model')
 require('./models/calificaciones.model')
 require('./models/estudiante.model')
-require('./models/materia.model')
 require('./models/matricula_asignacion.model')
 require('./models/matricula.models')
-require('./models/representante.model')
+
 const express = require('express')
 const cors= require('cors')
 
@@ -36,6 +35,12 @@ allDocente(app)
 
 const allCalificaciones= require('./routes/calificaciones.routes')
 allCalificaciones(app)
+
+const allRepresentante= require('./routes/representante.routes')
+allRepresentante(app)
+
+const allMateria = require('./routes/materia.routes')
+allMateria(app)
 
 // Llamar a la función para iniciar
 startServer();
