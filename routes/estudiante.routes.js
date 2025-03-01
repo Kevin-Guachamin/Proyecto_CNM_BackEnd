@@ -8,5 +8,4 @@ module.exports = (app) => {
     app.get('/estudiante/obtener/:cedula', EstudianteController.getEstudiante);
     app.get('/estudiante/obtener', EstudianteController.getAllEstudiante);
     app.delete('/estudiante/eliminar/:cedula', EstudianteController.deleteEstudiante);
-
 }
