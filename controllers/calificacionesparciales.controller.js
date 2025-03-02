@@ -65,9 +65,6 @@ module.exports.createParcial = async (req, res) => {
       return res.status(400).json({ message: "parcial debe ser 'P1' o 'P2'" });
     }
     
-    // Calcular los valores computados basados en los datos recibidos (no se incluyen en la respuesta)
-    const computedPartial = calculatePartialFinal(notasParcial, examenParcial);
-    const computedBehavior = calculateBehavior(comportamiento);
     
     // Preparar el objeto para crear: 
     // Se guardan las notas tal cual: nota1 = primer elemento, nota2 = segundo.
@@ -75,9 +72,9 @@ module.exports.createParcial = async (req, res) => {
       id_matricula_asignacion,
       quimistre,
       parcial,
-      nota1: parseFloat(notasParcial[0]),
-      nota2: parseFloat(notasParcial[1]),
-      examen: parseFloat(examenParcial),
+      insumo1: parseFloat(notasParcial[0]),
+      insumo2: parseFloat(notasParcial[1]),
+      evaluacion: parseFloat(examenParcial),
       comportamiento
     };
     
@@ -182,16 +179,12 @@ module.exports.updateParcial = async (req, res) => {
       return res.status(400).json({ message: "parcial debe ser 'P1' o 'P2'" });
     }
     
-    // Calcular los valores computados basados en los datos de entrada
-    const computedPartial = calculatePartialFinal(notasParcial, examenParcial);
-    const computedBehavior = calculateBehavior(comportamiento);
-    
     // Preparar objeto con los datos actualizados (guardando las notas tal cual)
     const updateData = {
       parcial,
-      nota1: parseFloat(notasParcial[0]),
-      nota2: parseFloat(notasParcial[1]),
-      examen: parseFloat(examenParcial),
+      insumo1: parseFloat(notasParcial[0]),
+      insumo2: parseFloat(notasParcial[1]),
+      evaluacion: parseFloat(examenParcial),
       comportamiento
     };
     
