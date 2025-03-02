@@ -31,6 +31,7 @@ const calificaciones_finales= sequelize.define("Calificaciones_parciales",
         examen_recuperacion: {
             type: DataTypes.DECIMAL(4, 2), // 4 dígitos en total, 2 después del punto decimal
             allowNull: false, // No puede ser null
+            defaultValue: 0,
             validate: {
                 notNull: { msg: "La nota es obligatoria" },
                 min: { args: [0], msg: "La nota debe ser como mínimo 0" },

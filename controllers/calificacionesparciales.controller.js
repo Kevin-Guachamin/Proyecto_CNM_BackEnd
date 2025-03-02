@@ -1,5 +1,6 @@
 const { Op } = require('sequelize');
 const Calificaciones = require('../models/calificaciones.model');
+const Calificaciones_parciales = require('../models/calificaciones_parciales.model');
 
 // Helpers para cálculos parciales
 const calculateLearningAvg = (notas) => {
@@ -78,7 +79,7 @@ module.exports.createParcial = async (req, res) => {
       comportamiento
     };
     
-    const newPartial = await Calificaciones.create(createData);
+    const newPartial = await Calificaciones_parciales.create(createData);
     
     // Respuesta sin los valores computados
     return res.status(201).json(newPartial);
@@ -134,7 +135,7 @@ module.exports.getParcial = async (req, res) => {
  */
 module.exports.getAllParciales = async (req, res) => {
   try {
-    const parciales = await Calificaciones.findAll();
+    const parciales = await Calificaciones_parciales.findAll();
     const results = parciales.map(record => {
       const rec = record.toJSON();
       const rawNotas = [parseFloat(rec.nota1), parseFloat(rec.nota2)];
@@ -188,7 +189,7 @@ module.exports.updateParcial = async (req, res) => {
       comportamiento
     };
     
-    const [updatedRows] = await Calificaciones.update(updateData, { where: { ID: id } });
+    const [updatedRows] = await Calificaciones_parciales.update(updateData, { where: { ID: id } });
     if (updatedRows === 0) {
       return res.status(404).json({ message: "Registro parcial no encontrado" });
     }
