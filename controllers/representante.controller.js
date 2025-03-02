@@ -2,7 +2,6 @@
 
 const Representante = require('./models/representante.model');
 const { hashPassword } = require('./utils/hashPassword');
-//const { validarUsuario } = require('./utils/validarUsuario');
 
 
 // Create REPRESENTANTE
@@ -10,13 +9,26 @@ const crearRepresentante = async (request, response) => {
     const usuario = request.body;
 
     try {
+        // Verificar que el objeto usuario exista y tenga contenido
+        if (!usuario || Object.keys(usuario).length === 0) {
+            return response.status(400).json({ 
+                message: 'No se proporcionaron datos del usuario' 
+            });
+        }
+
+        // Verificar que la cédula exista y no sea vacía
+        if (!usuario.nroCedula || usuario.nroCedula.trim() === '') {
+            return response.status(400).json({ 
+                message: 'El número de cédula es requerido' 
+            });
+        }
+
         // Verificar si el representante existe
         const representanteEncontrado = await Representante.findByPk(usuario.nroCedula);
         if(representanteEncontrado) {
             return response.status(409).json({ message: 'El usuario ya existe!' }); // 409 conflict
         }
         
-
         // Hash de la contraseña
         const password = usuario.contraseña;
         usuario.contraseña = await hashPassword(password);
@@ -67,7 +79,7 @@ const getAllRepresentantes = async (request, response) => {
         const allRepresentantes = await Representante.findAll();
 
         if(allRepresentantes.length === 0)
-            return response.status(404).json({ message: 'No se encontro ningun representante!'});
+            return response.status(200).json({ message: 'No se encontro ningun representante'});
 
         const result = allRepresentantes.map(representante => {
             const {contraseña: _, ...rest} = representante.toJSON();
@@ -93,17 +105,26 @@ const updateRepresentante = async (request, response) => {
     const usuario = request.body;
 
     try {
+        // Verificar que el objeto usuario exista y tenga contenido
+        if (!usuario || Object.keys(usuario).length === 0) {
+            return response.status(400).json({ 
+                message: 'No se proporcionaron datos del usuario' 
+            });
+        }
+        
         // Verificar si el representante existe
         const representanteExistente = await Representante.findByPk(nroCedula);
         if (!representanteExistente) {
             return response.status(404).json({ message: 'Usuario no encontrado!' });
         }
-
-        // Verificar que haya datos para actualizar
-        if (Object.keys(usuario).length === 0) {
-            return response.status(400).json({ message: 'No hay datos para actualizar' });
+       
+        // No permitir actualización de cédula
+        if(usuario.nroCedula) {
+            return response.status(400).json({ 
+                message: 'No se permite actualizar el número de cédula' 
+            });
         }
-
+        
         // Si se está actualizando la contraseña, hashearla
         if (usuario.contraseña) {
             usuario.contraseña = await hashPassword(usuario.contraseña);

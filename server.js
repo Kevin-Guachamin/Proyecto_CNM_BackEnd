@@ -1,6 +1,6 @@
 const sequelize=require('./config/sequelize.config');
 
-require('./models/perfil.model')
+//require('./models/perfil.model')
 require('./models/año_lectivo.model')
 require('./models/asignacion.model')
 require('./models/calificaciones.model')
