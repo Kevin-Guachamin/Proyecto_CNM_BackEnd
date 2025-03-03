@@ -3,7 +3,7 @@ const Asignacion = require('../models/asignacion.model')
 const createAsignacion = async (req, res) => {
     try {
         const asignacion = req.body
-        const asignacionFound = await Materia.findOne({where: {asignacion} })
+        const asignacionFound = await Asignacion.findOne({where: {asignacion} })
         if (asignacionFound) {
             return res.status(409).json({ message: "Error la asignación ya existe" })
         }
@@ -19,11 +19,11 @@ const createAsignacion = async (req, res) => {
         res.status(500).json({message: `Error al crear la asignación en el servidor:`})
     }
 }
-const editAsginacion= async (req, res)=>{
+const updateAsginacion= async (req, res)=>{
     try {
         const asignacion = req.body
         const id= req.params.id
-        const [updatedRows] = await Materia.update(asignacion,{where: {id}})
+        const [updatedRows] = await Asignacion.update(asignacion,{where: {id}})
         if(updatedRows===0){
             return res.status(404).json({message: "Asignación no encontrada"})
         }
@@ -56,7 +56,7 @@ const getAsignacion = async(req, res)=>{
     }
 }
 
-const eliminarAsignacion = async(req, res)=>{
+const deleteAsignacion = async(req, res)=>{
     try {
         
         const id= req.params.id
@@ -64,7 +64,7 @@ const eliminarAsignacion = async(req, res)=>{
         if(!asignacion){
             return res.status(404).json({message: "Asignación no encontrada"})
         }
-         await Materia.destroy({where: {id}})
+         await Asignacion.destroy({where: {id}})
         
         res.status(200).json(asignacion)
     } catch (error) {
@@ -74,7 +74,7 @@ const eliminarAsignacion = async(req, res)=>{
 }
 module.exports= {
     createAsignacion,
-    editAsginacion,
+    updateAsginacion,
     getAsignacion,
-    eliminarAsignacion
+    deleteAsignacion
 }

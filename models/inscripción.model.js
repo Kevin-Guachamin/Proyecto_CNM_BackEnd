@@ -3,7 +3,7 @@ const {sequelize} = require('../config/sequelize.config')
 const Matricula= require('./matricula.models')
 const Asignacion=require('./asignacion.model')
 
-const Matricula_Asignacion= sequelize.define("Matricula_Asignacion",
+const Inscripción= sequelize.define("Inscripción",
     {
         ID: {
             type: DataTypes.INTEGER,
@@ -13,10 +13,10 @@ const Matricula_Asignacion= sequelize.define("Matricula_Asignacion",
         }
     },
     {
-        tableName:"matricula_asignaciones"
+        tableName:"inscripción"
     }
 )
-Asignacion.belongsToMany(Matricula, {through: Matricula_Asignacion, foreignKey: "id_matricula"})
-Matricula.belongsToMany(Asignacion,{through: Matricula_Asignacion,foreignKey: "id_asignacion"})
+Asignacion.belongsToMany(Matricula, {through: Inscripción, foreignKey: "id_matricula"})
+Matricula.belongsToMany(Asignacion,{through: Inscripción,foreignKey: "id_asignacion"})
 
-module.exports=Matricula_Asignacion
+module.exports=Inscripción

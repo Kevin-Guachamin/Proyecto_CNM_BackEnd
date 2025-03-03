@@ -20,7 +20,7 @@ const createMateria = async (req, res) => {
         res.status(500).json({message: `Error al crear materia en el servidor:`})
     }
 }
-const editMateria= async (req, res)=>{
+const updateMateria= async (req, res)=>{
     try {
         const materia = req.body
         const id= req.params.id
@@ -69,7 +69,7 @@ const getMaterias = async(req, res)=>{
     }
 }
 
-const eliminarMateria = async(req, res)=>{
+const deleteMateria = async(req, res)=>{
     try {
         
         const id= req.params.id
@@ -87,8 +87,8 @@ const eliminarMateria = async(req, res)=>{
 }
 module.exports= {
     createMateria,
-    editMateria,
+    updateMateria,
     getMateria,
     getMaterias,
-    eliminarMateria
+    deleteMateria
 }
