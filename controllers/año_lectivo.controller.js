@@ -162,7 +162,7 @@ const deleteAñoLectivo = async (request, response) => {
         });
     } else {
         return response.status(400).json({
-            message: 'No se pudo eliminar el año lectivo '
+            message: 'No se pudo eliminar el año lectivo'
         });
     }
    } catch (error) {
@@ -177,3 +177,11 @@ const deleteAñoLectivo = async (request, response) => {
 
    }
 }
+
+module.exports = {
+    createAñoLectivo,
+    getAñoLectivo,
+    getAllAñoLectivo,
+    updateAñoLectivo,
+    deleteAñoLectivo
+};
