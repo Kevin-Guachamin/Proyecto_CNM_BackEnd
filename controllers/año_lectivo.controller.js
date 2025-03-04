@@ -7,7 +7,7 @@ const createAñoLectivo = async (request, response) => {
     // Verificar que haya datos
     if(!añoLectivo || Object.keys(añoLectivo).length === 0 ) {
         return response.status(400).json({ 
-            message: 'No se proporcionaron datos para año lectivo '
+            message: 'No se proporcionaron datos para año lectivo'
         });
     }
 
@@ -112,8 +112,8 @@ const updateAñoLectivo = async (request, response) => {
     });
 
     if (updatedRows === 0) {
-        return response.status(400).json({
-            message: 'No se pudo actualizar el año lectivo'
+        return response.status(200).json({
+            message: 'No se realizaron cambios en el anio lectivo'
         });
     }
 
@@ -149,7 +149,7 @@ const deleteAñoLectivo = async (request, response) => {
    try {
     const añosLectivo = await AñoLectivo.findByPk(ID);
     if (!añosLectivo) {
-        return response.status(400).json({
+        return response.status(404).json({
             message: 'Año lectivo no encontrado'
         });
     }
