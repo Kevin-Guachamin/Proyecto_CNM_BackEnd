@@ -1,4 +1,4 @@
-const RepresentanteController = require('./controllers/representante.controller');
+const RepresentanteController = require('../controllers/representante.controller');
 
 module.exports = (app) => {
     app.post('/representante/crear', RepresentanteController.crearRepresentante);

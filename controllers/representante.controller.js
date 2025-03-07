@@ -1,7 +1,7 @@
 // Controlador para el rol de REPRESENTANTE
 
-const Representante = require('./models/representante.model');
-const { hashPassword } = require('./utils/hashPassword');
+const Representante = require('../models/representante.model');
+const { hashPassword } = require('../utils/hashPassword');
 
 
 // Create REPRESENTANTE

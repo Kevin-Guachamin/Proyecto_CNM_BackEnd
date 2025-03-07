@@ -1,11 +1,10 @@
 const sequelize=require('./config/sequelize.config');
 
-//require('./models/perfil.model')
-require('./models/año_lectivo.model')
+
+
 require('./models/asignacion.model')
-require('./models/calificaciones.model')
 require('./models/estudiante.model')
-require('./models/matricula_asignacion.model')
+require('./models/inscripción.model')
 require('./models/matricula.models')
 
 const express = require('express')
@@ -42,6 +41,8 @@ allRepresentante(app)
 const allMateria = require('./routes/materia.routes')
 allMateria(app)
 
+const allAñosLectivos= require('./routes/año_lectivo.routes')
+allAñosLectivos(app)
 // Llamar a la función para iniciar
 startServer();
 

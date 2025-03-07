@@ -1,4 +1,4 @@
-const FechasNotasController = require('./controllers/fechas_notas.controller');
+const FechasNotasController = require('../controllers/fechas_notas.controller');
 
 module.exports = (app) => {
     app.post('/fechas_notas/crear', FechasNotasController.createFechasNotas);

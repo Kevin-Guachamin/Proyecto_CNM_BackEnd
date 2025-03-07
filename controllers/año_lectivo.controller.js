@@ -1,4 +1,4 @@
-const AñoLectivo = require('./models/año_lectivo.model');
+const AñoLectivo = require('../models/año_lectivo.model');
 
 // crear una año lectivo
 const createAñoLectivo = async (request, response) => {
@@ -39,10 +39,6 @@ const getAñoLectivo = async (request, response) => {
 
     } catch (error) {
         console.log('Error al obtener el año lectivo:', error);
-        if(error.name === 'SequelizeValidationError') {
-            const mensajes = error.errors.map(err => err.message);
-            return response.status(400).json({ message: mensajes });
-        }
         return response.status(500).json({ message: 'Error al obtener el año lectivo en el servidor' });
     }
 }
@@ -64,10 +60,6 @@ const getAllAñoLectivo = async (request, response) => {
 
    } catch (error) {
         console.log('Error al obtener todos los años lectivos:', error);
-        if(error.name === 'SequelizeValidationError') {
-            const mensajes = error.errors.map(err => err.message);
-            return response.status(400).json({ message: mensajes });
-        }
         return response.status(500).json({ message: 'Error al obtener los años lectivos en el servidor' });
    }     
 }

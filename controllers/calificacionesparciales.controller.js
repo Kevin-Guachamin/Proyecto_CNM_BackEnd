@@ -1,5 +1,5 @@
 const { Op } = require('sequelize');
-const Calificaciones = require('../models/calificaciones.model');
+
 const Calificaciones_parciales = require('../models/calificaciones_parciales.model');
 
 // Helpers para cálculos parciales

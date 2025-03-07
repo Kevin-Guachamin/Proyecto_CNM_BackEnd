@@ -2,7 +2,7 @@ const Calificaciones_finales = require('../models/calificaciones_finales');
 
 
 
-module.exports.updateQuimestre = async (req, res) => {
+module.exports.updateFinal = async (req, res) => {
   try {
     const { id_matricula_asignacion, nota_final_Q1, nota_final_Q2, examen_recuperacion, comportamiento_final} = req.body;
     
@@ -55,7 +55,7 @@ module.exports.updateQuimestre = async (req, res) => {
  * Devuelve el registro quimestral (donde parcial es null) y opcionalmente se pueden incluir
  * los datos de los parciales (P1 y P2) que lo componen.
  */
-module.exports.getQuimestre = async (req, res) => {
+module.exports.getFinal= async (req, res) => {
   try {
     const id = req.params.id;
     const finalRecord = await Calificaciones_finales.findByPk(id);
@@ -87,7 +87,7 @@ module.exports.getQuimestre = async (req, res) => {
  * DELETE quimestre por ID
  * DELETE /api/quimestres/:id
  */
-module.exports.deleteQuimestre = async (req, res) => {
+module.exports.deleteFinal = async (req, res) => {
   try {
     const id = req.params.id;
     const finalRecord = await Calificaciones_finales.findByPk(id);

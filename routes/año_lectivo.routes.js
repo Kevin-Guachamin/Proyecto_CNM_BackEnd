@@ -1,4 +1,4 @@
-const AñoLectivoController= require('./controllers/año_lectivo.controller');
+const AñoLectivoController= require('../controllers/año_lectivo.controller');
 
 module.exports = (app) => {
     app.post('/año_lectivo/crear', AñoLectivoController.createAñoLectivo);

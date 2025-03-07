@@ -1,6 +1,6 @@
 // Rutas para ESTUDIANTE
 
-const EstudianteController = require('./controllers/estudiante.controller');
+const EstudianteController = require('../controllers/estudiante.controller');
 
 module.exports = (app) => {
     app.post('/estudiante/crear', EstudianteController.crearEstudiante);
