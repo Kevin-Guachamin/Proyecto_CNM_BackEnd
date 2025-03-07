@@ -41,8 +41,8 @@ allRepresentante(app)
 const allMateria = require('./routes/materia.routes')
 allMateria(app)
 
-const allAñosLectivos= require('./routes/año_lectivo.routes')
-allAñosLectivos(app)
+const allPeriodos= require('./routes/periodo_academico.routes')
+allPeriodos(app)
 // Llamar a la función para iniciar
 startServer();
 

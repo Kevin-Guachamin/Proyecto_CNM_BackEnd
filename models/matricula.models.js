@@ -1,9 +1,9 @@
-const {sequelize}= require('../config/sequelize.config')
-const {DataTypes}= require('sequelize')
-const Año_Lectivo= require('./año_lectivo.model')
-const Estudiante= require('./estudiante.model')
+const { sequelize } = require('../config/sequelize.config')
+const { DataTypes } = require('sequelize')
+const Periodo_Academico = require('./periodo_academico.model')
+const Estudiante = require('./estudiante.model')
 
-const Matrícula = sequelize.define('Matricula',{
+const Matrícula = sequelize.define('Matricula', {
     ID: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -14,16 +14,16 @@ const Matrícula = sequelize.define('Matricula',{
         type: DataTypes.INTEGER,
         allowNull: false,
         validate: {
-            notNull: {msg: "No se permiten nulos"},
-            notEmpty: {msg: "No se permiten valores vacíos"},
-            len: {args: [2,50], msg: "Se permiten de 2 a 50 caracteres"}
+            notNull: { msg: "No se permiten nulos" },
+            notEmpty: { msg: "No se permiten valores vacíos" },
+            len: { args: [2, 50], msg: "Se permiten de 2 a 50 caracteres" }
         }
     }
 
 },
-{
-    tableName: "Matrículas"
-})
-Estudiante.belongsToMany(Año_Lectivo, { through: Matrícula, foreignKey: "nroCedula_estudiante" });
-Año_Lectivo.belongsToMany(Estudiante, { through: Matrícula, foreignKey: "ID_año_lectivo" });
-module.exports=Matrícula
+    {
+        tableName: "Matrículas"
+    })
+Estudiante.belongsToMany(Periodo_Academico, { through: Matrícula, foreignKey: "nroCedula_estudiante" });
+Periodo_Academico.belongsToMany(Estudiante, { through: Matrícula, foreignKey: "ID_periodo_academico" });
+module.exports = Matrícula

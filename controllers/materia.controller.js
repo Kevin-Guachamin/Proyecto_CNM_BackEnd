@@ -46,7 +46,7 @@ const getMateria = async(req, res)=>{
         const id= req.params.id
         const materia = await Materia.findByPk(id)
         if(!materia){
-            return res.status(404).json({message: "Usuario no encontrado"})
+            return res.status(404).json({message: "Materia no encontrado"})
         }
         
         

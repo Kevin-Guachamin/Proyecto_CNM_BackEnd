@@ -1,7 +1,7 @@
 const {DataTypes}= require('sequelize')
 const {sequelize}= require('../config/sequelize.config')
 
-const Año_Lectivo = sequelize.define('Año_Lectivo',{
+const Periodo_Academico = sequelize.define('Periodo_Academico',{
     ID: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -12,8 +12,8 @@ const Año_Lectivo = sequelize.define('Año_Lectivo',{
         type: DataTypes.STRING,
         allowNull: false,
         validate: {
-            notNull: { msg: "La descripción del año lectivo es requerida"},
-            notEmpty: {msg: "La descripción del año lectivo no puede ser vacía"},
+            notNull: { msg: "La descripción del periodo es requerida"},
+            notEmpty: {msg: "La descripción del periodo no puede ser vacía"},
             len: { args: [2, 50], msg: "La descripción debe tener entre 2 y 50 caracteres"},
             
         }
@@ -63,7 +63,7 @@ const Año_Lectivo = sequelize.define('Año_Lectivo',{
     }
 },
 {
-    tableName: 'años_lectivos'
+    tableName: 'periodos_academicos'
 }
 )
-module.exports=Año_Lectivo;
+module.exports=Periodo_Academico;
