@@ -14,51 +14,51 @@ const Periodo_Academico = sequelize.define('Periodo_Academico',{
         validate: {
             notNull: { msg: "La descripción del periodo es requerida"},
             notEmpty: {msg: "La descripción del periodo no puede ser vacía"},
-            len: { args: [2, 50], msg: "La descripción debe tener entre 2 y 50 caracteres"},
+            len: { args: [4, 50], msg: "La descripción debe tener entre 4 y 50 caracteres"},
             
         }
     },
     estado: {
-        type: DataTypes.ENUM("En curso", "Finalizado"),
+        type: DataTypes.ENUM("Activo", "Finalizado"),
         allowNull: false,
-        defaultValue: "En curso",
+        defaultValue: "Activo",
     },
     fecha_inicio: {
         type: DataTypes.DATEONLY,  // Solo guarda la fecha sin hora
         allowNull: false,
         validate: {
-            notNull: { msg: "La fecha de nacimiento es obligatoria" },
-            notEmpty: { msg: "La fecha de nacimiento no puede estar vacía" },
+            notNull: { msg: "La fecha de inicio es obligatoria" },
+            notEmpty: { msg: "La fecha de inicio no puede estar vacía" },
         },
         // Getter: Para cuando recuperas la fecha de la BD
         get() {
-            const rawValue = this.getDataValue("fecha_nacimiento");
+            const rawValue = this.getDataValue("fecha_inicio");
             return rawValue ? new Date(rawValue).toLocaleDateString("es-ES") : null;
         },
         // Setter: Para cuando envías la fecha a la BD
         set(value) {
             const [day, month, year] = value.split("/"); // Separar DD, MM, YYYY
             const formattedDate = `${year}-${month}-${day}`; // Convertir a YYYY-MM-DD
-            this.setDataValue("fecha_nacimiento", formattedDate); // Guardar en la BD
+            this.setDataValue("fecha_inicio", formattedDate); // Guardar en la BD
         }
     },
     fecha_fin: {
         type: DataTypes.DATEONLY,  // Solo guarda la fecha sin hora
         allowNull: false,
         validate: {
-            notNull: { msg: "La fecha de nacimiento es obligatoria" },
-            notEmpty: { msg: "La fecha de nacimiento no puede estar vacía" },
+            notNull: { msg: "La fecha de finalización es obligatoria" },
+            notEmpty: { msg: "La fecha de finalización no puede estar vacía" },
         },
         // Getter: Para cuando recuperas la fecha de la BD
         get() {
-            const rawValue = this.getDataValue("fecha_nacimiento");
+            const rawValue = this.getDataValue("fecha_fin");
             return rawValue ? new Date(rawValue).toLocaleDateString("es-ES") : null;
         },
         // Setter: Para cuando envías la fecha a la BD
         set(value) {
             const [day, month, year] = value.split("/"); // Separar DD, MM, YYYY
             const formattedDate = `${year}-${month}-${day}`; // Convertir a YYYY-MM-DD
-            this.setDataValue("fecha_nacimiento", formattedDate); // Guardar en la BD
+            this.setDataValue("fecha_fin", formattedDate); // Guardar en la BD
         }
     }
 },

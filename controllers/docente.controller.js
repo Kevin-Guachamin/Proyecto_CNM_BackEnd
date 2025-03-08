@@ -25,6 +25,9 @@ const createDocente = async (req, res) => {
             const mensajes = error.errors.map(err => err.message);
             return res.status(400).json({ message: mensajes });
         }
+        if (error instanceof TypeError){
+            return res.status(400).json({message: "Debe completar todos los campos"})
+        }
         res.status(500).json({message: `Error al crear docente en el servidor:`})
     }
 }
@@ -45,6 +48,9 @@ const editDocente= async (req, res)=>{
             // Extraer solo los mensajes de error de validación
             const mensajes = error.errors.map(err => err.message);
             return res.status(400).json({ message: mensajes });
+        }
+        if (error instanceof TypeError){
+            return res.status(400).json({message: "Debe completar todos los campos"})
         }
         res.status(500).json({message: `Error al editar docente en el servidor:`})
     }

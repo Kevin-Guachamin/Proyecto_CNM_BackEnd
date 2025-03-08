@@ -1,5 +1,5 @@
 
-const Materia = require('../models/docente.model')
+const Materia = require('../models/materia.model')
 
 const createMateria = async (req, res) => {
     try {
@@ -8,7 +8,7 @@ const createMateria = async (req, res) => {
         if (materiaFound) {
             return res.status(409).json({ message: "Error la materia ya existe" })
         }
-        const result = await Materia.create(docente)
+        const result = await Materia.create(materia)
         res.status(201).json(result)
     } catch (error) {
         console.error("Error al crear materia", error)
@@ -16,6 +16,9 @@ const createMateria = async (req, res) => {
             // Extraer solo los mensajes de error de validación
             const mensajes = error.errors.map(err => err.message);
             return res.status(400).json({ message: mensajes });
+        }
+        if (error instanceof TypeError){
+            return res.status(400).json({message: "Debe completar todos los campos"})
         }
         res.status(500).json({message: `Error al crear materia en el servidor:`})
     }
@@ -36,6 +39,9 @@ const updateMateria= async (req, res)=>{
             // Extraer solo los mensajes de error de validación
             const mensajes = error.errors.map(err => err.message);
             return res.status(400).json({ message: mensajes });
+        }
+        if (error instanceof TypeError){
+            return res.status(400).json({message: "Debe completar todos los campos"})
         }
         res.status(500).json({message: `Error al editar materia en el servidor:`})
     }

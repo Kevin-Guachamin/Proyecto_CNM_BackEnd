@@ -47,6 +47,9 @@ const crearRepresentante = async (request, response) => {
             const mensajes = error.errors.map(err => err.message);
             return response.status(400).json({ message: mensajes });
         }
+        if (error instanceof TypeError){
+            return res.status(400).json({message: "Debe completar todos los campos"})
+        }
         return response.status(500).json({ message: 'Error al crear el representante en el servidor' });
     }
 }
@@ -154,6 +157,9 @@ const updateRepresentante = async (request, response) => {
             const mensajes = error.errors.map(err => err.message);
             return response.status(400).json({ message: mensajes });
         }
+        if (error instanceof TypeError){
+            return res.status(400).json({message: "Debe completar todos los campos"})
+        }
         return response.status(500).json({ message: 'Error al actualizar el representante en el servidor' });
     }
 }
@@ -183,10 +189,7 @@ const deleteRepresentante = async (request, response) => {
 
     } catch (error) {
         console.log('Error al eliminar el representante:', error);
-        if(error.name === 'SequelizeError') {
-            const mensajes = error.errors.map(err => err.message);
-            return response.status(400).json({ message: mensajes});
-        }
+        
         return response.status(500).json({ 
             message: 'Error al eliminar el representante en el servidor'
         });

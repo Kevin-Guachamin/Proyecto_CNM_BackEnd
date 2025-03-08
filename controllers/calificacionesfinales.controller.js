@@ -44,6 +44,9 @@ module.exports.updateFinal = async (req, res) => {
       const msgs = error.errors.map(e => e.message);
       return res.status(400).json({ message: msgs });
     }
+    if (error instanceof TypeError){
+      return res.status(400).json({message: "Debe completar todos los campos"})
+  }
     return res.status(500).json({ message: "Error en el servidor" });
   }
 };

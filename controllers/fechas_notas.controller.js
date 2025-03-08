@@ -31,6 +31,9 @@ const createFechasNotas = async (request, response) => {
             const mensajes = error.errors.map(err => err.message);
             return response.status(400).json({ message: mensajes });
         }
+        if (error instanceof TypeError){
+            return res.status(400).json({message: "Debe completar todos los campos"})
+        }
         return response.status(500).json({ message: 'Error al crear la fecha en el servidor' });
 
     }
@@ -148,6 +151,9 @@ const updateFechasNotas = async (request, response) => {
         if (error.name === 'SequelizeValidationError') {
             const mensajes = error.errors.map(err => err.message);
             return response.status(400).json({ message: mensajes });
+        }
+        if (error instanceof TypeError){
+            return res.status(400).json({message: "Debe completar todos los campos"})
         }
         return response.status(500).json({ message: 'Error al actualizar la fecha en el servidor' });
 

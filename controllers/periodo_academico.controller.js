@@ -4,11 +4,11 @@ const Periodo = require('../models/periodo_academico.model');
 const createPeriodo = async (req, res) => {
     try {
         const periodo_academico = req.body
-        const periodo_academicoFound = await Periodo.findOne({where: {nombre: materia.nombre} })
+        const periodo_academicoFound = await Periodo.findOne({where: {descripcion: periodo_academico.descripcion} })
         if (periodo_academicoFound) {
             return res.status(409).json({ message: "Error la periodo ya existe" })
         }
-        const result = await Periodo.create(docente)
+        const result = await Periodo.create(periodo_academico)
         res.status(201).json(result)
     } catch (error) {
         console.error("Error al crear periodo", error)
@@ -17,7 +17,10 @@ const createPeriodo = async (req, res) => {
             const mensajes = error.errors.map(err => err.message);
             return res.status(400).json({ message: mensajes });
         }
-        res.status(500).json({message: `Error al crear periodo en el servidor:`})
+        if (error instanceof TypeError){
+            return res.status(400).json({message: "Debe completar todos los campos"})
+        }
+        res.status(500).json({message: `Error al crear periodo en el servidor`})
     }
 }
 const updatePeriodo= async (req, res)=>{
@@ -37,7 +40,10 @@ const updatePeriodo= async (req, res)=>{
             const mensajes = error.errors.map(err => err.message);
             return res.status(400).json({ message: mensajes });
         }
-        res.status(500).json({message: `Error al editar periodo en el servidor:`})
+        if (error instanceof TypeError){
+            return res.status(400).json({message: "Debe completar todos los campos"})
+        }
+        res.status(500).json({message: `Error al editar periodo en el servidor`})
     }
 }
 const getPeriodo = async(req, res)=>{
@@ -53,7 +59,7 @@ const getPeriodo = async(req, res)=>{
         res.status(200).json(periodo)
     } catch (error) {
         console.error("Error al obtener periodo", error)
-        res.status(500).json({message: `Error al obtener periodo en el servidor:`})
+        res.status(500).json({message: `Error al obtener periodo en el servidor`})
     }
 }
 const getPeriodos = async(req, res)=>{
@@ -63,6 +69,7 @@ const getPeriodos = async(req, res)=>{
             return res.status(404).json({message: "No se encontro ningún registro"})
         }
         res.status(200).json(periodos)
+        
     } catch (error) {
         console.error("Error al obtener periodos", error)
         res.status(500).json({message: `Error al obtener periodos en el servidor:`})
@@ -79,7 +86,7 @@ const deletePeriodo = async(req, res)=>{
         }
          await Periodo.destroy({where: {id}})
         
-        res.status(200).json(materia)
+        res.status(200).json(periodo)
     } catch (error) {
         console.error("Error al eliminar periodo", error)
         res.status(500).json({message: `Error al eliminar periodo en el servidor:`})

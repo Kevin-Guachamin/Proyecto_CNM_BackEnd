@@ -3,11 +3,7 @@
 const Estudiante = require('./models/estudiante.model');
 const { hashPassword } = require('./utils/hashPassword');
 
-/**
- * Crear un nuevo estudiante
- * @param {Request} request - Express request object
- * @param {Response} response - Express response object
- */
+
 const crearEstudiante = async (request, response) => {
     const usuario = request.body;
     
@@ -52,6 +48,9 @@ const crearEstudiante = async (request, response) => {
         if(error.name === 'SequelizeValidationError') {
             const mensajes = error.errors.map(err => err.message);
             return response.status(400).json({ message: mensajes });
+        }
+        if (error instanceof TypeError){
+            return res.status(400).json({message: "Debe completar todos los campos"})
         }
         return response.status(500).json({ message: 'Error al crear el estudiante en el servidor' });
     }
@@ -174,6 +173,9 @@ const updateEstudiante = async (request, response) => {
         if (error.name === 'SequelizeValidationError') {
             const mensajes = error.errors.map(err => err.message);
             return response.status(400).json({ message: mensajes });
+        }
+        if (error instanceof TypeError){
+            return res.status(400).json({message: "Debe completar todos los campos"})
         }
         return response.status(500).json({ message: 'Error al actualizar el estudiante en el servidor' });
     }
