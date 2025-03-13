@@ -15,12 +15,6 @@ const crearEstudiante = async (request, response) => {
             });
         }
 
-        // Verificar que la cédula exista y sea válida
-        if (!usuario.nroCedula || usuario.nroCedula.trim() === '') {
-            return response.status(400).json({ 
-                message: 'El número de cédula es requerido' 
-            });
-        }
        
         // Verificar que el estudiante no exista
         const estudianteEncontrado = await Estudiante.findByPk(usuario.nroCedula);
@@ -44,15 +38,27 @@ const crearEstudiante = async (request, response) => {
         });
 
     } catch (error) {
-        console.log('Error al crear el estudiante:', error);
-        if(error.name === 'SequelizeValidationError') {
-            const mensajes = error.errors.map(err => err.message);
-            return response.status(400).json({ message: mensajes });
+        if (error.name === "SequelizeValidationError") {
+            console.log("Estos son los errores", error);
+            
+            const errEncontrado = error.errors.find(err =>
+                err.validatorKey === "notEmpty" ||
+                err.validatorKey === "isNumeric" ||
+                err.validatorKey === "len"
+            );
+        
+            if (errEncontrado) {
+                return res.status(400).json({ message: errEncontrado.message });
+            }
         }
         if (error instanceof TypeError){
             return res.status(400).json({message: "Debe completar todos los campos"})
         }
-        return response.status(500).json({ message: 'Error al crear el estudiante en el servidor' });
+        if (error.name ==="SequelizeUniqueConstraintError"){
+            return res.status(400).json({message: error.message})
+        }
+        res.status(500).json({message: `Error al crear estudiante en el servidor:`})
+        
     }
 }
 

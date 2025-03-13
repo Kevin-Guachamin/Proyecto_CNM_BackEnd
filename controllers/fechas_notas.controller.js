@@ -26,15 +26,29 @@ const createFechasNotas = async (request, response) => {
         });
 
     } catch (error) {
-        console.log('Error al crear la fecha:', error);
-        if(error.name === 'SequelizeValidationError') {
-            const mensajes = error.errors.map(err => err.message);
-            return response.status(400).json({ message: mensajes });
+        console.log('Error al crear el estudiante:', error);
+        if (error.name === "SequelizeValidationError") {
+            console.log("Estos son los errores", error);
+            
+            const errEncontrado = error.errors.find(err =>
+                err.validatorKey === "notEmpty" ||
+                err.validatorKey === "isNumeric" ||
+                err.validatorKey === "len"
+            );
+        
+            if (errEncontrado) {
+                return res.status(400).json({ message: errEncontrado.message });
+            }
         }
         if (error instanceof TypeError){
             return res.status(400).json({message: "Debe completar todos los campos"})
         }
-        return response.status(500).json({ message: 'Error al crear la fecha en el servidor' });
+        if (error.name ==="SequelizeUniqueConstraintError"){
+            return res.status(400).json({message: error.message})
+        }
+        
+        res.status(500).json({message: `Error al crear fecha en el servidor:`})
+        console.log("ESTE ES EL ERROR",error.name)
 
     }
 }
@@ -59,13 +73,27 @@ const getFechasNotas = async (request, response) => {
         return response.status(200).json(fecha_nota);
 
     } catch (error) {
-        console.log('Error al obtener la fecha:', error);
-        if(error.name === 'SequelizeValidationError') {
-            const mensajes = error.errors.map(err => err.message);
-            return response.status(400).json({ message: mensajes });
+        
+        if (error.name === "SequelizeValidationError") {
+            console.log("Estos son los errores", error);
+            
+            const errEncontrado = error.errors.find(err =>
+                err.validatorKey === "notEmpty" ||
+                err.validatorKey === "isNumeric" ||
+                err.validatorKey === "len"
+            );
+        
+            if (errEncontrado) {
+                return res.status(400).json({ message: errEncontrado.message });
+            }
         }
-        return response.status(500).json({ message: 'Error al obtener la fecha en el servidor' });
-
+        if (error instanceof TypeError){
+            return res.status(400).json({message: "Debe completar todos los campos"})
+        }
+        if (error.name ==="SequelizeUniqueConstraintError"){
+            return res.status(400).json({message: error.message})
+        }
+        res.status(500).json({message: `Error al editar fecha en el servidor:`})
     }
 }
 

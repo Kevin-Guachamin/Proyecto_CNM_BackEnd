@@ -1,21 +1,10 @@
 require('dotenv').config();
 const nodemailer=require("nodemailer")
-const detectarProveedorCorreo=(email) =>{
-    const dominios = {
-        'gmail.com': 'gmail',
-        'hotmail.com': 'hotmail',
-        'outlook.com': 'outlook',
-        
-    };
 
-    const dominio = email.split('@')[1]; // Extrae el dominio del correo
-
-    return dominios[dominio] || 'Otro';
-}
-const enivarCorreo = async(email, contrasenaProvisional,service)=>{
+const enivarCorreo = async(email, contrasenaProvisional)=>{
     const transporter = nodemailer.createTransport({
         host: "smtp.gmail.com",
-        service: service,
+        service: "gmail",
         auth: {
             user: process.env.EMAIL,
             pass: process.env.EMAIL_PASSWORD,
@@ -32,6 +21,5 @@ const enivarCorreo = async(email, contrasenaProvisional,service)=>{
     await transporter.sendMail(mailOptions);
 }
 module.exports={
-    enivarCorreo,
-    detectarProveedorCorreo
+    enivarCorreo
 }

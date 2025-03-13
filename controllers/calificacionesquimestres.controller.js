@@ -26,8 +26,8 @@ const Calificaciones_quimestrales = require('../models/calificaciones_quimistral
  */
 module.exports.updateQuimestre = async (req, res) => {
   try {
-    const { id_matricula_asignacion, notaParcial1, notaParcial2, examen, comportamiento_quimestral, quimestre} = req.body;
-    
+    const { id_matricula_asignacion, notaParcial1, notaParcial2, examen, comportamiento_quimestral, quimestre } = req.body;
+
 
     // Buscamos si ya existe un registro quimestral para este id_matricula_asignacion y quimistre
     let quimestreRecord = await Calificaciones_quimestrales.findOne({
@@ -65,13 +65,27 @@ module.exports.updateQuimestre = async (req, res) => {
   } catch (error) {
     console.error("Error en updateQuimestre:", error);
     if (error.name === "SequelizeValidationError") {
-      const msgs = error.errors.map(e => e.message);
-      return res.status(400).json({ message: msgs });
+      console.log("Estos son los errores", error);
+
+      const errEncontrado = error.errors.find(err =>
+        err.validatorKey === "notEmpty" ||
+        err.validatorKey === "isNumeric" ||
+        err.validatorKey === "len"
+      );
+
+      if (errEncontrado) {
+        return res.status(400).json({ message: errEncontrado.message });
+      }
     }
-    if (error instanceof TypeError){
-      return res.status(400).json({message: "Debe completar todos los campos"})
-  }
-    return res.status(500).json({ message: "Error en el servidor" });
+    if (error instanceof TypeError) {
+      return res.status(400).json({ message: "Debe completar todos los campos" })
+    }
+    if (error.name === "SequelizeUniqueConstraintError") {
+      return res.status(400).json({ message: error.message })
+    }
+
+    res.status(500).json({ message: `Error en el servidor:` })
+    console.log("ESTE ES EL ERROR", error.name)
   }
 };
 
@@ -92,11 +106,12 @@ module.exports.getQuimestre = async (req, res) => {
     if (quimestreRecord.parcial !== null) {
       return res.status(400).json({ message: "El ID proporcionado no corresponde a un registro de quimestre." });
     }
-    
-    
-    
-    return res.status(200).json({quimestreRecord,
-  });
+
+
+
+    return res.status(200).json({
+      quimestreRecord,
+    });
   } catch (error) {
     console.error("Error en getQuimestre:", error);
     return res.status(500).json({ message: "Error en el servidor" });

@@ -10,16 +10,29 @@ const createInscripción = async (req, res) => {
         const result = await Inscripción.create(inscripción)
         res.status(201).json(result)
     } catch (error) {
-        console.error("Error al crear la matricula-asignación", error)
+        console.log('Error al crear el estudiante:', error);
         if (error.name === "SequelizeValidationError") {
-            // Extraer solo los mensajes de error de validación
-            const mensajes = error.errors.map(err => err.message);
-            return res.status(400).json({ message: mensajes });
+            console.log("Estos son los errores", error);
+            
+            const errEncontrado = error.errors.find(err =>
+                err.validatorKey === "notEmpty" ||
+                err.validatorKey === "isNumeric" ||
+                err.validatorKey === "len"
+            );
+        
+            if (errEncontrado) {
+                return res.status(400).json({ message: errEncontrado.message });
+            }
         }
         if (error instanceof TypeError){
             return res.status(400).json({message: "Debe completar todos los campos"})
         }
-        res.status(500).json({ message: `Error al crear en el servidor:` })
+        if (error.name ==="SequelizeUniqueConstraintError"){
+            return res.status(400).json({message: error.message})
+        }
+        
+        res.status(500).json({message: `Error al crear inscripción en el servidor:`})
+        console.log("ESTE ES EL ERROR",error.name)
     }
 }
 const updateInscripción = async (req, res) => {
@@ -33,16 +46,29 @@ const updateInscripción = async (req, res) => {
         const result = await Inscripción.findByPk(id)
         res.status(200).json(result)
     } catch (error) {
-        console.error("Error al editar la inscripción", error)
+        
         if (error.name === "SequelizeValidationError") {
-            // Extraer solo los mensajes de error de validación
-            const mensajes = error.errors.map(err => err.message);
-            return res.status(400).json({ message: mensajes });
+            console.log("Estos son los errores", error);
+            
+            const errEncontrado = error.errors.find(err =>
+                err.validatorKey === "notEmpty" ||
+                err.validatorKey === "isNumeric" ||
+                err.validatorKey === "len"
+            );
+        
+            if (errEncontrado) {
+                return res.status(400).json({ message: errEncontrado.message });
+            }
         }
         if (error instanceof TypeError){
             return res.status(400).json({message: "Debe completar todos los campos"})
         }
-        res.status(500).json({ message: `Error al editar la inscripción en el servidor:` })
+        if (error.name ==="SequelizeUniqueConstraintError"){
+            return res.status(400).json({message: error.message})
+        }
+        
+        res.status(500).json({message: `Error al editar inscripción en el servidor:`})
+        
     }
 }
 const getInscripción = async (req, res) => {

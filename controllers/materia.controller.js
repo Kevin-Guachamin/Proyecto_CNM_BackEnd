@@ -6,21 +6,34 @@ const createMateria = async (req, res) => {
         const materia = req.body
         const materiaFound = await Materia.findOne({where: {nombre: materia.nombre} })
         if (materiaFound) {
-            return res.status(409).json({ message: "Error la materia ya existe" })
+            return res.status(409).json({ message: "La asignatura ya existe" })
         }
         const result = await Materia.create(materia)
         res.status(201).json(result)
     } catch (error) {
-        console.error("Error al crear materia", error)
+        console.log('Error al crear el estudiante:', error);
         if (error.name === "SequelizeValidationError") {
-            // Extraer solo los mensajes de error de validación
-            const mensajes = error.errors.map(err => err.message);
-            return res.status(400).json({ message: mensajes });
+            console.log("Estos son los errores", error);
+            
+            const errEncontrado = error.errors.find(err =>
+                err.validatorKey === "notEmpty" ||
+                err.validatorKey === "isNumeric" ||
+                err.validatorKey === "len"
+            );
+        
+            if (errEncontrado) {
+                return res.status(400).json({ message: errEncontrado.message });
+            }
         }
         if (error instanceof TypeError){
             return res.status(400).json({message: "Debe completar todos los campos"})
         }
-        res.status(500).json({message: `Error al crear materia en el servidor:`})
+        if (error.name ==="SequelizeUniqueConstraintError"){
+            return res.status(400).json({message: error.message})
+        }
+        
+        res.status(500).json({message: `Error al crear asignatura en el servidor:`})
+        console.log("ESTE ES EL ERROR",error.name)
     }
 }
 const updateMateria= async (req, res)=>{
@@ -29,21 +42,34 @@ const updateMateria= async (req, res)=>{
         const id= req.params.id
         const [updatedRows] = await Materia.update(materia,{where: {id}})
         if(updatedRows===0){
-            return res.status(404).json({message: "Materia no encontrada"})
+            return res.status(404).json({message: "Asignatura no encontrada"})
         }
         const result= await Materia.findByPk(id)
         res.status(200).json(result)
     } catch (error) {
-        console.error("Error al editar materia", error)
+        
         if (error.name === "SequelizeValidationError") {
-            // Extraer solo los mensajes de error de validación
-            const mensajes = error.errors.map(err => err.message);
-            return res.status(400).json({ message: mensajes });
+            console.log("Estos son los errores", error);
+            
+            const errEncontrado = error.errors.find(err =>
+                err.validatorKey === "notEmpty" ||
+                err.validatorKey === "isNumeric" ||
+                err.validatorKey === "len"
+            );
+        
+            if (errEncontrado) {
+                return res.status(400).json({ message: errEncontrado.message });
+            }
         }
         if (error instanceof TypeError){
             return res.status(400).json({message: "Debe completar todos los campos"})
         }
-        res.status(500).json({message: `Error al editar materia en el servidor:`})
+        if (error.name ==="SequelizeUniqueConstraintError"){
+            return res.status(400).json({message: error.message})
+        }
+        
+        res.status(500).json({message: `Error al editar asignatura en el servidor:`})
+        console.log("ESTE ES EL ERROR",error.name)
     }
 }
 const getMateria = async(req, res)=>{

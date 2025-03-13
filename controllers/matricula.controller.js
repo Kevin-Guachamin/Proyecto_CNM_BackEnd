@@ -7,16 +7,31 @@ const createMatricula = async (req, res) => {
         if (matriculaFound) {
             return res.status(409).json({ message: "Error la matrícula ya existe" })
         }
-        const result = await Matricula.create(asignacion)
+        const result = await Matricula.create(matricula)
         res.status(201).json(result)
     } catch (error) {
         console.error("Error al crear la matrícula", error)
         if (error.name === "SequelizeValidationError") {
-            // Extraer solo los mensajes de error de validación
-            const mensajes = error.errors.map(err => err.message);
-            return res.status(400).json({ message: mensajes });
+            console.log("Estos son los errores", error);
+            
+            const errEncontrado = error.errors.find(err =>
+                err.validatorKey === "notEmpty" ||
+                err.validatorKey === "isNumeric" ||
+                err.validatorKey === "len"
+            );
+        
+            if (errEncontrado) {
+                return res.status(400).json({ message: errEncontrado.message });
+            }
         }
-        res.status(500).json({message: `Error al crear la matrícula en el servidor:`})
+        if (error instanceof TypeError){
+            return res.status(400).json({message: "Debe completar todos los campos"})
+        }
+        if (error.name ==="SequelizeUniqueConstraintError"){
+            return res.status(400).json({message: error.message})
+        }
+        
+        res.status(500).json({message: `Error al crear matrícula en el servidor:`})
     }
 }
 const updateMatricula= async (req, res)=>{
@@ -32,11 +47,26 @@ const updateMatricula= async (req, res)=>{
     } catch (error) {
         console.error("Error al editar la matrícula", error)
         if (error.name === "SequelizeValidationError") {
-            // Extraer solo los mensajes de error de validación
-            const mensajes = error.errors.map(err => err.message);
-            return res.status(400).json({ message: mensajes });
+            console.log("Estos son los errores", error);
+            
+            const errEncontrado = error.errors.find(err =>
+                err.validatorKey === "notEmpty" ||
+                err.validatorKey === "isNumeric" ||
+                err.validatorKey === "len"
+            );
+        
+            if (errEncontrado) {
+                return res.status(400).json({ message: errEncontrado.message });
+            }
         }
-        res.status(500).json({message: `Error al editar la matrícula en el servidor:`})
+        if (error instanceof TypeError){
+            return res.status(400).json({message: "Debe completar todos los campos"})
+        }
+        if (error.name ==="SequelizeUniqueConstraintError"){
+            return res.status(400).json({message: error.message})
+        }
+        
+        res.status(500).json({message: `Error al editar asignatura en el servidor:`})
     }
 }
 const getMatricula = async(req, res)=>{

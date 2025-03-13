@@ -16,13 +16,6 @@ const crearRepresentante = async (request, response) => {
             });
         }
 
-        // Verificar que la cédula exista y no sea vacía
-        if (!usuario.nroCedula || usuario.nroCedula.trim() === '') {
-            return response.status(400).json({ 
-                message: 'El número de cédula es requerido' 
-            });
-        }
-
         // Verificar si el representante existe
         const representanteEncontrado = await Representante.findByPk(usuario.nroCedula);
         if(representanteEncontrado) {
@@ -43,12 +36,24 @@ const crearRepresentante = async (request, response) => {
 
     } catch (error) {
         console.log('Error al crear el representante:', error);
-        if(error.name === 'SequelizeValidationError') {
-            const mensajes = error.errors.map(err => err.message);
-            return response.status(400).json({ message: mensajes });
+        if (error.name === "SequelizeValidationError") {
+            console.log("Estos son los errores", error);
+            
+            const errEncontrado = error.errors.find(err =>
+                err.validatorKey === "notEmpty" ||
+                err.validatorKey === "isNumeric" ||
+                err.validatorKey === "len"
+            );
+        
+            if (errEncontrado) {
+                return res.status(400).json({ message: errEncontrado.message });
+            }
         }
         if (error instanceof TypeError){
             return res.status(400).json({message: "Debe completar todos los campos"})
+        }
+        if (error.name ==="SequelizeUniqueConstraintError"){
+            return res.status(400).json({message: error.message})
         }
         return response.status(500).json({ message: 'Error al crear el representante en el servidor' });
     }
@@ -121,12 +126,7 @@ const updateRepresentante = async (request, response) => {
             return response.status(404).json({ message: 'Usuario no encontrado!' });
         }
        
-        // No permitir actualización de cédula
-        if(usuario.nroCedula) {
-            return response.status(400).json({ 
-                message: 'No se permite actualizar el número de cédula' 
-            });
-        }
+        
         
         // Si se está actualizando la contraseña, hashearla
         if (usuario.contraseña) {
@@ -153,12 +153,24 @@ const updateRepresentante = async (request, response) => {
 
     } catch (error) {
         console.log('Error al actualizar el representante:', error);
-        if (error.name === 'SequelizeValidationError') {
-            const mensajes = error.errors.map(err => err.message);
-            return response.status(400).json({ message: mensajes });
+        if (error.name === "SequelizeValidationError") {
+            console.log("Estos son los errores", error);
+            
+            const errEncontrado = error.errors.find(err =>
+                err.validatorKey === "notEmpty" ||
+                err.validatorKey === "isNumeric" ||
+                err.validatorKey === "len"
+            );
+        
+            if (errEncontrado) {
+                return res.status(400).json({ message: errEncontrado.message });
+            }
         }
         if (error instanceof TypeError){
             return res.status(400).json({message: "Debe completar todos los campos"})
+        }
+        if (error.name ==="SequelizeUniqueConstraintError"){
+            return res.status(400).json({message: error.message})
         }
         return response.status(500).json({ message: 'Error al actualizar el representante en el servidor' });
     }

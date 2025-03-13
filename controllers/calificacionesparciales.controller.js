@@ -51,7 +51,7 @@ const calculateBehavior = (behaviorArray) => {
 module.exports.createParcial = async (req, res) => {
   try {
     const { id_matricula_asignacion, quimistre, parcial, notasParcial, examenParcial, comportamiento } = req.body;
-    
+
     // Validar datos requeridos
     if (!id_matricula_asignacion || !quimistre || !parcial || !notasParcial || examenParcial === undefined || !comportamiento) {
       return res.status(400).json({ message: "Faltan datos requeridos" });
@@ -65,8 +65,8 @@ module.exports.createParcial = async (req, res) => {
     if (parcial !== "P1" && parcial !== "P2") {
       return res.status(400).json({ message: "parcial debe ser 'P1' o 'P2'" });
     }
-    
-    
+
+
     // Preparar el objeto para crear: 
     // Se guardan las notas tal cual: nota1 = primer elemento, nota2 = segundo.
     const createData = {
@@ -78,22 +78,36 @@ module.exports.createParcial = async (req, res) => {
       evaluacion: parseFloat(examenParcial),
       comportamiento
     };
-    
+
     const newPartial = await Calificaciones_parciales.create(createData);
-    
+
     // Respuesta sin los valores computados
     return res.status(201).json(newPartial);
-    
+
   } catch (error) {
     console.error("Error en createParcial:", error);
     if (error.name === "SequelizeValidationError") {
-      const msgs = error.errors.map(e => e.message);
-      return res.status(400).json({ message: msgs });
+      console.log("Estos son los errores", error);
+
+      const errEncontrado = error.errors.find(err =>
+        err.validatorKey === "notEmpty" ||
+        err.validatorKey === "isNumeric" ||
+        err.validatorKey === "len"
+      );
+
+      if (errEncontrado) {
+        return res.status(400).json({ message: errEncontrado.message });
+      }
     }
-    if (error instanceof TypeError){
-      return res.status(400).json({message: "Debe completar todos los campos"})
-  }
-    return res.status(500).json({ message: "Error en el servidor" });
+    if (error instanceof TypeError) {
+      return res.status(400).json({ message: "Debe completar todos los campos" })
+    }
+    if (error.name === "SequelizeUniqueConstraintError") {
+      return res.status(400).json({ message: error.message })
+    }
+
+    res.status(500).json({ message: `Error al crear en el servidor:` })
+    console.log("ESTE ES EL ERROR", error.name)
   }
 };
 
@@ -109,15 +123,15 @@ module.exports.getParcial = async (req, res) => {
     if (!partialRecord) {
       return res.status(404).json({ message: "Registro parcial no encontrado" });
     }
-    
+
     // Obtener los valores raw
     const rawNotas = [parseFloat(partialRecord.nota1), parseFloat(partialRecord.nota2)];
     const rawExamen = parseFloat(partialRecord.examen);
-    
+
     // Calcular valores computados
     const computedPartial = calculatePartialFinal(rawNotas, rawExamen);
     const computedBehavior = calculateBehavior(partialRecord.comportamiento);
-    
+
     return res.status(200).json({
       ...partialRecord.toJSON(),
       computed: {
@@ -169,7 +183,7 @@ module.exports.updateParcial = async (req, res) => {
   try {
     const id = req.params.id;
     const { notasParcial, examenParcial, comportamiento, parcial } = req.body;
-    
+
     if (!notasParcial || !examenParcial || !comportamiento || !parcial) {
       return res.status(400).json({ message: "Faltan datos para actualizar" });
     }
@@ -182,7 +196,7 @@ module.exports.updateParcial = async (req, res) => {
     if (parcial !== "P1" && parcial !== "P2") {
       return res.status(400).json({ message: "parcial debe ser 'P1' o 'P2'" });
     }
-    
+
     // Preparar objeto con los datos actualizados (guardando las notas tal cual)
     const updateData = {
       parcial,
@@ -191,7 +205,7 @@ module.exports.updateParcial = async (req, res) => {
       evaluacion: parseFloat(examenParcial),
       comportamiento
     };
-    
+
     const [updatedRows] = await Calificaciones_parciales.update(updateData, { where: { ID: id } });
     if (updatedRows === 0) {
       return res.status(404).json({ message: "Registro parcial no encontrado" });
@@ -201,7 +215,7 @@ module.exports.updateParcial = async (req, res) => {
     const rawExamen = parseFloat(updatedPartial.examen);
     const newComputedPartial = calculatePartialFinal(rawNotas, rawExamen);
     const newComputedBehavior = calculateBehavior(updatedPartial.comportamiento);
-    
+
     return res.status(200).json({
       ...updatedPartial.toJSON(),
       computed: {
@@ -209,17 +223,31 @@ module.exports.updateParcial = async (req, res) => {
         ...newComputedBehavior
       }
     });
-    
+
   } catch (error) {
     console.error("Error en updateParcial:", error);
     if (error.name === "SequelizeValidationError") {
-      const msgs = error.errors.map(e => e.message);
-      return res.status(400).json({ message: msgs });
+      console.log("Estos son los errores", error);
+
+      const errEncontrado = error.errors.find(err =>
+        err.validatorKey === "notEmpty" ||
+        err.validatorKey === "isNumeric" ||
+        err.validatorKey === "len"
+      );
+
+      if (errEncontrado) {
+        return res.status(400).json({ message: errEncontrado.message });
+      }
     }
-    if (error instanceof TypeError){
-      return res.status(400).json({message: "Debe completar todos los campos"})
-  }
-    return res.status(500).json({ message: "Error en el servidor" });
+    if (error instanceof TypeError) {
+      return res.status(400).json({ message: "Debe completar todos los campos" })
+    }
+    if (error.name === "SequelizeUniqueConstraintError") {
+      return res.status(400).json({ message: error.message })
+    }
+
+    res.status(500).json({ message: `Error al editar en el servidor:` })
+    console.log("ESTE ES EL ERROR", error.name)
   }
 };
 
