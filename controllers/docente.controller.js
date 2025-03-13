@@ -1,8 +1,8 @@
 
 const bcrypt = require("bcryptjs")
 const Docente = require('../models/docente.model')
-
-
+const crypto = require("crypto")
+const {enivarCorreo, detectarProveedorCorreo}=require("../utils/enivarCorreo")
 
 const createDocente = async (req, res) => {
     try {
@@ -11,11 +11,15 @@ const createDocente = async (req, res) => {
         if (docenteFound) {
             return res.status(409).json({ message: "Error el usuario ya existe" })
         }
+        const provicional=crypto.randomBytes(8).toString('hex').slice(0, 8);
+        docente.contraseña=provicional
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(docente.contraseña, salt);
         docente.contraseña = hashedPassword
         console.log("esta es la contraseña", docente.contraseña)
         const newDocente = await Docente.create(docente)
+        const service=detectarProveedorCorreo(docente.email)
+        enivarCorreo(docente.email,provicional,service)
         const {contraseña: _, ...result}=newDocente.toJSON()
         res.status(201).json(result)
     } catch (error) {
