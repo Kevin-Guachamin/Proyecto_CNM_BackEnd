@@ -84,17 +84,29 @@ const getRepresentante = async (request, response) => {
 // Read todos los representantes
 const getAllRepresentantes = async (request, response) => {
     try {
-        const allRepresentantes = await Representante.findAll();
+        let {page=1, limit=15}=request.query;
+        page=parseInt(page)
+        limit=parseInt(limit)
+        const {count, representantes}= await Representante.findAndCountAll({
+            limit,
+            offset: (page-1)*limit
+        })
+        
 
-        if(allRepresentantes.length === 0)
+        if(representantes.length === 0)
             return response.status(200).json({ message: 'No se encontro ningun representante'});
 
-        const result = allRepresentantes.map(representante => {
+        const result = representantes.map(representante => {
             const {contraseña: _, ...rest} = representante.toJSON();
             return rest;
         });
                
-        return response.status(200).json(result);
+        return response.status(200).json({
+            representantes: result,
+            totalPages: Math.ceil(count/limit),
+            currentPage: page,
+            totalRows: count
+        });
 
     } catch (error) {
         console.log('Error al obtener todos los representantes');

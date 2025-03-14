@@ -1,6 +1,6 @@
 // Controlador para ESTUDIANTE
 
-const Estudiante = require('./models/estudiante.model');
+const Estudiante = require('../models/estudiante.model');
 const { hashPassword } = require('./utils/hashPassword');
 
 
@@ -96,7 +96,14 @@ const getEstudiante = async (request, response) => {
  */
 const getAllEstudiantes = async (request, response) => {
     try {
-        const estudiantes = await Estudiante.findAll();
+        let {page=1, limit=15}=request.query;
+        page=parseInt(page)
+        limit=parseInt(limit)
+        const {count, estudiantes}= await Estudiante.findAndCountAll({
+            limit,
+            offset: (page-1)*limit
+        })
+        
 
         if(estudiantes.length === 0) {
             return response.status(200).json({ message: 'No se encontró ningún estudiante' });
@@ -107,7 +114,12 @@ const getAllEstudiantes = async (request, response) => {
             return rest;
         });
 
-        return response.status(200).json(result);
+        return response.status(200).json({
+            estudiantes: result,
+            totalPages: Math.ceil(count/limit),
+            currentPage: page,
+            totalRows: count
+        });
         
     } catch (error) {
         console.log('Error al obtener todos los estudiantes:', error);
