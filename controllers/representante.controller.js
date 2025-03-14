@@ -1,5 +1,5 @@
 // Controlador para el rol de REPRESENTANTE
-
+const path = require("path");
 const Representante = require('../models/representante.model');
 const { hashPassword } = require('../utils/hashPassword');
 
@@ -11,26 +11,30 @@ const crearRepresentante = async (request, response) => {
     try {
         // Verificar que el objeto usuario exista y tenga contenido
         if (!usuario || Object.keys(usuario).length === 0) {
-            return response.status(400).json({ 
-                message: 'No se proporcionaron datos del usuario' 
+            return response.status(400).json({
+                message: 'No se proporcionaron datos del usuario'
             });
         }
 
         // Verificar si el representante existe
         const representanteEncontrado = await Representante.findByPk(usuario.nroCedula);
-        if(representanteEncontrado) {
+        if (representanteEncontrado) {
             return response.status(409).json({ message: 'El usuario ya existe!' }); // 409 conflict
         }
-        
+        const copiaCedulaPath = request.files.copiaCedula ? req.files.copiaCedula[0].path : null;
+        const croquisPath = request.files.croquis ? req.files.croquis[0].path : null;
+
         // Hash de la contraseña
         const password = usuario.contraseña;
         usuario.contraseña = await hashPassword(password);
-        
+
         const nuevoRepresentante = await Representante.create(usuario);
-        const {contraseña: _, ...result} = nuevoRepresentante.toJSON();
-        
-        return response.status(201).json({ 
-            message: 'Usuario creado exitosamente', 
+        const { contraseña: _, ...result } = nuevoRepresentante.toJSON();
+        result.cedula_PDF = copiaCedulaPath
+        result.croquis_PDF = croquisPath
+
+        return response.status(201).json({
+            message: 'Usuario creado exitosamente',
             result
         });
 
@@ -38,22 +42,22 @@ const crearRepresentante = async (request, response) => {
         console.log('Error al crear el representante:', error);
         if (error.name === "SequelizeValidationError") {
             console.log("Estos son los errores", error);
-            
+
             const errEncontrado = error.errors.find(err =>
                 err.validatorKey === "notEmpty" ||
                 err.validatorKey === "isNumeric" ||
                 err.validatorKey === "len"
             );
-        
+
             if (errEncontrado) {
                 return res.status(400).json({ message: errEncontrado.message });
             }
         }
-        if (error instanceof TypeError){
-            return res.status(400).json({message: "Debe completar todos los campos"})
+        if (error instanceof TypeError) {
+            return res.status(400).json({ message: "Debe completar todos los campos" })
         }
-        if (error.name ==="SequelizeUniqueConstraintError"){
-            return res.status(400).json({message: error.message})
+        if (error.name === "SequelizeUniqueConstraintError") {
+            return res.status(400).json({ message: error.message })
         }
         return response.status(500).json({ message: 'Error al crear el representante en el servidor' });
     }
@@ -64,58 +68,58 @@ const getRepresentante = async (request, response) => {
     const nroCedula = request.params.cedula;
     try {
         const representante = await Representante.findByPk(nroCedula);
-        if(!representante)
-            return response.status(404).json({ message: 'Usuario no encontrado'});
+        if (!representante)
+            return response.status(404).json({ message: 'Usuario no encontrado' });
 
-        const {contraseña: _, ...result} = representante.toJSON(); // Omite la contrasena
+        const { contraseña: _, ...result } = representante.toJSON(); // Omite la contrasena
         return response.status(200).json(result);
 
     } catch (error) {
         console.log('Error al obtener el representante');
-        if(error.name === 'SequelizeValidationError') {
+        if (error.name === 'SequelizeValidationError') {
             const mensajes = error.errors.map(err => err.message);
-            return response.status(400).json({ message: mensajes});
+            return response.status(400).json({ message: mensajes });
         }
 
-        return response.status(500).json({ message: 'Error al obtener el representante en el servidor'});
+        return response.status(500).json({ message: 'Error al obtener el representante en el servidor' });
     }
 }
 
 // Read todos los representantes
 const getAllRepresentantes = async (request, response) => {
     try {
-        let {page=1, limit=15}=request.query;
-        page=parseInt(page)
-        limit=parseInt(limit)
-        const {count, representantes}= await Representante.findAndCountAll({
+        let { page = 1, limit = 15 } = request.query;
+        page = parseInt(page)
+        limit = parseInt(limit)
+        const { count, representantes } = await Representante.findAndCountAll({
             limit,
-            offset: (page-1)*limit
+            offset: (page - 1) * limit
         })
-        
 
-        if(representantes.length === 0)
-            return response.status(200).json({ message: 'No se encontro ningun representante'});
+
+        if (representantes.length === 0)
+            return response.status(200).json({ message: 'No se encontro ningun representante' });
 
         const result = representantes.map(representante => {
-            const {contraseña: _, ...rest} = representante.toJSON();
+            const { contraseña: _, ...rest } = representante.toJSON();
             return rest;
         });
-               
+
         return response.status(200).json({
             representantes: result,
-            totalPages: Math.ceil(count/limit),
+            totalPages: Math.ceil(count / limit),
             currentPage: page,
             totalRows: count
         });
 
     } catch (error) {
         console.log('Error al obtener todos los representantes');
-        if(error.name === 'SequelizeValidationError') {
+        if (error.name === 'SequelizeValidationError') {
             const mensajes = error.errors.map(err => err.message);
-            return response.status(400).json({ message: mensajes});
+            return response.status(400).json({ message: mensajes });
         }
 
-        return response.status(500).json({ message: 'Error al obtener los representantes en el servidor'});
+        return response.status(500).json({ message: 'Error al obtener los representantes en el servidor' });
     }
 }
 
@@ -127,22 +131,20 @@ const updateRepresentante = async (request, response) => {
     try {
         // Verificar que el objeto usuario exista y tenga contenido
         if (!usuario || Object.keys(usuario).length === 0) {
-            return response.status(400).json({ 
-                message: 'No se proporcionaron datos del usuario' 
+            return response.status(400).json({
+                message: 'No se proporcionaron datos del usuario'
             });
         }
-        
+
         // Verificar si el representante existe
         const representanteExistente = await Representante.findByPk(nroCedula);
         if (!representanteExistente) {
             return response.status(404).json({ message: 'Usuario no encontrado!' });
         }
-       
-        
-        
+    
         // Si se está actualizando la contraseña, hashearla
         if (usuario.contraseña) {
-            usuario.contraseña = await hashPassword(usuario.contraseña);
+            usuario.contraseña = await bcrypt.hash(usuario.contraseña, salt);
         }
 
         // Actualizar el representante
@@ -158,31 +160,31 @@ const updateRepresentante = async (request, response) => {
         const representanteActualizado = await Representante.findByPk(nroCedula);
         const { contraseña: _, ...result } = representanteActualizado.toJSON();
 
-        return response.status(200).json({ 
+        return response.status(200).json({
             message: 'Usuario actualizado exitosamente',
-            result 
+            result
         });
 
     } catch (error) {
         console.log('Error al actualizar el representante:', error);
         if (error.name === "SequelizeValidationError") {
             console.log("Estos son los errores", error);
-            
+
             const errEncontrado = error.errors.find(err =>
                 err.validatorKey === "notEmpty" ||
                 err.validatorKey === "isNumeric" ||
                 err.validatorKey === "len"
             );
-        
+
             if (errEncontrado) {
                 return res.status(400).json({ message: errEncontrado.message });
             }
         }
-        if (error instanceof TypeError){
-            return res.status(400).json({message: "Debe completar todos los campos"})
+        if (error instanceof TypeError) {
+            return res.status(400).json({ message: "Debe completar todos los campos" })
         }
-        if (error.name ==="SequelizeUniqueConstraintError"){
-            return res.status(400).json({message: error.message})
+        if (error.name === "SequelizeUniqueConstraintError") {
+            return res.status(400).json({ message: error.message })
         }
         return response.status(500).json({ message: 'Error al actualizar el representante en el servidor' });
     }
@@ -194,27 +196,27 @@ const deleteRepresentante = async (request, response) => {
 
     try {
         const representante = await Representante.findByPk(nroCedula);
-        
-        if(!representante)
-            return response.status(404).json({ message: 'Usuario no encontrado'});
 
-        const rowsDeleted = await Representante.destroy({ where: {nroCedula} });
-        
-        if(rowsDeleted > 0) {
-            return response.status(200).json({ 
+        if (!representante)
+            return response.status(404).json({ message: 'Usuario no encontrado' });
+
+        const rowsDeleted = await Representante.destroy({ where: { nroCedula } });
+
+        if (rowsDeleted > 0) {
+            return response.status(200).json({
                 message: 'Usuario eliminado exitosamente',
                 cedula: nroCedula
             });
         } else {
-            return response.status(400).json({ 
+            return response.status(400).json({
                 message: 'No se pudo eliminar el usuario'
             });
         }
 
     } catch (error) {
         console.log('Error al eliminar el representante:', error);
-        
-        return response.status(500).json({ 
+
+        return response.status(500).json({
             message: 'Error al eliminar el representante en el servidor'
         });
     }

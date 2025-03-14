@@ -156,18 +156,11 @@ const updateEstudiante = async (request, response) => {
             return response.status(400).json({ message: 'No hay datos para actualizar' });
         }
 
-        // No permitir actualización de cédula
-        if(usuario.nroCedula) {
-            return response.status(400).json({ 
-                message: 'No se permite actualizar el número de cédula' 
-            });
-        }
-
         // Si se está actualizando la contraseña, hashearla
-        if(usuario.contraseña) {
-            usuario.contraseña = await hashPassword(usuario.contraseña);
+        if (usuario.contraseña) {
+            usuario.contraseña = await bcrypt.hash(usuario.contraseña, salt);
         }
-
+        
         // Actualizar el estudiante
         const [updatedRows] = await Estudiante.update(usuario, {
             where: { nroCedula }
