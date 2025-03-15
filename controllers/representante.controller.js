@@ -1,42 +1,34 @@
-// Controlador para el rol de REPRESENTANTE
-const path = require("path");
 const Representante = require('../models/representante.model');
-const { hashPassword } = require('../utils/hashPassword');
-
-
+const crypto = require("crypto")
+const {enivarCorreo}=require("../utils/enivarCorreo")
+const bcrypt = require("bcryptjs")
 // Create REPRESENTANTE
 const crearRepresentante = async (request, response) => {
     const usuario = request.body;
 
     try {
-        // Verificar que el objeto usuario exista y tenga contenido
-        if (!usuario || Object.keys(usuario).length === 0) {
-            return response.status(400).json({
-                message: 'No se proporcionaron datos del usuario'
-            });
-        }
-
         // Verificar si el representante existe
         const representanteEncontrado = await Representante.findByPk(usuario.nroCedula);
         if (representanteEncontrado) {
             return response.status(409).json({ message: 'El usuario ya existe!' }); // 409 conflict
         }
-        const copiaCedulaPath = request.files.copiaCedula ? req.files.copiaCedula[0].path : null;
-        const croquisPath = request.files.croquis ? req.files.croquis[0].path : null;
+        const provicional = crypto.randomBytes(8).toString('hex').slice(0, 8);
+        usuario.contraseña = provicional
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(usuario.contraseña, salt);
+        usuario.contraseña=hashedPassword
+        const copiaCedulaPath = request.files.copiaCedula ? request.files.copiaCedula[0].path : null;
+        const croquisPath = request.files.croquis ? request.files.croquis[0].path : null;
 
-        // Hash de la contraseña
-        const password = usuario.contraseña;
-        usuario.contraseña = await hashPassword(password);
+        
 
         const nuevoRepresentante = await Representante.create(usuario);
+        enivarCorreo(nuevoRepresentante.email,provicional)
         const { contraseña: _, ...result } = nuevoRepresentante.toJSON();
         result.cedula_PDF = copiaCedulaPath
         result.croquis_PDF = croquisPath
 
-        return response.status(201).json({
-            message: 'Usuario creado exitosamente',
-            result
-        });
+        return response.status(201).json(result);
 
     } catch (error) {
         console.log('Error al crear el representante:', error);
@@ -91,14 +83,10 @@ const getAllRepresentantes = async (request, response) => {
         let { page = 1, limit = 15 } = request.query;
         page = parseInt(page)
         limit = parseInt(limit)
-        const { count, representantes } = await Representante.findAndCountAll({
+        const { count, rows: representantes } = await Representante.findAndCountAll({
             limit,
             offset: (page - 1) * limit
         })
-
-
-        if (representantes.length === 0)
-            return response.status(200).json({ message: 'No se encontro ningun representante' });
 
         const result = representantes.map(representante => {
             const { contraseña: _, ...rest } = representante.toJSON();
@@ -113,7 +101,7 @@ const getAllRepresentantes = async (request, response) => {
         });
 
     } catch (error) {
-        console.log('Error al obtener todos los representantes');
+        console.log('Error al obtener todos los representantes', error);
         if (error.name === 'SequelizeValidationError') {
             const mensajes = error.errors.map(err => err.message);
             return response.status(400).json({ message: mensajes });
@@ -141,7 +129,7 @@ const updateRepresentante = async (request, response) => {
         if (!representanteExistente) {
             return response.status(404).json({ message: 'Usuario no encontrado!' });
         }
-    
+
         // Si se está actualizando la contraseña, hashearla
         if (usuario.contraseña) {
             usuario.contraseña = await bcrypt.hash(usuario.contraseña, salt);

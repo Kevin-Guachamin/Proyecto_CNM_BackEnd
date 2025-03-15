@@ -105,7 +105,7 @@ const getAllEstudiantes = async (request, response) => {
         })
         
 
-        if(estudiantes.length === 0) {
+        if(!estudiantes) {
             return response.status(200).json({ message: 'No se encontró ningún estudiante' });
         }
 

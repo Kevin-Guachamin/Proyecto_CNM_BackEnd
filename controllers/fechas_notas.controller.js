@@ -98,29 +98,7 @@ const getFechasNotas = async (request, response) => {
 }
 
 // Read all
-const getAllFechasNotas = async (request, response) => {
-    try {
-        const fechas_notas = await Fechas_notas.findAll();
-        if(fechas_notas.length === 0) {
-            return response.status(200).json({
-                message: 'No se encontraron fechas'
-            })
-        }
-        const result = fechas_notas.map(fecha => {
-            return fecha.toJSON();
-        });
-        return response.status(200).json(result);
 
-    } catch (error) {
-        console.log('Error al obtener todas las fechas:', error);
-        if(error.name === 'SequelizeValidationError') {
-            const mensajes = error.errors.map(err => err.message);
-            return response.status(400).json({ message: mensajes });
-        }
-        return response.status(500).json({ message: 'Error al obtener las fechas en el servidor' });
-
-    }
-}
 
 // Update
 const updateFechasNotas = async (request, response) => {
