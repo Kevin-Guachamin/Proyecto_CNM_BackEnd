@@ -1,3 +1,4 @@
+const path = require("path");
 const Representante = require('../models/representante.model');
 const crypto = require("crypto")
 const {enivarCorreo}=require("../utils/enivarCorreo")
@@ -19,14 +20,15 @@ const crearRepresentante = async (request, response) => {
         usuario.contraseña=hashedPassword
         const copiaCedulaPath = request.files.copiaCedula ? request.files.copiaCedula[0].path : null;
         const croquisPath = request.files.croquis ? request.files.croquis[0].path : null;
+        console.log("Estos son los paths: ",copiaCedulaPath, croquisPath)
 
-        
+        usuario.cedula_PDF = copiaCedulaPath
+        usuario.croquis_PDF = croquisPath
 
         const nuevoRepresentante = await Representante.create(usuario);
         enivarCorreo(nuevoRepresentante.email,provicional)
         const { contraseña: _, ...result } = nuevoRepresentante.toJSON();
-        result.cedula_PDF = copiaCedulaPath
-        result.croquis_PDF = croquisPath
+        
 
         return response.status(201).json(result);
 
@@ -80,7 +82,7 @@ const getRepresentante = async (request, response) => {
 // Read todos los representantes
 const getAllRepresentantes = async (request, response) => {
     try {
-        let { page = 1, limit = 15 } = request.query;
+        let { page = 1, limit = 1 } = request.query;
         page = parseInt(page)
         limit = parseInt(limit)
         const { count, rows: representantes } = await Representante.findAndCountAll({
@@ -148,10 +150,7 @@ const updateRepresentante = async (request, response) => {
         const representanteActualizado = await Representante.findByPk(nroCedula);
         const { contraseña: _, ...result } = representanteActualizado.toJSON();
 
-        return response.status(200).json({
-            message: 'Usuario actualizado exitosamente',
-            result
-        });
+        return response.status(200).json(result);
 
     } catch (error) {
         console.log('Error al actualizar el representante:', error);

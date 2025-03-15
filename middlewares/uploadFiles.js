@@ -23,6 +23,7 @@ const createUpload = (folderName) => {
         return cb(new Error("Solo se permiten archivos PDF"), false);
       }
       cb(null, true); // Aceptar el archivo
+      console.log("Se acepto el archivo")
     },
   });
 };
