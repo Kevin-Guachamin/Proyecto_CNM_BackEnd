@@ -12,8 +12,13 @@ const cors= require('cors')
 
 const app= express();
 app.use(express.json())
-app.use(express.urlencoded({extended: true}))
-app.use(cors())
+app.use(express.urlencoded({extended: true}));
+
+// NO RECOMENDADO PARA PRODUCCION
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE']
+}));
 
 const port=8000;
 const startServer = async () => {
@@ -37,6 +42,9 @@ allCalificaciones(app)
 
 const allRepresentante= require('./routes/representante.routes')
 allRepresentante(app)
+
+const allEstudiante= require('./routes/estudiante.routes')
+allEstudiante(app)
 
 const allMateria = require('./routes/materia.routes')
 allMateria(app)
