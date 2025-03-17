@@ -3,7 +3,6 @@ const path = require("path");
 const Estudiante = require('../models/estudiante.model');
 
 
-
 const crearEstudiante = async (request, response) => {
     const usuario = request.body;
     
@@ -50,6 +49,47 @@ const crearEstudiante = async (request, response) => {
         }
         res.status(500).json({message: `Error al crear estudiante en el servidor:`})
         
+    }
+}
+
+/**
+ * Obtener los estudiantes a cargo de un representante
+ */
+const getRepresentanteEstudiante = async (request, response) => {
+    const nroCedula_representante = request.params.cedula;
+
+    if (!nroCedula_representante || nroCedula_representante.trim() === '') {
+        return response.status(400).json({ message: 'El número de cédula del representante es requerido' });
+    }
+
+    try {
+        const estudiantes = await Estudiante.findAll({
+            where: { nroCedula_representante },
+            attributes: [
+                'nroCedula',
+                'primer_nombre', 
+                'segundo_nombre', 
+                'primer_apellido', 
+                'segundo_apellido',
+                'curso',
+                'especialidad'
+            ]
+        });
+
+        if (estudiantes.length === 0) {
+            return response.status(404).json({ message: 'No se encontraron estudiantes para este representante' });
+        }
+
+        return response.status(200).json(estudiantes);
+
+    } catch (error) {
+        console.log('Error al obtener los estudiantes del representante:', error);
+        if(error.name === 'SequelizeValidationError') {
+            const mensajes = error.errors.map(err => err.message);
+            return response.status(400).json({ message: mensajes });
+        }
+        return response.status(500).json({ message: 'Error interno del servidor al obtener los estudiantes' });
+
     }
 }
 
@@ -228,5 +268,6 @@ module.exports = {
     getEstudiante,
     getAllEstudiantes,
     updateEstudiante,
-    deleteEstudiante
+    deleteEstudiante,
+    getRepresentanteEstudiante
 };
