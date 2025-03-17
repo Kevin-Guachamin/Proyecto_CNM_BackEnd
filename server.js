@@ -44,5 +44,7 @@ allMateria(app)
 const allPeriodos= require('./routes/periodo_academico.routes')
 allPeriodos(app)
 // Llamar a la función para iniciar
+const allEstudiantes=require('./routes/estudiante.routes')
+allEstudiantes(app)
 startServer();
 

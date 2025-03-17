@@ -87,10 +87,11 @@ const getEstudiante = async (request, response) => {
  */
 const getAllEstudiantes = async (request, response) => {
     try {
+        console.log("Hice la consulta")
         let {page=1, limit=15}=request.query;
         page=parseInt(page)
         limit=parseInt(limit)
-        const {count, estudiantes}= await Estudiante.findAndCountAll({
+        const {count, rows: estudiantes}= await Estudiante.findAndCountAll({
             limit,
             offset: (page-1)*limit
         })
@@ -100,13 +101,10 @@ const getAllEstudiantes = async (request, response) => {
             return response.status(200).json({ message: 'No se encontró ningún estudiante' });
         }
 
-        const result = estudiantes.map(estudiante => {
-            const {contraseña: _, ...rest} = estudiante.toJSON();
-            return rest;
-        });
+        
 
         return response.status(200).json({
-            estudiantes: result,
+            estudiantes: estudiantes,
             totalPages: Math.ceil(count/limit),
             currentPage: page,
             totalRows: count

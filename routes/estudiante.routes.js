@@ -6,6 +6,6 @@ module.exports = (app) => {
     app.post('/estudiante/crear', upload.uploadEstudiantesFields,EstudianteController.crearEstudiante);
     app.put('/estudiante/editar/:cedula',upload.uploadEstudiantesFields, EstudianteController.updateEstudiante);
     app.get('/estudiante/obtener/:cedula', EstudianteController.getEstudiante);
-    app.get('/estudiante/obtener', EstudianteController.getAllEstudiante);
+    app.get('/estudiante/obtener', EstudianteController.getAllEstudiantes);
     app.delete('/estudiante/eliminar/:cedula', EstudianteController.deleteEstudiante);
 }
