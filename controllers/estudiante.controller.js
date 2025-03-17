@@ -186,9 +186,9 @@ const updateEstudiante = async (request, response) => {
         }
 
         // Si se está actualizando la contraseña, hashearla
-        if (usuario.contraseña) {
+        /* if (usuario.contraseña) {
             usuario.contraseña = await bcrypt.hash(usuario.contraseña, salt);
-        }
+        } */
         
         // Actualizar el estudiante
         const [updatedRows] = await Estudiante.update(usuario, {
@@ -201,11 +201,11 @@ const updateEstudiante = async (request, response) => {
 
         // Obtener y retornar el estudiante actualizado
         const estudianteActualizado = await Estudiante.findByPk(nroCedula);
-        const {contraseña: _, ...result} = estudianteActualizado.toJSON();
+        // const {contraseña: _, ...result} = estudianteActualizado.toJSON();
         
         return response.status(200).json({
             message: 'Estudiante actualizado exitosamente',
-            result
+            estudianteActualizado
         });
 
     } catch (error) {
