@@ -136,15 +136,7 @@ const Estudiante= sequelize.define('Estudiante',{
                 notNull: {msg: "No se permiten valores nulos"}
             }
         },
-        curso: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            validate: {
-                notNull: {msg: "El curso es requerido"},
-                notEmpty:{msg: "El curso no puede ser vacío"},
-                len: {args: [2,50], msg: "Debe tener entre 2 y 50 caracteres"}
-            }
-        },
+        
         especialidad: {
             type: DataTypes.STRING,
             allowNull: false,
@@ -154,7 +146,7 @@ const Estudiante= sequelize.define('Estudiante',{
                 len: {args: [2,50], msg: "Debe tener entre 2 y 50 caracteres"}
             }
         },
-        institución_educación_regular: {
+        IER: { //instituación de educación regular
             type: DataTypes.STRING,
             allowNull: false,
             validate: {
@@ -170,7 +162,7 @@ const Estudiante= sequelize.define('Estudiante',{
             is: /\.(pdf)$/i, // Asegura que el archivo sea PDF
         }
         },
-        dirección: {
+        direccion: {
             type: DataTypes.STRING,
             allowNull: false,
             validate: {

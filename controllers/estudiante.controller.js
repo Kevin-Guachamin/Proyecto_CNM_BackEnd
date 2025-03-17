@@ -1,7 +1,6 @@
 // Controlador para ESTUDIANTE
-
+const path = require("path");
 const Estudiante = require('../models/estudiante.model');
-const { hashPassword } = require('../utils/hashPassword');
 
 
 const crearEstudiante = async (request, response) => {
@@ -21,21 +20,12 @@ const crearEstudiante = async (request, response) => {
         if(estudianteEncontrado) {
             return response.status(409).json({ message: 'El usuario ya existe' });
         }
-
-        // Verificar y hashear la contraseña
-        if (!usuario.contraseña) {
-            return response.status(400).json({ message: 'La contraseña es requerida' });
-        }
-        usuario.contraseña = await hashPassword(usuario.contraseña);
-
-        // Crear el estudiante
-        const nuevoEstudiante = await Estudiante.create(usuario);
-        const {contraseña: _, ...result} = nuevoEstudiante.toJSON();
-
-        return response.status(201).json({
-            message: 'Estudiante creado exitosamente',
-            result
-        });
+        const copiaCedulaPath = request.files.copiaCedula ? request.files.copiaCedula[0].path : null;
+        const matriculaIERPath= request.files.matricula_IER ? request.files.matricula_IER[0].path : null;
+        usuario.cedula_PDF=copiaCedulaPath
+        usuario.matricula_IER_PDF=matriculaIERPath
+        const result = await Estudiante.create(usuario)
+        return response.status(201).json(result);
 
     } catch (error) {
         if (error.name === "SequelizeValidationError") {
@@ -137,26 +127,24 @@ const getEstudiante = async (request, response) => {
  */
 const getAllEstudiantes = async (request, response) => {
     try {
+        console.log("Hice la consulta")
         let {page=1, limit=15}=request.query;
         page=parseInt(page)
         limit=parseInt(limit)
-        const {count, estudiantes}= await Estudiante.findAndCountAll({
+        const {count, rows: estudiantes}= await Estudiante.findAndCountAll({
             limit,
             offset: (page-1)*limit
         })
         
 
-        if(estudiantes.length === 0) {
+        if(!estudiantes) {
             return response.status(200).json({ message: 'No se encontró ningún estudiante' });
         }
 
-        const result = estudiantes.map(estudiante => {
-            const {contraseña: _, ...rest} = estudiante.toJSON();
-            return rest;
-        });
+        
 
         return response.status(200).json({
-            estudiantes: result,
+            estudiantes: estudiantes,
             totalPages: Math.ceil(count/limit),
             currentPage: page,
             totalRows: count
@@ -197,18 +185,11 @@ const updateEstudiante = async (request, response) => {
             return response.status(400).json({ message: 'No hay datos para actualizar' });
         }
 
-        // No permitir actualización de cédula
-        if(usuario.nroCedula) {
-            return response.status(400).json({ 
-                message: 'No se permite actualizar el número de cédula' 
-            });
-        }
-
         // Si se está actualizando la contraseña, hashearla
-        if(usuario.contraseña) {
-            usuario.contraseña = await hashPassword(usuario.contraseña);
+        if (usuario.contraseña) {
+            usuario.contraseña = await bcrypt.hash(usuario.contraseña, salt);
         }
-
+        
         // Actualizar el estudiante
         const [updatedRows] = await Estudiante.update(usuario, {
             where: { nroCedula }

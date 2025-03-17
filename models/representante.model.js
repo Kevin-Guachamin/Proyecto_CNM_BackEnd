@@ -114,7 +114,7 @@ const Representante = sequelize.define('Representante', {
             is: /\.(pdf)$/i, // Asegura que el archivo sea PDF
         }
     },
-    telefono_convencional: {
+    convencional: {
         type: DataTypes.STRING,
         allowNull: false,  // No permite NULL
         defaultValue: "",  // Establece el valor vacío por defecto
@@ -123,7 +123,7 @@ const Representante = sequelize.define('Representante', {
             len: { args: [7, 10], msg: "La longitud puede ser entre 7 y 8" }      // Longitud entre 7 y 10
         }
     },
-    telefono_emergencia: {
+    emergencia: {
         type: DataTypes.STRING,
         allowNull: false,
         validate: {
