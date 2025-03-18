@@ -2,8 +2,6 @@
 const path = require("path");
 const Estudiante = require('../models/estudiante.model');
 
-
-
 const crearEstudiante = async (request, response) => {
     const usuario = request.body;
     
@@ -25,7 +23,10 @@ const crearEstudiante = async (request, response) => {
         const matriculaIERPath= request.files.matricula_IER ? request.files.matricula_IER[0].path : null;
         usuario.cedula_PDF=copiaCedulaPath
         usuario.matricula_IER_PDF=matriculaIERPath
+        const anioActual = new Date().getFullYear();
+        usuario.anioMatricula=anioActual
         const result = await Estudiante.create(usuario)
+
         return response.status(201).json(result);
 
     } catch (error) {
