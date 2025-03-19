@@ -6,7 +6,7 @@ const Estudiante = sequelize.define('Estudiante', {
     nroCedula: {
         type: DataTypes.STRING,
         allowNull: false,
-        primaryKey: true,
+        
         unique: { msg: "la cedula ya existe" },
         validate: {
             notNull: { msg: "El número de cédula es requerido" },
@@ -27,6 +27,7 @@ const Estudiante = sequelize.define('Estudiante', {
         type: DataTypes.INTEGER,
         allowNull: false,
         autoIncrement: true,
+        primaryKey: true,
     },
     primer_nombre: {
         type: DataTypes.STRING,
@@ -131,7 +132,7 @@ const Estudiante = sequelize.define('Estudiante', {
         }
     },
     grupo_etnico: {
-        type: DataTypes.ENUM("negro", "Meztizo"),
+        type: DataTypes.ENUM("Ingígena","Meztizo","Afroecuatoriano"),
         allowNull: false,
         validate: {
             notNull: { msg: "No se permiten valores nulos" }

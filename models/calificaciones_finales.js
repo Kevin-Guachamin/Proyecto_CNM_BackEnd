@@ -2,7 +2,7 @@ const { DataTypes } = require('sequelize')
 const { sequelize } = require('../config/sequelize.config')
 const Inscripción = require('./inscripción.model')
 
-const calificaciones_finales = sequelize.define("Calificaciones_parciales",
+const calificaciones_finales = sequelize.define("Calificaciones_finales",
   {
     ID: {
       type: DataTypes.INTEGER,

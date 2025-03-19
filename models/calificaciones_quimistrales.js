@@ -3,7 +3,7 @@ const {sequelize}= require('../config/sequelize.config')
 const Inscripción=require('./inscripción.model');
 
 
-const Calificaciones_quimestrales= sequelize.define("Calificaciones_parciales",
+const Calificaciones_quimestrales= sequelize.define("Calificaciones_quimestrales",
     {
         ID: {
             type: DataTypes.INTEGER,
