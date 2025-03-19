@@ -168,8 +168,8 @@ const Estudiante = sequelize.define('Estudiante', {
         type: DataTypes.STRING,
         allowNull: false,
         validate: {
-            notNull: { msg: "La IER es requerida" },
-            notEmpty: { msg: "La IER no puede ser vacío" },
+            notNull: { msg: "La dirección es requerida" },
+            notEmpty: { msg: "La dirección no puede estar vacía" },
             len: { args: [2, 100], msg: "Debe tener entre 2 y 100 caracteres" }
         }
     },

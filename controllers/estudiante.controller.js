@@ -3,32 +3,34 @@ const path = require("path");
 const Estudiante = require('../models/estudiante.model');
 
 
-const crearEstudiante = async (request, response) => {
+const crearEstudiante = async (request, res) => {
     const usuario = request.body;
     
     try {
         // Verificar que el objeto usuario exista y tenga contenido
         if (!usuario || Object.keys(usuario).length === 0) {
-            return response.status(400).json({ 
+            return res.status(400).json({ 
                 message: 'No se proporcionaron datos del usuario' 
             });
         }
 
        
         // Verificar que el estudiante no exista
-        const estudianteEncontrado = await Estudiante.findByPk(usuario.nroCedula);
+        const estudianteEncontrado = await Estudiante.findByPk(usuario.ID);
         if(estudianteEncontrado) {
-            return response.status(409).json({ message: 'El usuario ya existe' });
+            return res.status(409).json({ message: 'El usuario ya existe' });
         }
         const copiaCedulaPath = request.files.copiaCedula ? request.files.copiaCedula[0].path : null;
         const matriculaIERPath= request.files.matricula_IER ? request.files.matricula_IER[0].path : null;
         usuario.cedula_PDF=copiaCedulaPath
         usuario.matricula_IER_PDF=matriculaIERPath
-        const anioActual = new Date().getFullYear();
+        const anioActual = parseInt(new Date().getFullYear());
         usuario.anioMatricula=anioActual
+        console.log("esta es la objeto", usuario)
+       
         const result = await Estudiante.create(usuario)
 
-        return response.status(201).json(result);
+        return res.status(201).json(result);
 
     } catch (error) {
         if (error.name === "SequelizeValidationError") {

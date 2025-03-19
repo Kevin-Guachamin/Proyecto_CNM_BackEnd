@@ -3,6 +3,7 @@ const Periodo = require('../models/periodo_academico.model');
 // crear una año lectivo
 const createPeriodo = async (req, res) => {
     try {
+        console.log(req.body)
         const periodo_academico = req.body
         const periodo_academicoFound = await Periodo.findOne({where: {descripcion: periodo_academico.descripcion} })
         if (periodo_academicoFound) {

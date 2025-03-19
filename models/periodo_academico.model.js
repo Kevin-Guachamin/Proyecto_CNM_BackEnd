@@ -33,7 +33,11 @@ const Periodo_Academico = sequelize.define('Periodo_Academico',{
         // Getter: Para cuando recuperas la fecha de la BD
         get() {
             const rawValue = this.getDataValue("fecha_inicio");
-            return rawValue ? new Date(rawValue).toLocaleDateString("es-ES") : null;
+            if (rawValue) {
+                const date = new Date(rawValue + "T00:00:00"); // Asegura que la fecha esté en el inicio del día
+                return date.toLocaleDateString("es-ES");
+            }
+            return null;
         },
         // Setter: Para cuando envías la fecha a la BD
         set(value) {
@@ -52,7 +56,11 @@ const Periodo_Academico = sequelize.define('Periodo_Academico',{
         // Getter: Para cuando recuperas la fecha de la BD
         get() {
             const rawValue = this.getDataValue("fecha_fin");
-            return rawValue ? new Date(rawValue).toLocaleDateString("es-ES") : null;
+            if (rawValue) {
+                const date = new Date(rawValue + "T00:00:00"); // Asegura que la fecha esté en el inicio del día
+                return date.toLocaleDateString("es-ES");
+            }
+            return null;
         },
         // Setter: Para cuando envías la fecha a la BD
         set(value) {
