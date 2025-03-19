@@ -122,7 +122,11 @@ const Estudiante = sequelize.define('Estudiante', {
         // Getter: Para cuando recuperas la fecha de la BD
         get() {
             const rawValue = this.getDataValue("fecha_nacimiento");
-            return rawValue ? new Date(rawValue).toLocaleDateString("es-ES") : null;
+            if (rawValue) {
+                const date = new Date(rawValue + "T00:00:00"); // Asegura que la fecha esté en el inicio del día
+                return date.toLocaleDateString("es-ES");
+            }
+            return null;
         },
         // Setter: Para cuando envías la fecha a la BD
         set(value) {
@@ -132,7 +136,7 @@ const Estudiante = sequelize.define('Estudiante', {
         }
     },
     grupo_etnico: {
-        type: DataTypes.ENUM("Ingígena","Meztizo","Afroecuatoriano"),
+        type: DataTypes.ENUM("Indígena","Meztizo","Afroecuatoriano"),
         allowNull: false,
         validate: {
             notNull: { msg: "No se permiten valores nulos" }

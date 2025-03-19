@@ -33,6 +33,7 @@ const crearEstudiante = async (request, res) => {
         return res.status(201).json(result);
 
     } catch (error) {
+        console.log("este fue el error",error)
         if (error.name === "SequelizeValidationError") {
             console.log("Estos son los errores", error);
             
@@ -102,14 +103,10 @@ const getRepresentanteEstudiante = async (request, response) => {
  * Obtener un estudiante por su cédula
  */
 const getEstudiante = async (request, response) => {
-    const nroCedula = request.params.cedula;
-
-    if (!nroCedula || nroCedula.trim() === '') {
-        return response.status(400).json({ message: 'El número de cédula es requerido' });
-    }
+    const ID = request.params.ID;
 
     try {
-        const estudiante = await Estudiante.findByPk(nroCedula);
+        const estudiante = await Estudiante.findByPk(ID);
         if(!estudiante) {
             return response.status(404).json({ message: 'Estudiante no encontrado' });
         } 
@@ -133,7 +130,7 @@ const getEstudiante = async (request, response) => {
 const getAllEstudiantes = async (request, response) => {
     try {
         console.log("Hice la consulta")
-        let {page=1, limit=15}=request.query;
+        let {page=1, limit=1}=request.query;
         page=parseInt(page)
         limit=parseInt(limit)
         const {count, rows: estudiantes}= await Estudiante.findAndCountAll({
@@ -169,35 +166,20 @@ const getAllEstudiantes = async (request, response) => {
  * Actualizar un estudiante
  */
 const updateEstudiante = async (request, response) => {
-    const nroCedula = request.params.cedula;
+    const ID = request.params.ID;
     const usuario = request.body;
 
-    if (!nroCedula || nroCedula.trim() === '') {
-        return response.status(400).json({ 
-            message: 'El número de cédula es requerido'
-        });
-    }
 
     try {
         // Verificar que el estudiante existe
-        const estudianteExistente = await Estudiante.findByPk(nroCedula);
+        const estudianteExistente = await Estudiante.findByPk(ID);
         if(!estudianteExistente) {
             return response.status(404).json({ message: 'El estudiante no existe' });
         }
 
-        // Verificar que haya datos para actualizar
-        if(Object.keys(usuario).length === 0) {
-            return response.status(400).json({ message: 'No hay datos para actualizar' });
-        }
-
-        // Si se está actualizando la contraseña, hashearla
-        /* if (usuario.contraseña) {
-            usuario.contraseña = await bcrypt.hash(usuario.contraseña, salt);
-        } */
-        
         // Actualizar el estudiante
         const [updatedRows] = await Estudiante.update(usuario, {
-            where: { nroCedula }
+            where: { ID }
         });
 
         if(updatedRows === 0) {
@@ -205,24 +187,38 @@ const updateEstudiante = async (request, response) => {
         }
 
         // Obtener y retornar el estudiante actualizado
-        const estudianteActualizado = await Estudiante.findByPk(nroCedula);
+        const estudianteActualizado = await Estudiante.findByPk(ID);
         // const {contraseña: _, ...result} = estudianteActualizado.toJSON();
         
-        return response.status(200).json({
-            message: 'Estudiante actualizado exitosamente',
+        return response.status(200).json(
+            
             estudianteActualizado
-        });
+        );
 
     } catch (error) {
         console.log('Error al actualizar el estudiante:', error);
-        if (error.name === 'SequelizeValidationError') {
-            const mensajes = error.errors.map(err => err.message);
-            return response.status(400).json({ message: mensajes });
+        if (error.name === "SequelizeValidationError") {
+            console.log("Estos son los errores", error);
+            
+            const errEncontrado = error.errors.find(err =>
+                err.validatorKey === "notEmpty" ||
+                err.validatorKey === "isNumeric" ||
+                err.validatorKey === "len"
+            );
+        
+            if (errEncontrado) {
+                return response.status(400).json({ message: errEncontrado.message });
+            }
         }
         if (error instanceof TypeError){
-            return res.status(400).json({message: "Debe completar todos los campos"})
+            return response.status(400).json({message: "Debe completar todos los campos"})
         }
-        return response.status(500).json({ message: 'Error al actualizar el estudiante en el servidor' });
+        if (error.name ==="SequelizeUniqueConstraintError"){
+            return response.status(400).json({message: error.message})
+        }
+        
+        response.status(500).json({message: `Error al editar estudiante en el servidor:`})
+        console.log("ESTE ES EL ERROR",error.name)
     }
 }
 
