@@ -48,10 +48,10 @@ const crearRepresentante = async (request, response) => {
             }
         }
         if (error instanceof TypeError) {
-            return res.status(400).json({ message: "Debe completar todos los campos" })
+            return response.status(400).json({ message: "Debe completar todos los campos" })
         }
         if (error.name === "SequelizeUniqueConstraintError") {
-            return res.status(400).json({ message: error.message })
+            return response.status(400).json({ message: error.message })
         }
         return response.status(500).json({ message: 'Error al crear el representante en el servidor' });
     }
