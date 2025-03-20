@@ -8,4 +8,5 @@ module.exports = (app) => {
     app.get('/representante/obtener/:cedula', RepresentanteController.getRepresentante);
     app.get('/representante/obtener', RepresentanteController.getAllRepresentantes);
     app.delete('/representante/eliminar/:cedula', RepresentanteController.deleteRepresentante);
+    app.get('/representante/download/:folder/:filename',RepresentanteController.getFile)
 }
