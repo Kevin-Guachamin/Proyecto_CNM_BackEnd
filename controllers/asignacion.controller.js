@@ -1,4 +1,7 @@
-const Asignacion = require('../models/asignacion.model')
+const Asignacion = require('../models/asignacion.model');
+const Docente = require('../models/docente.model');
+const Materia = require('../models/materia.model');
+const Periodo_Academico = require('../models/periodo_academico.model');
 
 const createAsignacion = async (req, res) => {
     try {
@@ -71,22 +74,43 @@ const updateAsginacion= async (req, res)=>{
         console.log("ESTE ES EL ERROR",error.name)
     }
 }
-const getAsignacion = async(req, res)=>{
-    
+const getAsignacion = async (req, res) => {
     try {
-        const id= req.params.id
-        const asignacion = await Asignacion.findByPk(id)
-        if(!asignacion){
-            return res.status(404).json({message: "Asignación no encontrada"})
-        }
-        
-        
-        res.status(200).json(asignacion)
+      const { id } = req.params
+  
+      const asignacion = await Asignacion.findByPk(id, {
+        include: [
+          { model: Docente, attributes: ["primer_nombre","segundo_nombre","primer_apellido","segundo_apellido"] },
+          { model: Materia, attributes: ["nombre"], as: "materiaDetalle" },
+          { model: Periodo_Academico, attributes: ["descripcion"] }
+        ]
+      })
+  
+      if (!asignacion) 
+        return res.status(404).json({ message: "Asignación no encontrada" })
+  
+      const docente = asignacion.Docente 
+        ? [asignacion.Docente.primer_nombre, asignacion.Docente.segundo_nombre, asignacion.Docente.primer_apellido, asignacion.Docente.segundo_apellido]
+            .filter(Boolean)
+            .join(" ")
+        : null
+  
+      res.status(200).json({
+        ID: asignacion.ID,
+        paralelo: asignacion.paralelo,
+        horario: asignacion.horario,
+        año: asignacion.año,
+        docente,
+        materia: asignacion.materiaDetalle?.nombre || null,
+        periodo: asignacion.Periodo_Academico?.descripcion || null,
+        createdAt: asignacion.createdAt,
+        updatedAt: asignacion.updatedAt
+      })
     } catch (error) {
-        console.error("Error al obtener la asignación", error)
-        res.status(500).json({message: `Error al obtener la asignación en el servidor:`})
+      console.error("Error al obtener la asignación", error)
+      res.status(500).json({ message: "Error al obtener la asignación en el servidor" })
     }
-}
+  }
 
 const deleteAsignacion = async(req, res)=>{
     try {

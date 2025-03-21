@@ -133,7 +133,7 @@ const Representante = sequelize.define('Representante', {
             len: { args: [7, 10], msg: "El celular debe tener entre 7 y 10 dígitos" }
         }
     },
-    contraseña: {
+    password: {
         type: DataTypes.STRING,
         allowNull: false,
         validate: {
@@ -144,7 +144,7 @@ const Representante = sequelize.define('Representante', {
     }
 },
     {
-        tableName: 'Representantes'
+        tableName: 'representantes'
     }
 )
 
