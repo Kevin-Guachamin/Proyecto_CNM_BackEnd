@@ -215,7 +215,7 @@ const getFile = async (req, res) => {
     res.download(filePath, filename, (err) => {
         if (err) {
             console.error('Error al descargar el archivo:', err);
-            res.status(500).json('No se pudo descargar el archivo.');
+            res.status(500).json({message: 'No se pudo descargar el archivo.'});
         }
     });
 }
