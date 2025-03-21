@@ -12,14 +12,14 @@ const createDocente = async (req, res) => {
             return res.status(409).json({ message: "La cédula ya existe" })
         }
         const provicional=crypto.randomBytes(8).toString('hex').slice(0, 8);
-        docente.contraseña=provicional
+        docente.password=provicional
         const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(docente.contraseña, salt);
-        docente.contraseña = hashedPassword
-        console.log("esta es la contraseña", docente.contraseña)
+        const hashedPassword = await bcrypt.hash(docente.password, salt);
+        docente.password = hashedPassword
+        console.log("esta es la password", docente.password)
         const newDocente = await Docente.create(docente)
         enivarCorreo(docente.email,provicional)
-        const {contraseña: _, ...result}=newDocente.toJSON()
+        const {password: _, ...result}=newDocente.toJSON()
         res.status(201).json(result)
     } catch (error) {
         console.log("ESTE ES EL ERROR",error)
@@ -52,9 +52,9 @@ const editDocente= async (req, res)=>{
     try {
         const docente = req.body
         const nroCedula= req.params.cedula
-        // Si se está actualizando la contraseña, hashearla
-        if (docente.contraseña) {
-            docente.contraseña = await bcrypt.hash(docente.contraseña, salt);
+        // Si se está actualizando la password, hashearla
+        if (docente.password) {
+            docente.password = await bcrypt.hash(docente.password, salt);
         }
 
         const [updatedRows] = await Docente.update(docente,{where: {nroCedula}})
@@ -62,7 +62,7 @@ const editDocente= async (req, res)=>{
             return res.status(404).json({message: "Usuario no encontrado"})
         }
         const docenteEdited = await Docente.findByPk(nroCedula)
-        const {contraseña: _, ...result}=docenteEdited.toJSON()
+        const {password: _, ...result}=docenteEdited.toJSON()
         res.status(200).json(result)
     } catch (error) {
         console.error("Error al editar docente", error)
@@ -99,7 +99,7 @@ const getDocente = async(req, res)=>{
             return res.status(404).json({message: "Usuario no encontrado"})
         }
         
-        const {contraseña: _, ...result}=docente.toJSON()
+        const {password: _, ...result}=docente.toJSON()
         res.status(200).json(result)
     } catch (error) {
         console.error("Error al obtener docente", error)
@@ -128,7 +128,7 @@ const eliminarDocente = async(req, res)=>{
             return res.status(404).json({message: "Usuario no encontrado"})
         }
          await Docente.destroy({where: {nroCedula}})
-        const {contraseña: _, ...result}=docente.toJSON()
+        const {password: _, ...result}=docente.toJSON()
         res.status(200).json(result)
     } catch (error) {
         console.error("Error al eliminar docente", error)

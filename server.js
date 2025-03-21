@@ -1,11 +1,15 @@
 const sequelize=require('./config/sequelize.config');
 
 
-
+require('./models/docente.model')
+require('./models/materia.model')
+require('./models/periodo_academico.model')
 require('./models/asignacion.model')
 require('./models/estudiante.model')
 require('./models/inscripción.model')
 require('./models/matricula.models')
+
+
 
 const express = require('express')
 const cors= require('cors')
@@ -54,5 +58,11 @@ allPeriodos(app)
 // Llamar a la función para iniciar
 const allEstudiantes=require('./routes/estudiante.routes')
 allEstudiantes(app)
+
+const allAsignacion=require('./routes/asignacion.routes')
+allAsignacion(app)
+
+const allLogin=require('./routes/login.routes')
+allLogin(app)
 startServer();
 
