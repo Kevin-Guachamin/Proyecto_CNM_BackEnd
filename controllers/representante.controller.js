@@ -40,7 +40,10 @@ const crearRepresentante = async (request, response) => {
             const errEncontrado = error.errors.find(err =>
                 err.validatorKey === "notEmpty" ||
                 err.validatorKey === "isNumeric" ||
-                err.validatorKey === "len"
+                err.validatorKey === "len" ||
+                err.validatorKey === "isEmail" ||
+                err.validatorKey === "isEcuadorianID" ||
+                err.validatorKey ==="isOnlyLetters"
             );
 
             if (errEncontrado) {
@@ -160,7 +163,10 @@ const updateRepresentante = async (request, response) => {
             const errEncontrado = error.errors.find(err =>
                 err.validatorKey === "notEmpty" ||
                 err.validatorKey === "isNumeric" ||
-                err.validatorKey === "len"
+                err.validatorKey === "len" ||
+                err.validatorKey === "isEmail" ||
+                err.validatorKey ==="isOnlyLetters" ||
+                err.validatorKey === "isEcuadorianID"
             );
 
             if (errEncontrado) {

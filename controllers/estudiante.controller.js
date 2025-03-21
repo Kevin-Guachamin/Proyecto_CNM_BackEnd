@@ -40,7 +40,9 @@ const crearEstudiante = async (request, res) => {
             const errEncontrado = error.errors.find(err =>
                 err.validatorKey === "notEmpty" ||
                 err.validatorKey === "isNumeric" ||
-                err.validatorKey === "len"
+                err.validatorKey === "len" ||
+                err.validatorKey === "isEcuadorianID" ||
+                err.validatorKey ==="isOnlyLetters" 
             );
 
             if (errEncontrado) {
@@ -111,8 +113,8 @@ const getEstudiante = async (request, response) => {
             return response.status(404).json({ message: 'Estudiante no encontrado' });
         }
 
-        const { contraseña: _, ...result } = estudiante.toJSON();
-        return response.status(200).json(result);
+
+        return response.status(200).json(estudiante);
 
     } catch (error) {
         console.log('Error al obtener el estudiante:', error);
@@ -129,7 +131,7 @@ const getEstudiante = async (request, response) => {
  */
 const getAllEstudiantes = async (request, response) => {
     try {
-        
+
         let { page = 1, limit = 1 } = request.query;
         page = parseInt(page)
         limit = parseInt(limit)
@@ -188,7 +190,7 @@ const updateEstudiante = async (request, response) => {
 
         // Obtener y retornar el estudiante actualizado
         const estudianteActualizado = await Estudiante.findByPk(ID);
-        // const {contraseña: _, ...result} = estudianteActualizado.toJSON();
+
 
         return response.status(200).json(
 
@@ -203,7 +205,9 @@ const updateEstudiante = async (request, response) => {
             const errEncontrado = error.errors.find(err =>
                 err.validatorKey === "notEmpty" ||
                 err.validatorKey === "isNumeric" ||
-                err.validatorKey === "len"
+                err.validatorKey === "len" ||
+                err.validatorKey === "isEcuadorianID" ||
+                err.validatorKey ==="isOnlyLetters"
             );
 
             if (errEncontrado) {
@@ -268,8 +272,8 @@ const getFile = async (req, res) => {
     const { folder, filename } = req.params;
     console.log("Folder:", folder); // Verifica el valor de folder
     console.log("Filename:", filename); // Verifica el valor de filename
-    const filePath = path.join(__dirname, "..",'uploads', folder, filename);
-   
+    const filePath = path.join(__dirname, "..", 'uploads', folder, filename);
+
     res.download(filePath, filename, (err) => {
         if (err) {
             console.error('Error al descargar el archivo:', err);

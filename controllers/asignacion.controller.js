@@ -99,7 +99,7 @@ const getAsignacion = async (req, res) => {
         ID: asignacion.ID,
         paralelo: asignacion.paralelo,
         horario: asignacion.horario,
-        año: asignacion.año,
+        periodo: asignacion.periodo,
         docente,
         materia: asignacion.materiaDetalle?.nombre || null,
         periodo: asignacion.Periodo_Academico?.descripcion || null,
@@ -148,7 +148,7 @@ const obtenerAsignacionesPorDocente = async (req, res) => {
         ID: asignacion.ID,
         paralelo: asignacion.paralelo,
         horario: asignacion.horario,
-        año: asignacion.año,
+        periodo: asignacion.periodo,
         materia: asignacion.materiaDetalle?.nombre || null,
         createdAt: asignacion.createdAt,
         updatedAt: asignacion.updatedAt

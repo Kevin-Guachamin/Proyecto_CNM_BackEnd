@@ -31,13 +31,13 @@ const Asignación = sequelize.define("Asignación", {
 
         }
     },
-    año: {
+    periodo: {
         type: DataTypes.STRING,
         allowNull: false,
         validate: {
-            notNull: { msg: "El año es requerido" },
-            notEmpty: { msg: "El año no debe ser vacío" },
-            len: { args: [2, 50], msg: "El año debe tener entre 2 y 50 caracteres" }
+            notNull: { msg: "El periodo es requerido" },
+            notEmpty: { msg: "El periodo no debe ser vacío" },
+            len: { args: [2, 50], msg: "El periodo debe tener entre 2 y 50 caracteres" }
         }
 
     }

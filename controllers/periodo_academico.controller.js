@@ -1,6 +1,6 @@
 const Periodo = require('../models/periodo_academico.model');
 
-// crear una año lectivo
+
 const createPeriodo = async (req, res) => {
     try {
         console.log(req.body)

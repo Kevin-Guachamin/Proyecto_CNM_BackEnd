@@ -30,7 +30,9 @@ const createDocente = async (req, res) => {
                 err.validatorKey === "notEmpty" ||
                 err.validatorKey === "isNumeric" ||
                 err.validatorKey === "len" ||
-                err.validatorKey === "isEcuadorianID"
+                err.validatorKey === "isEcuadorianID" ||
+                err.validatorKey === "isEmail" ||
+                err.validatorKey ==="isOnlyLetters"
             );
         
             if (errEncontrado) {
@@ -72,7 +74,10 @@ const editDocente= async (req, res)=>{
             const errEncontrado = error.errors.find(err =>
                 err.validatorKey === "notEmpty" ||
                 err.validatorKey === "isNumeric" ||
-                err.validatorKey === "len"
+                err.validatorKey === "len" ||
+                err.validatorKey === "isEmail" ||
+                err.validatorKey ==="isOnlyLetters" ||
+                err.validatorKey === "isEcuadorianID" 
             );
         
             if (errEncontrado) {

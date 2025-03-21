@@ -1,6 +1,6 @@
-const Inscripción = require('../models/inscripción.model')
+const Inscripcion = require('../models/inscripción.model')
 
-const createInscripción = async (req, res) => {
+const createInscripcion = async (req, res) => {
     try {
         const inscripción = req.body
         const inscripciónFound = await Materia.findOne({ where: { inscripción } })
@@ -35,7 +35,7 @@ const createInscripción = async (req, res) => {
         console.log("ESTE ES EL ERROR",error.name)
     }
 }
-const updateInscripción = async (req, res) => {
+const updateInscripcion = async (req, res) => {
     try {
         const inscripción = req.body
         const id = req.params.id
@@ -71,7 +71,7 @@ const updateInscripción = async (req, res) => {
         
     }
 }
-const getInscripción = async (req, res) => {
+const getInscripcion = async (req, res) => {
 
     try {
         const id = req.params.id
@@ -88,7 +88,7 @@ const getInscripción = async (req, res) => {
     }
 }
 
-const deleteInscripción = async (req, res) => {
+const deleteInscripcion = async (req, res) => {
     try {
 
         const id = req.params.id
@@ -105,8 +105,8 @@ const deleteInscripción = async (req, res) => {
     }
 }
 module.exports = {
-    createInscripción,
-    updateInscripción,
-    deleteInscripción,
-    getInscripción
+    createInscripcion,
+    updateInscripcion,
+    deleteInscripcion,
+    getInscripcion
 }
