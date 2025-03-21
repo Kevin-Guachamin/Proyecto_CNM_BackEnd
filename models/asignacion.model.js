@@ -50,6 +50,8 @@ Materia.belongsToMany(Docente, { through: Asignación, foreignKey: "id_materia" 
 Asignación.belongsTo(Periodo_Academico, { foreignKey: "id_periodo_academico", targetKey: "ID" })
 Periodo_Academico.hasMany(Asignación, { foreignKey: "id_periodo_academico", sourceKey: "ID" })
 
-
-
+// Permite incluir directamente datos de Docente y Materia desde Asignación
+Asignación.belongsTo(Docente, { foreignKey: "nroCedula_docente", targetKey: "nroCedula" });
+Asignación.belongsTo(Materia, { foreignKey: "id_materia", targetKey: "ID", as: "materiaDetalle" });
+  
 module.exports = Asignación;

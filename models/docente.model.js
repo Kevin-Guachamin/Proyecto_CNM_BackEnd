@@ -115,7 +115,7 @@ const Docente = sequelize.define('Docente', {
             }
         }
     },
-    contraseña: {
+    password: {
         type: DataTypes.STRING,
         allowNull: false,
         validate: {
@@ -127,7 +127,7 @@ const Docente = sequelize.define('Docente', {
 
     },
     {
-        tableName: 'Docentes'
+        tableName: 'docentes'
     }
 )
 

@@ -14,10 +14,10 @@ const crearRepresentante = async (request, response) => {
             return response.status(409).json({ message: 'El usuario ya existe!' }); // 409 conflict
         }
         const provicional = crypto.randomBytes(8).toString('hex').slice(0, 8);
-        usuario.contraseña = provicional
+        usuario.password = provicional
         const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(usuario.contraseña, salt);
-        usuario.contraseña=hashedPassword
+        const hashedPassword = await bcrypt.hash(usuario.password, salt);
+        usuario.password=hashedPassword
         const copiaCedulaPath = request.files.copiaCedula ? request.files.copiaCedula[0].path : null;
         const croquisPath = request.files.croquis ? request.files.croquis[0].path : null;
         console.log("Estos son los paths: ",copiaCedulaPath, croquisPath)
@@ -27,7 +27,7 @@ const crearRepresentante = async (request, response) => {
 
         const nuevoRepresentante = await Representante.create(usuario);
         enivarCorreo(nuevoRepresentante.email,provicional)
-        const { contraseña: _, ...result } = nuevoRepresentante.toJSON();
+        const { password: _, ...result } = nuevoRepresentante.toJSON();
         
 
         return response.status(201).json(result);
@@ -65,7 +65,7 @@ const getRepresentante = async (request, response) => {
         if (!representante)
             return response.status(404).json({ message: 'Usuario no encontrado' });
 
-        const { contraseña: _, ...result } = representante.toJSON(); // Omite la contrasena
+        const { password: _, ...result } = representante.toJSON(); // Omite la contrasena
         return response.status(200).json(result);
 
     } catch (error) {
@@ -91,7 +91,7 @@ const getAllRepresentantes = async (request, response) => {
         })
 
         const result = representantes.map(representante => {
-            const { contraseña: _, ...rest } = representante.toJSON();
+            const { password: _, ...rest } = representante.toJSON();
             return rest;
         });
 
@@ -132,9 +132,9 @@ const updateRepresentante = async (request, response) => {
             return response.status(404).json({ message: 'Usuario no encontrado!' });
         }
 
-        // Si se está actualizando la contraseña, hashearla
-        if (usuario.contraseña) {
-            usuario.contraseña = await bcrypt.hash(usuario.contraseña, salt);
+        // Si se está actualizando la password, hashearla
+        if (usuario.password) {
+            usuario.password = await bcrypt.hash(usuario.password, salt);
         }
 
         // Actualizar el representante
@@ -148,7 +148,7 @@ const updateRepresentante = async (request, response) => {
 
         // Obtener y retornar el representante actualizado
         const representanteActualizado = await Representante.findByPk(nroCedula);
-        const { contraseña: _, ...result } = representanteActualizado.toJSON();
+        const { password: _, ...result } = representanteActualizado.toJSON();
 
         return response.status(200).json(result);
 

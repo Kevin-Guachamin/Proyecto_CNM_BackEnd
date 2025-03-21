@@ -16,7 +16,8 @@ const Inscripción= sequelize.define("Inscripción",
         tableName:"inscripción"
     }
 )
-Asignacion.belongsToMany(Matricula, {through: Inscripción, foreignKey: "id_matricula"})
-Matricula.belongsToMany(Asignacion,{through: Inscripción,foreignKey: "id_asignacion"})
+// Asegúrate de que la clave foránea se asocie de forma correcta:
+Matricula.belongsToMany(Asignacion, { through: Inscripción, foreignKey: "id_matricula" });
+Asignacion.belongsToMany(Matricula, { through: Inscripción, foreignKey: "id_asignacion" });
 
 module.exports=Inscripción
