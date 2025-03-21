@@ -128,9 +128,43 @@ const deleteAsignacion = async(req, res)=>{
         res.status(500).json({message: `Error al eliminar la asignación en el servidor:`})
     }
 }
+
+const obtenerAsignacionesPorDocente = async (req, res) => {
+    try {
+      const { id_docente } = req.params;
+  
+      const asignaciones = await Asignacion.findAll({
+        where: { nroCedula_docente: id_docente },
+        include: [
+          { model: Materia, attributes: ["nombre"], as: "materiaDetalle" },
+        ]
+      });
+  
+      if (!asignaciones.length) {
+        return res.status(404).json({ message: "No hay asignaciones para este docente" });
+      }
+  
+      const resultado = asignaciones.map(asignacion => ({
+        ID: asignacion.ID,
+        paralelo: asignacion.paralelo,
+        horario: asignacion.horario,
+        año: asignacion.año,
+        materia: asignacion.materiaDetalle?.nombre || null,
+        createdAt: asignacion.createdAt,
+        updatedAt: asignacion.updatedAt
+      }));
+  
+      res.status(200).json(resultado);
+    } catch (error) {
+      console.error("Error al obtener asignaciones", error);
+      res.status(500).json({ message: "Error al obtener las asignaciones en el servidor" });
+    }
+  };
+  
 module.exports= {
     createAsignacion,
     updateAsginacion,
     getAsignacion,
-    deleteAsignacion
+    deleteAsignacion,
+    obtenerAsignacionesPorDocente
 }
