@@ -46,7 +46,8 @@ module.exports.updateFinal = async (req, res) => {
       const errEncontrado = error.errors.find(err =>
         err.validatorKey === "notEmpty" ||
         err.validatorKey === "isNumeric" ||
-        err.validatorKey === "len"
+        err.validatorKey === "len" ||
+        err.validatorKey ==="is_null"
       );
 
       if (errEncontrado) {

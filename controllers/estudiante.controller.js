@@ -43,7 +43,8 @@ const crearEstudiante = async (request, res) => {
                 err.validatorKey === "len" ||
                 err.validatorKey === "isEcuadorianID" ||
                 err.validatorKey ==="isOnlyLetters" ||
-                err.validatorKey ==="isIn"
+                err.validatorKey ==="isIn" ||
+                err.validatorKey ==="is_null"
             );
 
             if (errEncontrado) {
@@ -209,7 +210,8 @@ const updateEstudiante = async (request, response) => {
                 err.validatorKey === "len" ||
                 err.validatorKey === "isEcuadorianID" ||
                 err.validatorKey ==="isOnlyLetters" ||
-                err.validatorKey ==="isIn"
+                err.validatorKey ==="isIn" ||
+                err.validatorKey ==="is_null"
             );
 
             if (errEncontrado) {

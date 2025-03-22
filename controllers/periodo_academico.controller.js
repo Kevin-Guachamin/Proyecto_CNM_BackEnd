@@ -19,7 +19,9 @@ const createPeriodo = async (req, res) => {
             const errEncontrado = error.errors.find(err =>
                 err.validatorKey === "notEmpty" ||
                 err.validatorKey === "isNumeric" ||
-                err.validatorKey === "len"
+                err.validatorKey === "len" ||
+                err.validatorKey ==="is_null" ||
+                err.validatorKey ==="isDate"
             );
         
             if (errEncontrado) {
@@ -53,7 +55,9 @@ const updatePeriodo= async (req, res)=>{
             const errEncontrado = error.errors.find(err =>
                 err.validatorKey === "notEmpty" ||
                 err.validatorKey === "isNumeric" ||
-                err.validatorKey === "len"
+                err.validatorKey === "len" ||
+                err.validatorKey ==="is_null" ||
+                err.validatorKey ==="isDate"
             );
         
             if (errEncontrado) {

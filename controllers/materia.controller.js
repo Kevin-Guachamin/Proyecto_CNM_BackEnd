@@ -18,7 +18,8 @@ const createMateria = async (req, res) => {
             const errEncontrado = error.errors.find(err =>
                 err.validatorKey === "notEmpty" ||
                 err.validatorKey === "isNumeric" ||
-                err.validatorKey === "len"
+                err.validatorKey === "len" ||
+                err.validatorKey ==="is_null"
             );
         
             if (errEncontrado) {
@@ -54,7 +55,8 @@ const updateMateria= async (req, res)=>{
             const errEncontrado = error.errors.find(err =>
                 err.validatorKey === "notEmpty" ||
                 err.validatorKey === "isNumeric" ||
-                err.validatorKey === "len"
+                err.validatorKey === "len" ||
+                err.validatorKey ==="is_null"
             );
         
             if (errEncontrado) {

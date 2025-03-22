@@ -32,7 +32,8 @@ const createDocente = async (req, res) => {
                 err.validatorKey === "len" ||
                 err.validatorKey === "isEcuadorianID" ||
                 err.validatorKey === "isEmail" ||
-                err.validatorKey ==="isOnlyLetters"
+                err.validatorKey ==="isOnlyLetters" ||
+                err.validatorKey ==="is_null"
             );
         
             if (errEncontrado) {
@@ -77,7 +78,8 @@ const editDocente= async (req, res)=>{
                 err.validatorKey === "len" ||
                 err.validatorKey === "isEmail" ||
                 err.validatorKey ==="isOnlyLetters" ||
-                err.validatorKey === "isEcuadorianID" 
+                err.validatorKey === "isEcuadorianID" ||
+                err.validatorKey ==="is_null"
             );
         
             if (errEncontrado) {

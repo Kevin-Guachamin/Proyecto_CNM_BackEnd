@@ -29,6 +29,7 @@ const Periodo_Academico = sequelize.define('Periodo_Academico',{
         validate: {
             notNull: { msg: "La fecha de inicio es obligatoria" },
             notEmpty: { msg: "La fecha de inicio no puede estar vacía" },
+            isDate: {msg: "Debe ingresar una fecha válida"}
         },
         // Getter: Para cuando recuperas la fecha de la BD
         get() {
@@ -52,6 +53,7 @@ const Periodo_Academico = sequelize.define('Periodo_Academico',{
         validate: {
             notNull: { msg: "La fecha de finalización es obligatoria" },
             notEmpty: { msg: "La fecha de finalización no puede estar vacía" },
+            isDate: {msg: "Debe ingresar una fecha válida"}
         },
         // Getter: Para cuando recuperas la fecha de la BD
         get() {
