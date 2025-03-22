@@ -9,7 +9,9 @@ const createPeriodo = async (req, res) => {
         if (periodo_academicoFound) {
             return res.status(409).json({ message: "Error la periodo ya existe" })
         }
+        console.log("este es el periodo a crear", periodo_academico)
         const result = await Periodo.create(periodo_academico)
+        
         res.status(201).json(result)
     } catch (error) {
         console.error("Error al crear periodo", error)
@@ -46,6 +48,7 @@ const updatePeriodo= async (req, res)=>{
             return res.status(404).json({message: "Periodo no encontrada"})
         }
         const result= await Periodo.findByPk(id)
+        console.log("ESto se envia da la base al actualizar",result)
         res.status(200).json(result)
     } catch (error) {
         console.error("Error al editar periodo", error)

@@ -40,12 +40,7 @@ const Periodo_Academico = sequelize.define('Periodo_Academico',{
             }
             return null;
         },
-        // Setter: Para cuando envías la fecha a la BD
-        set(value) {
-            const [day, month, year] = value.split("/"); // Separar DD, MM, YYYY
-            const formattedDate = `${year}-${month}-${day}`; // Convertir a YYYY-MM-DD
-            this.setDataValue("fecha_inicio", formattedDate); // Guardar en la BD
-        }
+        
     },
     fecha_fin: {
         type: DataTypes.DATEONLY,  // Solo guarda la fecha sin hora
@@ -64,12 +59,7 @@ const Periodo_Academico = sequelize.define('Periodo_Academico',{
             }
             return null;
         },
-        // Setter: Para cuando envías la fecha a la BD
-        set(value) {
-            const [day, month, year] = value.split("/"); // Separar DD, MM, YYYY
-            const formattedDate = `${year}-${month}-${day}`; // Convertir a YYYY-MM-DD
-            this.setDataValue("fecha_fin", formattedDate); // Guardar en la BD
-        }
+        
     }
 },
 {

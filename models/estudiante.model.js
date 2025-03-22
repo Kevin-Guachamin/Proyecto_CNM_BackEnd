@@ -127,16 +127,11 @@ const Estudiante = sequelize.define('Estudiante', {
                 return date.toLocaleDateString("es-ES");
             }
             return null;
-        },
-        // Setter: Para cuando envías la fecha a la BD
-        set(value) {
-            const [day, month, year] = value.split("/"); // Separar DD, MM, YYYY
-            const formattedDate = `${year}-${month}-${day}`; // Convertir a YYYY-MM-DD
-            this.setDataValue("fecha_nacimiento", formattedDate); // Guardar en la BD
         }
+       
     },
     grupo_etnico: {
-        type: DataTypes.ENUM("Indígena","Mestizo","Afro-descendiente, Negro, Blanco"),
+        type: DataTypes.ENUM("Indígena","Mestizo","Afro-descendiente", "Negro", "Blanco"),
         allowNull: false,
         validate: {
             notNull: { msg: "No se permiten valores nulos" }
@@ -165,15 +160,15 @@ const Estudiante = sequelize.define('Estudiante', {
             }
         }
     },
-    nacionalidad: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        validate: {
-            notNull: { msg: "La nacionalidad es requerida" },
-            notEmpty: { msg: "La nacionalidad no puede ser vacío" },
-            len: { args: [2, 50], msg: "Debe tener entre 4 y 50 caracteres" }
-        }
-    },
+    // nacionalidad: {
+    //     type: DataTypes.STRING,
+    //     allowNull: false,
+    //     validate: {
+    //         notNull: { msg: "La nacionalidad es requerida" },
+    //         notEmpty: { msg: "La nacionalidad no puede ser vacío" },
+    //         len: { args: [2, 50], msg: "Debe tener entre 4 y 50 caracteres" }
+    //     }
+    // },
     IER: { //instituación de educación regular
         type: DataTypes.STRING,
         allowNull: false,

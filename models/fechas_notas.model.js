@@ -19,17 +19,15 @@ const Fechas_notas = sequelize.define("Fechas_notas",
                 notNull: { msg: "La fecha de nacimiento es obligatoria" },
                 notEmpty: { msg: "La fecha de nacimiento no puede estar vacía" },
             },
-            // Getter: Para cuando recuperas la fecha de la BD
             get() {
-                const rawValue = this.getDataValue("fecha_nacimiento");
-                return rawValue ? new Date(rawValue).toLocaleDateString("es-ES") : null;
-            },
-            // Setter: Para cuando envías la fecha a la BD
-            set(value) {
-                const [day, month, year] = value.split("/"); // Separar DD, MM, YYYY
-                const formattedDate = `${year}-${month}-${day}`; // Convertir a YYYY-MM-DD
-                this.setDataValue("fecha_nacimiento", formattedDate); // Guardar en la BD
+                const rawValue = this.getDataValue("fecha_inicio");
+                if (rawValue) {
+                    const date = new Date(rawValue + "T00:00:00"); // Asegura que la fecha esté en el inicio del día
+                    return date.toLocaleDateString("es-ES");
+                }
+                return null;
             }
+            
         },
         fecha_fin: {
             type: DataTypes.DATEONLY,  // Solo guarda la fecha sin hora
@@ -38,17 +36,15 @@ const Fechas_notas = sequelize.define("Fechas_notas",
                 notNull: { msg: "La fecha de nacimiento es obligatoria" },
                 notEmpty: { msg: "La fecha de nacimiento no puede estar vacía" },
             },
-            // Getter: Para cuando recuperas la fecha de la BD
             get() {
-                const rawValue = this.getDataValue("fecha_nacimiento");
-                return rawValue ? new Date(rawValue).toLocaleDateString("es-ES") : null;
-            },
-            // Setter: Para cuando envías la fecha a la BD
-            set(value) {
-                const [day, month, year] = value.split("/"); // Separar DD, MM, YYYY
-                const formattedDate = `${year}-${month}-${day}`; // Convertir a YYYY-MM-DD
-                this.setDataValue("fecha_nacimiento", formattedDate); // Guardar en la BD
+                const rawValue = this.getDataValue("fecha_fin");
+                if (rawValue) {
+                    const date = new Date(rawValue + "T00:00:00"); // Asegura que la fecha esté en el inicio del día
+                    return date.toLocaleDateString("es-ES");
+                }
+                return null;
             }
+            
         }
     },
     {
