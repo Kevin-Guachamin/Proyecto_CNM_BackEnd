@@ -136,7 +136,7 @@ const Estudiante = sequelize.define('Estudiante', {
         }
     },
     grupo_etnico: {
-        type: DataTypes.ENUM("Indígena","Meztizo","Afroecuatoriano"),
+        type: DataTypes.ENUM("Indígena","Mestizo","Afro-descendiente, Negro, Blanco"),
         allowNull: false,
         validate: {
             notNull: { msg: "No se permiten valores nulos" }
@@ -150,6 +150,28 @@ const Estudiante = sequelize.define('Estudiante', {
             notNull: { msg: "La especialidad es requerida" },
             notEmpty: { msg: "La especialidad no puede ser vacío" },
             len: { args: [2, 50], msg: "Debe tener entre 2 y 50 caracteres" }
+        }
+    },
+    nroMatricula: {
+        type: DataTypes.INTEGER,
+        defaultValue: 1,
+        allowNull: false,
+        validate: {
+            notEmpty: { msg: "El número de matrícula no puede estar vacío" },
+            notNull: { msg: "El número de matrícula no debe ser nulo" },
+            isIn: {
+                args: [[1, 2]],  // Solo permite los valores 1 y 2
+                msg: "El número de matrícula solo puede ser 1 o 2"
+            }
+        }
+    },
+    nacionalidad: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+            notNull: { msg: "La nacionalidad es requerida" },
+            notEmpty: { msg: "La nacionalidad no puede ser vacío" },
+            len: { args: [2, 50], msg: "Debe tener entre 4 y 50 caracteres" }
         }
     },
     IER: { //instituación de educación regular

@@ -42,7 +42,8 @@ const crearEstudiante = async (request, res) => {
                 err.validatorKey === "isNumeric" ||
                 err.validatorKey === "len" ||
                 err.validatorKey === "isEcuadorianID" ||
-                err.validatorKey ==="isOnlyLetters" 
+                err.validatorKey ==="isOnlyLetters" ||
+                err.validatorKey ==="isIn"
             );
 
             if (errEncontrado) {
@@ -207,7 +208,8 @@ const updateEstudiante = async (request, response) => {
                 err.validatorKey === "isNumeric" ||
                 err.validatorKey === "len" ||
                 err.validatorKey === "isEcuadorianID" ||
-                err.validatorKey ==="isOnlyLetters"
+                err.validatorKey ==="isOnlyLetters" ||
+                err.validatorKey ==="isIn"
             );
 
             if (errEncontrado) {
@@ -230,26 +232,20 @@ const updateEstudiante = async (request, response) => {
  * Eliminar un estudiante
  */
 const deleteEstudiante = async (request, response) => {
-    const nroCedula = request.params.cedula;
+    const ID = request.params.ID;
 
-    if (!nroCedula || nroCedula.trim() === '') {
-        return response.status(400).json({
-            message: 'El número de cédula es requerido'
-        });
-    }
+    
 
     try {
-        const estudiante = await Estudiante.findByPk(nroCedula);
+        const estudiante = await Estudiante.findByPk(ID);
         if (!estudiante) {
             return response.status(404).json({ message: 'Estudiante no encontrado' });
         }
 
-        const rowsDeleted = await Estudiante.destroy({ where: { nroCedula } });
+        const rowsDeleted = await Estudiante.destroy({ where: { ID } });
 
         if (rowsDeleted > 0) {
-            return response.status(200).json({
-                message: 'Estudiante eliminado exitosamente',
-                nroCedula
+            return response.status(200).json({estudiante
             });
         } else {
             return response.status(400).json({
