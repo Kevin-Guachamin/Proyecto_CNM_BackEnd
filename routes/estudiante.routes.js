@@ -8,6 +8,6 @@ module.exports = (app) => {
     app.get('/estudiante/obtener/:ID', EstudianteController.getEstudiante);
     app.get('/estudiante/obtener', EstudianteController.getAllEstudiantes);
     app.delete('/estudiante/eliminar/:ID', EstudianteController.deleteEstudiante);
-    app.get('/api/representantes/:ID/estudiantes', EstudianteController.getRepresentanteEstudiante);
+    app.get('/api/representantes/:cedula/estudiantes', EstudianteController.getRepresentanteEstudiante);
     app.get('/estudiante/download/:folder/:filename',EstudianteController.getFile)
 }
