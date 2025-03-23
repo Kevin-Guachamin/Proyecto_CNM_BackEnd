@@ -11,19 +11,30 @@ const Matrícula = sequelize.define('Matricula', {
         primaryKey: true,
     },
     nivel: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.ENUM(
+            "1ro Básico Elemental",
+            "2do Básico Elemental",
+            "1ro Básico Medio",
+            "2do Básico Medio",
+            "3ro Básico Medio",
+            "1ro Básico Superior",
+            "2do Básico Superior",
+            "3ro Básico Superior",
+            "1ro Bachillerato",
+            "2do Bachillerato",
+            "3ro Bachillerato"
+        ),
         allowNull: false,
-        validate: {
-            notNull: { msg: "No se permiten nulos" },
-            notEmpty: { msg: "No se permiten valores vacíos" },
-            len: { args: [2, 50], msg: "Se permiten de 2 a 50 caracteres" }
+        validate:{
+            notEmpty: {msg: "No se permiten valores vacíos"},
+            notNull: {msg: "No se permiten valores nulos"},
+
         }
     }
-
 },
     {
-        tableName: "Matrículas"
+        tableName: "Matriculas"
     })
-Estudiante.belongsToMany(Periodo_Academico, { through: Matrícula, foreignKey: {name:"ID_estudiante", allowNull: false}});
-Periodo_Academico.belongsToMany(Estudiante, { through: Matrícula, foreignKey: {name: "ID_periodo_academico", allowNull: false} });
+Estudiante.belongsToMany(Periodo_Academico, { through: Matrícula, foreignKey: {name:"ID_estudiante", allowNull: false}, unique: false });
+Periodo_Academico.belongsToMany(Estudiante, { through: Matrícula, foreignKey: {name: "ID_periodo_academico", allowNull: false} ,unique: false });
 module.exports = Matrícula

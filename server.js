@@ -6,7 +6,7 @@ require('./models/materia.model')
 require('./models/periodo_academico.model')
 require('./models/asignacion.model')
 require('./models/estudiante.model')
-require('./models/inscripción.model')
+
 require('./models/matricula.models')
 
 

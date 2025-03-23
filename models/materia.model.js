@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize')
-const {sequelize} = require('../config/sequelize.config')
+const { sequelize } = require('../config/sequelize.config')
 
 const Materia = sequelize.define('Materia', {
     ID: {
@@ -21,11 +21,42 @@ const Materia = sequelize.define('Materia', {
                 }
             }
         }
-    }
-    
+    },
+    nivel: {
+        type: DataTypes.ENUM(
+            "1ro Básico Elemental",
+            "2do Básico Elemental",
+            "1ro Básico Medio",
+            "2do Básico Medio",
+            "3ro Básico Medio",
+            "1ro Básico Superior",
+            "2do Básico Superior",
+            "3ro Básico Superior",
+            "1ro Bachillerato",
+            "2do Bachillerato",
+            "3ro Bachillerato"
+        ),
+        allowNull: false,
+        validate:{
+            notEmpty: {msg: "No se permiten valores vacíos"},
+            notNull: {msg: "No se permiten valores nulos"},
+
+        }
+    },
+    edadMin: {
+        type: DataTypes.INTEGER, 
+        allowNull: false,
+        validate:{
+            notEmpty: {msg: "No se permiten valores vacíos"},
+            notNull: {msg: "No se permiten valores nulos"},
+            isInt: {msg: "Debe ser un número entero"},
+            min: { args: 7, msg: "La edad mínima debe ser al menos 7 años" }, // Valor mínimo
+        }
+    } 
+
 },
-{
-    tableName:'materias'
-}
+    {
+        tableName: 'materias'
+    }
 );
-module.exports=Materia
+module.exports = Materia

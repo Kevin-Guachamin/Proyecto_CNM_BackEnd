@@ -1,13 +1,13 @@
-const Inscripcion = require('../models/inscripción.model')
+const Inscripcion = require('../models/inscripcion.model')
 
 const createInscripcion = async (req, res) => {
     try {
-        const inscripción = req.body
-        const inscripciónFound = await Materia.findOne({ where: { inscripción } })
-        if (inscripciónFound) {
+        const inscripcion = req.body
+        const inscripcionFound = await Materia.findOne({ where: { inscripcion } })
+        if (inscripcionFound) {
             return res.status(409).json({ message: "Error la matricula_asignación ya existe" })
         }
-        const result = await Inscripción.create(inscripción)
+        const result = await Inscripcion.create(inscripcion)
         res.status(201).json(result)
     } catch (error) {
         console.log('Error al crear el estudiante:', error);
@@ -38,13 +38,13 @@ const createInscripcion = async (req, res) => {
 }
 const updateInscripcion = async (req, res) => {
     try {
-        const inscripción = req.body
+        const inscripcion = req.body
         const id = req.params.id
-        const [updatedRows] = await Inscripción.update(inscripción, { where: { id } })
+        const [updatedRows] = await Inscripcion.update(inscripcion, { where: { id } })
         if (updatedRows === 0) {
             return res.status(404).json({ message: "Inscripción no encontrada" })
         }
-        const result = await Inscripción.findByPk(id)
+        const result = await Inscripcion.findByPk(id)
         res.status(200).json(result)
     } catch (error) {
         
@@ -77,13 +77,13 @@ const getInscripcion = async (req, res) => {
 
     try {
         const id = req.params.id
-        const inscripción = await Inscripción.findByPk(id)
-        if (!inscripción) {
+        const inscripcion = await Inscripcion.findByPk(id)
+        if (!inscripcion) {
             return res.status(404).json({ message: "Inscripción no encontrada" })
         }
 
 
-        res.status(200).json(inscripción)
+        res.status(200).json(inscripcion)
     } catch (error) {
         console.error("Error al obtener la inscripción", error)
         res.status(500).json({ message: `Error al obtener la inscripción en el servidor:` })
@@ -94,13 +94,13 @@ const deleteInscripcion = async (req, res) => {
     try {
 
         const id = req.params.id
-        const inscripción = await Inscripción.findByPk(id)
-        if (!inscripción) {
+        const inscripcion = await Inscripcion.findByPk(id)
+        if (!inscripcion) {
             return res.status(404).json({ message: "Inscripción no encontrada" })
         }
-        await Inscripción.destroy({ where: { id } })
+        await Inscripcion.destroy({ where: { id } })
 
-        res.status(200).json(inscripción)
+        res.status(200).json(inscripcion)
     } catch (error) {
         console.error("Error al eliminar la inscripción", error)
         res.status(500).json({ message: `Error al eliminar la inscripción en el servidor:` })

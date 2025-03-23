@@ -3,7 +3,7 @@ const {sequelize} = require('../config/sequelize.config')
 const Matricula= require('./matricula.models')
 const Asignacion=require('./asignacion.model')
 
-const Inscripción= sequelize.define("Inscripción",
+const Inscripcion= sequelize.define("Inscripcion",
     {
         ID: {
             type: DataTypes.INTEGER,
@@ -13,11 +13,11 @@ const Inscripción= sequelize.define("Inscripción",
         }
     },
     {
-        tableName:"inscripción"
+        tableName:"inscripciones"
     }
 )
 // Asegúrate de que la clave foránea se asocie de forma correcta:
-Matricula.belongsToMany(Asignacion, { through: Inscripción, foreignKey: {name: "ID_matricula", allowNull: false} });
-Asignacion.belongsToMany(Matricula, { through: Inscripción, foreignKey: {name:"ID_asignacion", allowNull: false} });
+Matricula.belongsToMany(Asignacion, { through: Inscripcion, foreignKey: {name: "ID_matricula", allowNull: false} });
+Asignacion.belongsToMany(Matricula, { through: Inscripcion, foreignKey: {name:"ID_asignacion", allowNull: false} });
 
-module.exports=Inscripción
+module.exports=Inscripcion

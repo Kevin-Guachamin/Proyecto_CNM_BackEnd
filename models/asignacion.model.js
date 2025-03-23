@@ -5,7 +5,7 @@ const Periodo_Academico = require('./periodo_academico.model')
 const Materia = require('./materia.model')
 
 
-const Asignación = sequelize.define("Asignación", {
+const Asignacion = sequelize.define("Asignacion", {
     ID: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -45,13 +45,13 @@ const Asignación = sequelize.define("Asignación", {
     {
         tableName: "asignaciones"
     })
-Docente.belongsToMany(Materia, { through: Asignación, foreignKey: "nroCedula_docente" })
-Materia.belongsToMany(Docente, { through: Asignación, foreignKey: "id_materia" })
-Asignación.belongsTo(Periodo_Academico, { foreignKey: "id_periodo_academico", targetKey: "ID" })
-Periodo_Academico.hasMany(Asignación, { foreignKey: "id_periodo_academico", sourceKey: "ID" })
+Docente.belongsToMany(Materia, { through: Asignacion, foreignKey: "nroCedula_docente" })
+Materia.belongsToMany(Docente, { through: Asignacion, foreignKey: "id_materia" })
+Asignacion.belongsTo(Periodo_Academico, { foreignKey: "id_periodo_academico", targetKey: "ID" })
+Periodo_Academico.hasMany(Asignacion, { foreignKey: "id_periodo_academico", sourceKey: "ID" })
 
 // Permite incluir directamente datos de Docente y Materia desde Asignación
-Asignación.belongsTo(Docente, { foreignKey: "nroCedula_docente", targetKey: "nroCedula" });
-Asignación.belongsTo(Materia, { foreignKey: "id_materia", targetKey: "ID", as: "materiaDetalle" });
+Asignacion.belongsTo(Docente, { foreignKey: "nroCedula_docente", targetKey: "nroCedula" });
+Asignacion.belongsTo(Materia, { foreignKey: "id_materia", targetKey: "ID", as: "materiaDetalle" });
   
-module.exports = Asignación;
+module.exports = Asignacion;

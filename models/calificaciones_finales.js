@@ -67,6 +67,6 @@ const calificaciones_finales = sequelize.define("Calificaciones_finales",
   { tableName: "calificaciones_finales" }
 )
 calificaciones_finales.belongsTo(Inscripcion, {foreignKey: {name:"ID_inscripcion", allowNull: false}, targetKey: "ID"})
-Inscripcion.hasMany(calificaciones_finales, { foreignKey: "id_inscriptción", sourceKey: "ID" })
+Inscripcion.hasMany(calificaciones_finales, { foreignKey: "ID_inscriptción", sourceKey: "ID" })
 
 module.exports = calificaciones_finales

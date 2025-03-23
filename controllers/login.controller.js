@@ -43,7 +43,9 @@ module.exports.login = async (req, res) => {
         let isMatch = false;
         if (user.password.startsWith("$2a$") || user.password.startsWith("$2b$")) {
             isMatch = await bcrypt.compare(password, user.password);
-        } 
+        } else{
+            isMatch = password === user.password;
+        }
 
         if (!isMatch) {
             return res.status(401).json({ message: 'nroCedula o password incorrectos' });

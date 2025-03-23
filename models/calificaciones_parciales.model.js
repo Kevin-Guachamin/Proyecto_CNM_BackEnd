@@ -73,5 +73,5 @@ const Calificaciones_parciales= sequelize.define("Calificaciones_parciales",
     {tableName: "calificaciones_parciales"}
 )
 Calificaciones_parciales.belongsTo(Inscripcion,{foreignKey: {name:"ID_inscripcion", allowNull: false}, targetKey: "ID"})
-Inscripcion.hasMany(Calificaciones_parciales, {foreignKey: "id_inscripción", sourceKey: "ID"})
+Inscripcion.hasMany(Calificaciones_parciales, {foreignKey: "ID_inscripcion", sourceKey: "ID"})
 module.exports=Calificaciones_parciales

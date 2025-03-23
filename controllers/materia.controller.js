@@ -4,7 +4,7 @@ const Materia = require('../models/materia.model')
 const createMateria = async (req, res) => {
     try {
         const materia = req.body
-        const materiaFound = await Materia.findOne({where: {nombre: materia.nombre} })
+        const materiaFound = await Materia.findOne({where: {nombre: materia.nombre, nivel: materia.nivel} })
         if (materiaFound) {
             return res.status(409).json({ message: "La asignatura ya existe" })
         }
