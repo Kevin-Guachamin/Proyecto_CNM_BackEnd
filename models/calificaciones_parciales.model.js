@@ -1,6 +1,6 @@
 const {DataTypes}=require('sequelize')
 const {sequelize}= require('../config/sequelize.config')
-const Inscripción=require('./inscripción.model')
+const Inscripcion=require('./inscripcion.model')
 
 const Calificaciones_parciales= sequelize.define("Calificaciones_parciales",
     {
@@ -72,6 +72,6 @@ const Calificaciones_parciales= sequelize.define("Calificaciones_parciales",
     },
     {tableName: "calificaciones_parciales"}
 )
-Calificaciones_parciales.belongsTo(Inscripción,{foreignKey: "id_inscripción", targetKey: "ID"})
-Inscripción.hasMany(Calificaciones_parciales, {foreignKey: "id_inscripción", sourceKey: "ID"})
+Calificaciones_parciales.belongsTo(Inscripcion,{foreignKey: {name:"ID_inscripcion", allowNull: false}, targetKey: "ID"})
+Inscripcion.hasMany(Calificaciones_parciales, {foreignKey: "id_inscripción", sourceKey: "ID"})
 module.exports=Calificaciones_parciales

@@ -24,6 +24,6 @@ const Matrícula = sequelize.define('Matricula', {
     {
         tableName: "Matrículas"
     })
-Estudiante.belongsToMany(Periodo_Academico, { through: Matrícula, foreignKey: "nroCedula_estudiante" });
-Periodo_Academico.belongsToMany(Estudiante, { through: Matrícula, foreignKey: "ID_periodo_academico" });
+Estudiante.belongsToMany(Periodo_Academico, { through: Matrícula, foreignKey: {name:"ID_estudiante", allowNull: false}});
+Periodo_Academico.belongsToMany(Estudiante, { through: Matrícula, foreignKey: {name: "ID_periodo_academico", allowNull: false} });
 module.exports = Matrícula

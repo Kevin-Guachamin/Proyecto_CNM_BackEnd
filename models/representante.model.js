@@ -153,7 +153,10 @@ Representante.hasMany(Estudiante, {
     sourceKey: 'nroCedula'
 })
 Estudiante.belongsTo(Representante, {
-    foreignKey: 'nroCedula_representante',
+    foreignKey: {
+        name: 'nroCedula_representante',
+        allowNull: false  // Esto evita que se creen estudiantes sin representante
+    },
     targetKey: 'nroCedula'
-})
+});
 module.exports = Representante

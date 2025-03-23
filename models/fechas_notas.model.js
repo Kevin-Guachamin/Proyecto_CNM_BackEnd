@@ -1,8 +1,5 @@
 const { DataTypes } = require("sequelize");
 const {sequelize}= require('../config/sequelize.config')
-const Calificaciones_parciales= require('./calificaciones_parciales.model')
-const Calificaciones_quimestrales=require('./calificaciones_quimistrales')
-const calificaciones_finales=require('./calificaciones_finales')
 
 const Fechas_notas = sequelize.define("Fechas_notas",
     {
@@ -51,13 +48,6 @@ const Fechas_notas = sequelize.define("Fechas_notas",
         tableName: "fechas_notas"
     }
 )
-Calificaciones_parciales.belongsTo(Fechas_notas,{foreignKey: "id_fechas_notas", targetKey: "ID"})
-Fechas_notas.hasOne(Calificaciones_parciales, {foreignKey: "id_fechas_notas", sourceKey: "ID"})
 
-Calificaciones_quimestrales.belongsTo(Fechas_notas,{foreignKey: "id_fechas_notas", targetKey: "ID"})
-Fechas_notas.hasOne(Calificaciones_quimestrales, {foreignKey: "id_fechas_notas", sourceKey: "ID"})
-
-calificaciones_finales.belongsTo(Fechas_notas,{foreignKey: "id_fechas_notas", targetKey: "ID"})
-Fechas_notas.hasOne(calificaciones_finales, {foreignKey: "id_fechas_notas", sourceKey: "ID"})
 
 module.exports=Fechas_notas
