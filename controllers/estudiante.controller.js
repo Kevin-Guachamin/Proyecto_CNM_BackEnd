@@ -81,7 +81,7 @@ const getRepresentanteEstudiante = async (request, response) => {
                 'segundo_nombre',
                 'primer_apellido',
                 'segundo_apellido',
-                'curso',
+                'jornada', 
                 'especialidad'
             ]
         });
