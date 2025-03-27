@@ -61,7 +61,7 @@ const Calificaciones_parciales= sequelize.define("Calificaciones_parciales",
               }
             }
         },
-        quimistre: {
+        quimestre: {
             type: DataTypes.ENUM("Q1", "Q2"),
             allowNull: true,
         },

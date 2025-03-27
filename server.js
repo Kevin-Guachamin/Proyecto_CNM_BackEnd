@@ -64,5 +64,8 @@ allAsignacion(app)
 
 const allLogin=require('./routes/login.routes')
 allLogin(app)
+
+const allInscripcion=require('./routes/inscripcion.routes')
+allInscripcion(app)
 startServer();
 
