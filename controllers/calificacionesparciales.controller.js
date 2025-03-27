@@ -1,145 +1,174 @@
-const { Op } = require('sequelize');
-
 const Calificaciones_parciales = require('../models/calificaciones_parciales.model');
-
-// Helpers para cálculos parciales
-const calculateLearningAvg = (notas) => {
-  return (parseFloat(notas[0]) + parseFloat(notas[1])) / 2;
-};
-
-const calculatePartialFinal = (notas, exam) => {
-  const learningAvg = calculateLearningAvg(notas);
-  const learningPonderado = learningAvg * 0.7;
-  const examPonderado = parseFloat(exam) * 0.3;
-  return {
-    Promedio: parseFloat(learningAvg.toFixed(2)),
-    PromedioPonderado: parseFloat(learningPonderado.toFixed(2)),
-    ExamenPonderado: parseFloat(examPonderado.toFixed(2)),
-    NotaFinalParcial: parseFloat((learningPonderado + examPonderado).toFixed(2))
-  };
-};
-
-const calculateBehavior = (behaviorArray) => {
-  const sum = behaviorArray.reduce((acc, val) => acc + val, 0);
-  let letter = '';
-  if (sum >= 0 && sum <= 4) letter = 'E';
-  else if (sum >= 5 && sum <= 6) letter = 'D';
-  else if (sum >= 7 && sum <= 8) letter = 'C';
-  else if (sum === 9) letter = 'B';
-  else if (sum === 10) letter = 'A';
-  return { PromedioComportamiento: sum, NotaComportamientoParcial: letter };
-};
+const Inscripcion = require('../models/inscripcion.model');
+const Matricula = require('../models/matricula.models');
+const Estudiante = require('../models/estudiante.model');
 
 /**
- * CREATE parcial
+ * CREATE Parcial (un solo registro)
  * POST /api/parciales
- * 
- * Se espera recibir en el body:
+ * Body esperado:
  * {
- *   "id_matricula_asignacion": 1,
- *   "quimistre": "Q1",
- *   "parcial": "P1",  // o "P2"
- *   "notasParcial": [7, 8],
- *   "examenParcial": 7.5,
- *   "comportamiento": [1,1,1,1,1,1,1,1,1,1]
+ *   "id_inscripcion": number,
+ *   "quimestre": "Q1" | "Q2",
+ *   "parcial": "P1" | "P2",
+ *   "insumo1": number,
+ *   "insumo2": number,
+ *   "evaluacion": number,
+ *   "comportamiento": any
  * }
- * 
- * Se guardan las dos notas y el examen sin ponderar, y el array de comportamiento.
- * Los cálculos (nota final, ponderaciones y conversión de comportamiento a letra)
- * se realizan "on the fly" al mostrar los datos.
  */
 module.exports.createParcial = async (req, res) => {
   try {
-    const { id_matricula_asignacion, quimistre, parcial, notasParcial, examenParcial, comportamiento } = req.body;
+    const {
+      id_inscripcion,
+      quimestre,
+      parcial,
+      insumo1,
+      insumo2,
+      evaluacion,
+      comportamiento
+    } = req.body;
 
-    // Validar datos requeridos
-    if (!id_matricula_asignacion || !quimistre || !parcial || !notasParcial || examenParcial === undefined || !comportamiento) {
+    // Validaciones mínimas de ejemplo
+    if (!id_inscripcion || !quimestre || !parcial) {
       return res.status(400).json({ message: "Faltan datos requeridos" });
     }
-    if (!Array.isArray(notasParcial) || notasParcial.length !== 2) {
-      return res.status(400).json({ message: "notasParcial debe ser un array de 2 números" });
-    }
-    if (!Array.isArray(comportamiento) || comportamiento.length !== 10) {
-      return res.status(400).json({ message: "comportamiento debe ser un array de 10 valores" });
-    }
     if (parcial !== "P1" && parcial !== "P2") {
-      return res.status(400).json({ message: "parcial debe ser 'P1' o 'P2'" });
+      return res.status(400).json({ message: "Parcial debe ser 'P1' o 'P2'" });
     }
 
-
-    // Preparar el objeto para crear: 
-    // Se guardan las notas tal cual: nota1 = primer elemento, nota2 = segundo.
-    const createData = {
-      id_matricula_asignacion,
-      quimistre,
+    const newParcial = await Calificaciones_parciales.create({
+      ID_inscripcion: id_inscripcion,
+      quimestre,
       parcial,
-      insumo1: parseFloat(notasParcial[0]),
-      insumo2: parseFloat(notasParcial[1]),
-      evaluacion: parseFloat(examenParcial),
+      insumo1,
+      insumo2,
+      evaluacion,
       comportamiento
-    };
+    });
 
-    const newPartial = await Calificaciones_parciales.create(createData);
-
-    // Respuesta sin los valores computados
-    return res.status(201).json(newPartial);
-
+    return res.status(201).json(newParcial);
   } catch (error) {
     console.error("Error en createParcial:", error);
-    if (error.name === "SequelizeValidationError") {
-      console.log("Estos son los errores", error);
-
-      const errEncontrado = error.errors.find(err =>
-        err.validatorKey === "notEmpty" ||
-        err.validatorKey === "isNumeric" ||
-        err.validatorKey === "len" ||
-        err.validatorKey ==="is_null"
-      );
-
-      if (errEncontrado) {
-        return res.status(400).json({ message: errEncontrado.message });
-      }
-    }
-    if (error instanceof TypeError) {
-      return res.status(400).json({ message: "Debe completar todos los campos" })
-    }
-    if (error.name === "SequelizeUniqueConstraintError") {
-      return res.status(400).json({ message: error.message })
-    }
-
-    res.status(500).json({ message: `Error al crear en el servidor:` })
-    console.log("ESTE ES EL ERROR", error.name)
+    return res.status(500).json({ message: "Error en el servidor" });
   }
 };
 
 /**
- * GET parcial por ID
+ * CREATE Parciales en bloque (varios registros a la vez)
+ * POST /api/parciales/bulk
+ * Body esperado: array de objetos con la misma estructura que createParcial
+ * [
+ *   {
+ *     "id_inscripcion": 1,
+ *     "quimestre": "Q1",
+ *     "parcial": "P1",
+ *     "insumo1": 8,
+ *     "insumo2": 9,
+ *     "evaluacion": 7.5,
+ *     "comportamiento": ...
+ *   },
+ *   {
+ *     "id_inscripcion": 2,
+ *     "quimestre": "Q1",
+ *     "parcial": "P1",
+ *     ...
+ *   }
+ * ]
+ */
+module.exports.createParcialBulk = async (req, res) => {
+  try {
+    const parcialesData = req.body; // Se espera un array
+    if (!Array.isArray(parcialesData) || parcialesData.length === 0) {
+      return res.status(400).json({ message: "Se requiere un array de parciales para la creación masiva" });
+    }
+
+    // Mapeamos cada objeto para que coincida con la estructura del modelo
+    const toCreate = parcialesData.map(item => ({
+      ID_inscripcion: item.id_inscripcion,
+      quimestre: item.quimestre,
+      parcial: item.parcial,
+      insumo1: item.insumo1,
+      insumo2: item.insumo2,
+      evaluacion: item.evaluacion,
+      comportamiento: item.comportamiento
+    }));
+
+    const newParciales = await Calificaciones_parciales.bulkCreate(toCreate, { validate: true });
+    return res.status(201).json(newParciales);
+  } catch (error) {
+    console.error("Error en createParcialBulk:", error);
+    return res.status(500).json({ message: "Error en el servidor" });
+  }
+};
+
+/**
+ * UPDATE Parcial (un solo registro)
+ * PUT /api/parciales/:id
+ * Body esperado (mismo formato que createParcial):
+ * {
+ *   "insumo1": number,
+ *   "insumo2": number,
+ *   "evaluacion": number,
+ *   "comportamiento": any,
+ *   "quimestre": "Q1" | "Q2",
+ *   "parcial": "P1" | "P2"
+ * }
+ */
+module.exports.updateParcial = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const {
+      insumo1,
+      insumo2,
+      evaluacion,
+      comportamiento,
+      quimestre,
+      parcial
+    } = req.body;
+
+    if (parcial && (parcial !== "P1" && parcial !== "P2")) {
+      return res.status(400).json({ message: "Parcial debe ser 'P1' o 'P2'" });
+    }
+
+    // Se actualizan solo los campos recibidos
+    const updateData = {};
+    if (insumo1 !== undefined) updateData.insumo1 = insumo1;
+    if (insumo2 !== undefined) updateData.insumo2 = insumo2;
+    if (evaluacion !== undefined) updateData.evaluacion = evaluacion;
+    if (comportamiento !== undefined) updateData.comportamiento = comportamiento;
+    if (quimestre !== undefined) updateData.quimestre = quimestre;
+    if (parcial !== undefined) updateData.parcial = parcial;
+
+    const [updatedRows] = await Calificaciones_parciales.update(updateData, {
+      where: { ID: id }
+    });
+
+    if (updatedRows === 0) {
+      return res.status(404).json({ message: "Parcial no encontrado o sin cambios" });
+    }
+
+    const updatedParcial = await Calificaciones_parciales.findByPk(id);
+    return res.status(200).json(updatedParcial);
+  } catch (error) {
+    console.error("Error en updateParcial:", error);
+    return res.status(500).json({ message: "Error en el servidor" });
+  }
+};
+
+/**
+ * GET Parcial por ID
  * GET /api/parciales/:id
- * Devuelve el registro almacenado junto con los cálculos basados en las notas y comportamiento.
+ * Devuelve un registro de calificación parcial
  */
 module.exports.getParcial = async (req, res) => {
   try {
     const id = req.params.id;
-    const partialRecord = await Calificaciones.findByPk(id);
-    if (!partialRecord) {
-      return res.status(404).json({ message: "Registro parcial no encontrado" });
+    const parcial = await Calificaciones_parciales.findByPk(id);
+    if (!parcial) {
+      return res.status(404).json({ message: "Parcial no encontrado" });
     }
-
-    // Obtener los valores raw
-    const rawNotas = [parseFloat(partialRecord.nota1), parseFloat(partialRecord.nota2)];
-    const rawExamen = parseFloat(partialRecord.examen);
-
-    // Calcular valores computados
-    const computedPartial = calculatePartialFinal(rawNotas, rawExamen);
-    const computedBehavior = calculateBehavior(partialRecord.comportamiento);
-
-    return res.status(200).json({
-      ...partialRecord.toJSON(),
-      computed: {
-        ...computedPartial,
-        ...computedBehavior
-      }
-    });
+    return res.status(200).json(parcial);
   } catch (error) {
     console.error("Error en getParcial:", error);
     return res.status(500).json({ message: "Error en el servidor" });
@@ -147,125 +176,80 @@ module.exports.getParcial = async (req, res) => {
 };
 
 /**
- * GET ALL parciales
- * GET /api/parciales
- * Devuelve todos los registros y en cada uno se agregan los datos calculados.
+ * GET /api/parciales/asignacion/:id_asignacion
+ * Devuelve los datos de las calificaciones parciales 
+ * e incluye información básica del estudiante.
  */
-module.exports.getAllParciales = async (req, res) => {
+module.exports.getParcialesPorAsignacion = async (req, res) => {
   try {
-    const parciales = await Calificaciones_parciales.findAll();
-    const results = parciales.map(record => {
-      const rec = record.toJSON();
-      const rawNotas = [parseFloat(rec.nota1), parseFloat(rec.nota2)];
-      const rawExamen = parseFloat(rec.examen);
-      const computedPartial = calculatePartialFinal(rawNotas, rawExamen);
-      const computedBehavior = calculateBehavior(rec.comportamiento);
+    const { id_asignacion } = req.params;
+
+    const parciales = await Calificaciones_parciales.findAll({
+      include: [{
+        model: Inscripcion,
+        where: { ID_asignacion: id_asignacion },
+        include: [{
+          model: Matricula,
+          attributes: ['nivel'],
+          include: [{
+            model: Estudiante,
+            attributes: ['ID', 'primer_nombre', 'segundo_nombre', 'primer_apellido', 'segundo_apellido']
+          }]
+        }]
+      }]
+    });
+
+    // Transformamos la respuesta para incluir datos del parcial y, opcionalmente, del estudiante
+    const result = parciales.map((p) => {
+      const est = p.Inscripcion?.Matricula?.Estudiante;
+      const nivel = p.Inscripcion?.Matricula?.nivel || "";
+
+      // Construimos el nombre completo (si existe el estudiante)
+      const nombreCompleto = est
+        ? `${est.primer_apellido} ${est.segundo_apellido ?? ''} ${est.primer_nombre} ${est.segundo_nombre ?? ''}`.trim()
+        : "Sin estudiante";
+
       return {
-        ...rec,
-        computed: {
-          ...computedPartial,
-          ...computedBehavior
-        }
+        // Datos de la calificación parcial
+        idParcial: p.ID,
+        idInscripcion: p.ID_inscripcion,
+        quimestre: p.quimestre,
+        parcial: p.parcial,
+        insumo1: p.insumo1,
+        insumo2: p.insumo2,
+        evaluacion: p.evaluacion,
+        comportamiento: p.comportamiento,
+
+        // Datos opcionales del estudiante
+        idEstudiante: est?.ID ?? null,
+        nombreEstudiante: nombreCompleto,
+        nivel
       };
     });
-    return res.status(200).json(results);
+
+    // Ordenar opcionalmente por nombre
+    result.sort((a, b) => a.nombreEstudiante.localeCompare(b.nombreEstudiante));
+
+    return res.status(200).json(result);
   } catch (error) {
-    console.error("Error en getAllParciales:", error);
+    console.error("Error en getParcialesPorAsignacion:", error);
     return res.status(500).json({ message: "Error en el servidor" });
   }
 };
 
 /**
- * UPDATE parcial por ID
- * PUT /api/parciales/:id
- * Se reciben los datos crudos para recalcular el parcial y se actualizan en la base.
- */
-module.exports.updateParcial = async (req, res) => {
-  try {
-    const id = req.params.id;
-    const { notasParcial, examenParcial, comportamiento, parcial } = req.body;
-
-    if (!notasParcial || !examenParcial || !comportamiento || !parcial) {
-      return res.status(400).json({ message: "Faltan datos para actualizar" });
-    }
-    if (!Array.isArray(notasParcial) || notasParcial.length !== 2) {
-      return res.status(400).json({ message: "notasParcial debe ser un array de 2 números" });
-    }
-    if (!Array.isArray(comportamiento) || comportamiento.length !== 10) {
-      return res.status(400).json({ message: "comportamiento debe ser un array de 10 valores" });
-    }
-    if (parcial !== "P1" && parcial !== "P2") {
-      return res.status(400).json({ message: "parcial debe ser 'P1' o 'P2'" });
-    }
-
-    // Preparar objeto con los datos actualizados (guardando las notas tal cual)
-    const updateData = {
-      parcial,
-      insumo1: parseFloat(notasParcial[0]),
-      insumo2: parseFloat(notasParcial[1]),
-      evaluacion: parseFloat(examenParcial),
-      comportamiento
-    };
-
-    const [updatedRows] = await Calificaciones_parciales.update(updateData, { where: { ID: id } });
-    if (updatedRows === 0) {
-      return res.status(404).json({ message: "Registro parcial no encontrado" });
-    }
-    const updatedPartial = await Calificaciones.findByPk(id);
-    const rawNotas = [parseFloat(updatedPartial.nota1), parseFloat(updatedPartial.nota2)];
-    const rawExamen = parseFloat(updatedPartial.examen);
-    const newComputedPartial = calculatePartialFinal(rawNotas, rawExamen);
-    const newComputedBehavior = calculateBehavior(updatedPartial.comportamiento);
-
-    return res.status(200).json({
-      ...updatedPartial.toJSON(),
-      computed: {
-        ...newComputedPartial,
-        ...newComputedBehavior
-      }
-    });
-
-  } catch (error) {
-    console.error("Error en updateParcial:", error);
-    if (error.name === "SequelizeValidationError") {
-      console.log("Estos son los errores", error);
-
-      const errEncontrado = error.errors.find(err =>
-        err.validatorKey === "notEmpty" ||
-        err.validatorKey === "isNumeric" ||
-        err.validatorKey === "len" ||
-        err.validatorKey ==="is_null"
-      );
-
-      if (errEncontrado) {
-        return res.status(400).json({ message: errEncontrado.message });
-      }
-    }
-    if (error instanceof TypeError) {
-      return res.status(400).json({ message: "Debe completar todos los campos" })
-    }
-    if (error.name === "SequelizeUniqueConstraintError") {
-      return res.status(400).json({ message: error.message })
-    }
-
-    res.status(500).json({ message: `Error al editar en el servidor:` })
-    console.log("ESTE ES EL ERROR", error.name)
-  }
-};
-
-/**
- * DELETE parcial por ID
+ * DELETE Parcial
  * DELETE /api/parciales/:id
  */
 module.exports.deleteParcial = async (req, res) => {
   try {
-    const id = req.params.id;
-    const partialRecord = await Calificaciones.findByPk(id);
-    if (!partialRecord) {
-      return res.status(404).json({ message: "Registro parcial no encontrado" });
+    const { id } = req.params;
+    const parcial = await Calificaciones_parciales.findByPk(id);
+    if (!parcial) {
+      return res.status(404).json({ message: "Parcial no encontrado" });
     }
-    await Calificaciones.destroy({ where: { ID: id } });
-    return res.status(200).json({ message: "Registro parcial eliminado", record: partialRecord });
+    await parcial.destroy();
+    return res.status(200).json({ message: "Parcial eliminado correctamente", parcialEliminado: parcial });
   } catch (error) {
     console.error("Error en deleteParcial:", error);
     return res.status(500).json({ message: "Error en el servidor" });
