@@ -6,4 +6,5 @@ module.exports = (app) => {
     app.get('/asignacion/obtener/:id', AsignacionController.getAsignacion);
     app.delete('/asignacion/eliminar/:id', AsignacionController.deleteAsignacion);
     app.get('/asignacion/docente/:id_docente', AsignacionController.obtenerAsignacionesPorDocente);
+    app.get('/asignacion/nivel/:nivel',AsignacionController.obtenerAsignacionesPorNivel)
 }
