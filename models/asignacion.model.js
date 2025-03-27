@@ -28,18 +28,33 @@ const Asignacion = sequelize.define("Asignacion", {
             notNull: { msg: "El horario es requerido" },
             notEmpty: { msg: "El horario no debe ser vacío" },
             len: { args: [2, 50], msg: "El horario debe tener entre 2 y 50 caracteres" }
-
         }
     },
-    periodo: {
-        type: DataTypes.STRING,
+    dias: {
+        type: DataTypes.JSON, // Usa JSON para MySQL
         allowNull: false,
         validate: {
-            notNull: { msg: "El periodo es requerido" },
-            notEmpty: { msg: "El periodo no debe ser vacío" },
-            len: { args: [2, 50], msg: "El periodo debe tener entre 2 y 50 caracteres" }
+            isArrayOfValidDays(value) {
+                const validDays = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+    
+                // 1. Verifica que sea un array
+                if (!Array.isArray(value)) {
+                    throw new Error("El campo 'dias' debe ser un array");
+                }
+    
+                // 2. Verifica que tenga entre 1 y 2 elementos
+                if (value.length < 1 || value.length > 2) {
+                    throw new Error("Debe seleccionar entre 1 y 2 días");
+                }
+    
+                // 3. Verifica que cada elemento sea un día válido
+                for (const day of value) {
+                    if (!validDays.includes(day)) {
+                        throw new Error(`"${day}" no es un día válido`);
+                    }
+                }
+            }
         }
-
     }
 },
     {

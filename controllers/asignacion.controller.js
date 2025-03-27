@@ -19,8 +19,8 @@ const createAsignacion = async (req, res) => {
             
             const errEncontrado = error.errors.find(err =>
                 err.validatorKey === "notEmpty" ||
-                err.validatorKey === "isNumeric" ||
-                err.validatorKey === "len"
+               err.validatorKey ==="is_null" ||
+               err.validatorKey === "isArrayOfValidDays"
             );
         
             if (errEncontrado) {
@@ -54,9 +54,9 @@ const updateAsginacion= async (req, res)=>{
             console.log("Estos son los errores", error);
             
             const errEncontrado = error.errors.find(err =>
-                err.validatorKey === "notEmpty" ||
-                err.validatorKey === "isNumeric" ||
-                err.validatorKey === "len"
+              err.validatorKey === "notEmpty" ||
+              err.validatorKey ==="is_null" ||
+              err.validatorKey === "isArrayOfValidDays"
             );
         
             if (errEncontrado) {
