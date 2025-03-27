@@ -4,10 +4,13 @@ const FinalController = require('../controllers/calificacionesfinales.controller
 
 module.exports = (app) => {
   // Rutas para Parciales
-  app.post('/api/parciales', ParcialesController.createParcial);
-  app.get('/api/parciales/:id', ParcialesController.getParcial);
-  app.put('/api/parciales/:id', ParcialesController.updateParcial);
-  app.delete('/api/parciales/:id', ParcialesController.deleteParcial);
+  app.post('/parciales', ParcialesController.createParcial);
+  app.post('/parciales/bulk', ParcialesController.createParcialBulk);
+  app.get('/parciales/:id', ParcialesController.getParcial);
+  app.get('/parciales/asignacion/:id_asignacion', ParcialesController.getParcialesPorAsignacion);
+  app.put('/parciales/:id', ParcialesController.updateParcial);
+  app.delete('/parciales/:id', ParcialesController.deleteParcial);
+
  
 
   // Rutas para Quimestres

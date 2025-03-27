@@ -1,4 +1,64 @@
-const Inscripcion = require('../models/inscripcion.model')
+const Estudiante = require('../models/estudiante.model');
+const Matricula = require('../models/matricula.models');
+const Asignacion = require('../models/asignacion.model');
+const Inscripcion = require('../models/inscripcion.model');
+const Materia = require('../models/materia.model');
+
+const getEstudiantesPorAsignacion = async (req, res) => {
+    const { id_asignacion } = req.params;
+  
+    try {
+      const inscripciones = await Inscripcion.findAll({
+        where: { ID_asignacion: id_asignacion },
+        include: [{
+          model: Matricula,
+          attributes: ['nivel'],
+          include: [{
+            model: Estudiante,
+            // Ajusta el nombre del PK real de tu modelo Estudiante (puede ser 'ID', 'id', etc.)
+            attributes: ['ID', 'primer_nombre', 'segundo_nombre', 'primer_apellido', 'segundo_apellido']
+          }]
+        }]
+      });
+  
+      const estudiantes = inscripciones
+        .map((insc) => {
+          const est = insc.Matricula?.Estudiante;
+          if (!est) return null;
+  
+          const nivel = insc.Matricula?.nivel || "";
+          const nombreCompleto = [
+            est.primer_apellido,
+            est.segundo_apellido ?? '',
+            est.primer_nombre,
+            est.segundo_nombre ?? ''
+          ].join(' ');
+  
+          return {
+            // ID de la inscripción (clave para calificaciones)
+            idInscripcion: insc.ID, 
+            // ID del estudiante (por si lo necesitas también)
+            idEstudiante: est.ID, 
+            nombreCompleto,
+            nivel
+          };
+        })
+        .filter(Boolean)
+        .sort((a, b) => a.nombreCompleto.localeCompare(b.nombreCompleto))
+        .map((est, index) => ({
+          nro: index + 1,
+          idInscripcion: est.idInscripcion,
+          idEstudiante: est.idEstudiante,
+          nombre: est.nombreCompleto,
+          nivel: est.nivel
+        }));
+  
+      res.status(200).json(estudiantes);
+    } catch (error) {
+      console.error("Error al obtener estudiantes por asignación", error);
+      res.status(500).json({ message: "Error en el servidor" });
+    }
+  };  
 
 const createInscripcion = async (req, res) => {
     try {
@@ -110,5 +170,6 @@ module.exports = {
     createInscripcion,
     updateInscripcion,
     deleteInscripcion,
-    getInscripcion
+    getInscripcion,
+    getEstudiantesPorAsignacion
 }

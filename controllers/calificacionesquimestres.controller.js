@@ -1,7 +1,5 @@
 const Calificaciones_quimestrales = require('../models/calificaciones_quimistrales');
 
-
-
 /**
  * UPDATE o CREATE registro de Quimestre
  * POST /api/quimestres

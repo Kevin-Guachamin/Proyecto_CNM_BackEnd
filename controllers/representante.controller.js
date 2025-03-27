@@ -65,7 +65,9 @@ const crearRepresentante = async (request, response) => {
 const getRepresentante = async (request, response) => {
     const nroCedula = request.params.cedula;
     try {
-        const representante = await Representante.findByPk(nroCedula);
+        const representante = await Representante.findOne({
+            where: { nroCedula }
+        });
         if (!representante)
             return response.status(404).json({ message: 'Usuario no encontrado' });
 
