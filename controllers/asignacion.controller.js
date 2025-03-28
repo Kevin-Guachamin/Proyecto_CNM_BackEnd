@@ -20,7 +20,8 @@ const createAsignacion = async (req, res) => {
       const errEncontrado = error.errors.find(err =>
         err.validatorKey === "notEmpty" ||
         err.validatorKey === "is_null" ||
-        err.validatorKey === "isArrayOfValidDays"
+        err.validatorKey === "isArrayOfValidDays" ||
+        err.validatorKey ==="validarOrden"
       );
 
       if (errEncontrado) {
@@ -56,7 +57,8 @@ const updateAsginacion = async (req, res) => {
       const errEncontrado = error.errors.find(err =>
         err.validatorKey === "notEmpty" ||
         err.validatorKey === "is_null" ||
-        err.validatorKey === "isArrayOfValidDays"
+        err.validatorKey === "isArrayOfValidDays" ||
+        err.validatorKey ==="validarOrden"
       );
 
       if (errEncontrado) {

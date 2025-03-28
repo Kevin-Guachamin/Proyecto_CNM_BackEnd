@@ -20,13 +20,33 @@ const Asignacion = sequelize.define("Asignacion", {
             len: { args: [1, 50], msg: "El paralelo tener entre 1 y 50 caracteres" },
         }
     },
-    horario: {
-        type: DataTypes.STRING,
+    horaInicio: {
+        type: DataTypes.TIME,
         allowNull: false,
         validate: {
-            notNull: { msg: "El horario es requerido" },
-            notEmpty: { msg: "El horario no debe ser vacío" },
-            len: { args: [2, 50], msg: "El horario debe tener entre 2 y 50 caracteres" }
+            notNull: { msg: "La hora de inicio es requerida" },
+            notEmpty: { msg: "La hora de inicio no debe estar vacía" },
+            is: {
+                args: /^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/,
+                msg: "La hora de inicio debe estar en formato HH:MM o HH:MM:SS"
+            }
+        }
+    },
+    horaFin: {
+        type: DataTypes.TIME,
+        allowNull: false,
+        validate: {
+            notNull: { msg: "La hora de fin es requerida" },
+            notEmpty: { msg: "La hora de fin no debe estar vacía" },
+            is: {
+                args: /^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/,
+                msg: "La hora de fin debe estar en formato HH:MM o HH:MM:SS"
+            },
+            validarOrden(value) {
+                if (this.horaInicio && value <= this.horaInicio) {
+                    throw new Error("La hora de fin debe ser mayor que la hora de inicio");
+                }
+            }
         }
     },
     dias: {
