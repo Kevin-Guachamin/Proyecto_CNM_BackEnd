@@ -15,11 +15,6 @@ const Materia = sequelize.define('Materia', {
             notNull: { msg: "El nombre de la materia es requerido" },
             notEmpty: { msg: "El nombre de la materia no puede estar vacío" },
             len: { args: [2, 50], msg: "El nombre de la materia debe tener entre 2 y 50 caracteres" },
-            isOnlyLetters(value) {
-                if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(value)) {
-                    throw new Error("El primer nombre solo puede contener letras y espacios");
-                }
-            }
         }
     },
     nivel: {
