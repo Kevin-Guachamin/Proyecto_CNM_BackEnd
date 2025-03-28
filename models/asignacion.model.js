@@ -17,7 +17,6 @@ const Asignacion = sequelize.define("Asignacion", {
         allowNull: false,
         validate: {
             notNull: { msg: "El paralelo es requerido" },
-            notEmpty: { msg: "El paralelo no puede estar vacío" },
             len: { args: [1, 50], msg: "El paralelo tener entre 1 y 50 caracteres" },
         }
     },
@@ -54,6 +53,16 @@ const Asignacion = sequelize.define("Asignacion", {
                     }
                 }
             }
+        }
+    },
+    cupos:{
+        type: DataTypes.INTEGER, 
+        allowNull: false,
+        validate:{
+            notEmpty: {msg: "No se permiten valores vacíos"},
+            notNull: {msg: "No se permiten valores nulos"},
+            isInt: {msg: "Debe ser un número entero"},
+            min: { args: 1, msg: "La cantidad mínima debe ser 1" }, // Valor mínimo
         }
     }
 },
