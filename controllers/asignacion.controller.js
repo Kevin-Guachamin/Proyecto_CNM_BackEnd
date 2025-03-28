@@ -168,6 +168,9 @@ const obtenerAsignacionesPorNivel = async (req, res) => {
         {
           model: Materia,
           where: { nivel }
+        },
+        {
+          model: Docente
         }
       ]
     })

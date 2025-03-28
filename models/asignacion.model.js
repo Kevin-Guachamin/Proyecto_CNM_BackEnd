@@ -17,7 +17,6 @@ const Asignacion = sequelize.define("Asignacion", {
         allowNull: false,
         validate: {
             notNull: { msg: "El paralelo es requerido" },
-            notEmpty: { msg: "El paralelo no puede estar vacío" },
             len: { args: [1, 50], msg: "El paralelo tener entre 1 y 50 caracteres" },
         }
     },
