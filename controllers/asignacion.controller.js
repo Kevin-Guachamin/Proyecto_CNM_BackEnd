@@ -162,7 +162,7 @@ const obtenerAsignacionesPorDocente = async (req, res) => {
 };
 const obtenerAsignacionesPorNivel = async (req, res) => {
   try {
-    const nivel = req.params;
+    const nivel = req.params.nivel;
     const asignaciones = await Asignacion.findAll({
       include: [
         {
@@ -171,9 +171,7 @@ const obtenerAsignacionesPorNivel = async (req, res) => {
         }
       ]
     })
-    if (asignaciones.length === 0) {
-      return res.status(404).json({ message: "No se encontraron asignaciones para este nivel" });
-    }
+    
     return res.json(asignaciones);
   } catch (error) {
     console.error("Error al obtener asignaciones por nivel:", error);
