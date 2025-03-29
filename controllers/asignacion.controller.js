@@ -78,41 +78,70 @@ const updateAsginacion = async (req, res) => {
 }
 const getAsignacion = async (req, res) => {
   try {
-    const { id } = req.params
+    const { id } = req.params;
 
     const asignacion = await Asignacion.findByPk(id, {
       include: [
-        { model: Docente, attributes: ["primer_nombre", "segundo_nombre", "primer_apellido", "segundo_apellido"] },
-        { model: Materia, attributes: ["nombre"], as: "materiaDetalle" },
-        { model: Periodo_Academico, attributes: ["descripcion"] }
+        {
+          model: Docente,
+          attributes: ["primer_nombre", "segundo_nombre", "primer_apellido", "segundo_apellido"]
+        },
+        {
+          model: Materia,
+          attributes: ["nombre"],
+          as: "materiaDetalle"
+        },
+        {
+          model: Periodo_Academico,
+          attributes: ["descripcion"] // Ajusta si tu tabla periodo_academico tiene otras columnas
+        }
       ]
-    })
+    });
 
-    if (!asignacion)
-      return res.status(404).json({ message: "Asignación no encontrada" })
+    if (!asignacion) {
+      return res.status(404).json({ message: "Asignación no encontrada" });
+    }
 
+    // 1. Construimos el nombre completo del docente
     const docente = asignacion.Docente
-      ? [asignacion.Docente.primer_nombre, asignacion.Docente.segundo_nombre, asignacion.Docente.primer_apellido, asignacion.Docente.segundo_apellido]
+      ? [
+          asignacion.Docente.primer_nombre,
+          asignacion.Docente.segundo_nombre,
+          asignacion.Docente.primer_apellido,
+          asignacion.Docente.segundo_apellido
+        ]
         .filter(Boolean)
         .join(" ")
-      : null
+      : null;
+
+    // 2. Reconstruimos el "horario" a partir de "dias", "horaInicio" y "horaFin"
+    //    Ejemplo: "Lunes, Miércoles 10:00:00 - 12:00:00"
+    let horarioStr = null;
+    if (asignacion.dias && asignacion.horaInicio && asignacion.horaFin) {
+      const diasStr = asignacion.dias.join(", ");
+      horarioStr = `${diasStr} ${asignacion.horaInicio} - ${asignacion.horaFin}`;
+    }
+
+    // 3. Obtenemos la descripción del periodo desde Periodo_Academico
+    const periodoStr = asignacion.Periodo_Academico
+      ? asignacion.Periodo_Academico.descripcion
+      : null;
 
     res.status(200).json({
       ID: asignacion.ID,
       paralelo: asignacion.paralelo,
-      horario: asignacion.horario,
-      periodo: asignacion.periodo,
+      horario: horarioStr,        // <-- reconstruido
+      periodo: periodoStr,        // <-- viene de Periodo_Academico.descripcion
       docente,
       materia: asignacion.materiaDetalle?.nombre || null,
-      periodo: asignacion.Periodo_Academico?.descripcion || null,
       createdAt: asignacion.createdAt,
       updatedAt: asignacion.updatedAt
-    })
+    });
   } catch (error) {
-    console.error("Error al obtener la asignación", error)
-    res.status(500).json({ message: "Error al obtener la asignación en el servidor" })
+    console.error("Error al obtener la asignación", error);
+    res.status(500).json({ message: "Error al obtener la asignación en el servidor" });
   }
-}
+};
 
 const deleteAsignacion = async (req, res) => {
   try {
@@ -135,33 +164,77 @@ const obtenerAsignacionesPorDocente = async (req, res) => {
   try {
     const { id_docente } = req.params;
 
+    // Incluye las relaciones necesarias: Docente, Materia y Periodo_Academico
     const asignaciones = await Asignacion.findAll({
       where: { nroCedula_docente: id_docente },
       include: [
-        { model: Materia, attributes: ["nombre"], as: "materiaDetalle" },
+        {
+          model: Docente,
+          attributes: ["primer_nombre", "segundo_nombre", "primer_apellido", "segundo_apellido"]
+        },
+        {
+          model: Materia,
+          attributes: ["nombre"],
+          as: "materiaDetalle"
+        },
+        {
+          model: Periodo_Academico,
+          attributes: ["descripcion"]
+        }
       ]
     });
 
+    // Si no hay asignaciones, retornar un 404
     if (!asignaciones.length) {
       return res.status(404).json({ message: "No hay asignaciones para este docente" });
     }
 
-    const resultado = asignaciones.map(asignacion => ({
-      ID: asignacion.ID,
-      paralelo: asignacion.paralelo,
-      horario: asignacion.horario,
-      periodo: asignacion.periodo,
-      materia: asignacion.materiaDetalle?.nombre || null,
-      createdAt: asignacion.createdAt,
-      updatedAt: asignacion.updatedAt
-    }));
+    // Construye el array de resultados con los campos que necesitas
+    const resultado = asignaciones.map(asignacion => {
+      // 1. Nombre completo del docente
+      const docente = asignacion.Docente
+        ? [
+            asignacion.Docente.primer_nombre,
+            asignacion.Docente.segundo_nombre,
+            asignacion.Docente.primer_apellido,
+            asignacion.Docente.segundo_apellido
+          ]
+          .filter(Boolean)
+          .join(" ")
+        : null;
 
+      // 2. Reconstruir el horario: ej. "Lunes, Miércoles 10:00:00 - 12:00:00"
+      let horarioStr = null;
+      if (asignacion.horaInicio && asignacion.horaFin && asignacion.dias) {
+        const diasStr = asignacion.dias.join(", ");
+        horarioStr = `${diasStr} ${asignacion.horaInicio} - ${asignacion.horaFin}`;
+      }
+
+      // 3. Tomar la descripción del período académico
+      const periodoStr = asignacion.Periodo_Academico
+        ? asignacion.Periodo_Academico.descripcion
+        : null;
+
+      return {
+        ID: asignacion.ID,
+        paralelo: asignacion.paralelo,
+        horario: horarioStr,                  // Reconstruido
+        periodo: periodoStr,                  // Descripción del período
+        docente,                              // Nombre completo
+        materia: asignacion.materiaDetalle?.nombre || null,
+        createdAt: asignacion.createdAt,
+        updatedAt: asignacion.updatedAt
+      };
+    });
+
+    // Retornar el resultado
     res.status(200).json(resultado);
   } catch (error) {
     console.error("Error al obtener asignaciones", error);
     res.status(500).json({ message: "Error al obtener las asignaciones en el servidor" });
   }
 };
+
 const obtenerAsignacionesPorNivel = async (req, res) => {
   try {
     const nivel = req.params.nivel;
