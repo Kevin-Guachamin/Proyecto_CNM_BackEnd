@@ -1,129 +1,148 @@
-const Calificaciones_finales = require('../models/calificaciones_finales');
+const CalificacionesFinales = require('../models/calificaciones_finales.model');
+const Inscripcion = require('../models/inscripcion.model');
+const Matricula = require('../models/matricula.models');
+const Estudiante = require('../models/estudiante.model');
+const { Op } = require('sequelize');
 
+module.exports.createFinal = async (req, res) => {
+  try {
+    const { id_inscripcion, examen_recuperacion } = req.body;
+    if (!id_inscripcion) {
+      return res.status(400).json({ message: "Falta id_inscripcion" });
+    }
+    const nuevo = await CalificacionesFinales.create({
+      ID_inscripcion: id_inscripcion,
+      examen_recuperacion
+    });
+    return res.status(201).json(nuevo);
+  } catch (error) {
+    console.error("createFinal error:", error);
+    return res.status(500).json({ message: "Error en servidor" });
+  }
+};
 
+module.exports.createFinalBulk = async (req, res) => {
+  try {
+    const items = req.body;
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ message: "Array requerido" });
+    }
+
+    // 1. Construir condiciones OR
+    const conditions = items.map(i => ({
+      ID_inscripcion: i.id_inscripcion
+    }));
+
+    // 2. Buscar registros existentes
+    const existing = await CalificacionesFinales.findAll({
+      where: {
+        [Op.or]: conditions
+      }
+    });
+
+    // 3. Crear un Set con las claves existentes
+    const existingKeys = new Set(
+      existing.map(e => e.ID_inscripcion)
+    );
+
+    // 4. Filtrar registros nuevos
+    const newRows = items.filter(i => !existingKeys.has(i.id_inscripcion));
+
+    // 5. Si no hay nada nuevo
+    if (newRows.length === 0) {
+      return res.status(200).json({ message: "No se han insertado registros, ya existen." });
+    }
+
+    // 6. Preparar payload
+    const payload = newRows.map(i => ({
+      ID_inscripcion: i.id_inscripcion,
+      examen_recuperacion: i.examen_recuperacion
+    }));
+
+    // 7. Insertar registros nuevos
+    const created = await CalificacionesFinales.bulkCreate(payload, { validate: true });
+    return res.status(201).json(created);
+
+  } catch (error) {
+    console.error("createFinalBulk error:", error);
+    return res.status(500).json({ message: "Error en servidor" });
+  }
+};
 
 module.exports.updateFinal = async (req, res) => {
   try {
-    const { id_matricula_asignacion, nota_final_Q1, nota_final_Q2, examen_recuperacion, comportamiento_final } = req.body;
-
-
-    // Buscamos si ya existe un registro quimestral para este id_matricula_asignacion y quimistre
-    let finalRecord = await Calificaciones_finales.findOne({
-      where: {
-        id_matricula_asignacion,
-
-      }
-    });
-
-    if (!finalRecord) {
-      // Crear el registro quimestral
-      finalRecord = await Calificaciones_finales.create({
-        id_matricula_asignacion,
-        nota_final_Q1,
-        nota_final_Q2,
-        examen_recuperacion,
-        comportamiento_final
-      });
-    } else {
-      // Actualizar el registro existente
-      await finalRecord.update({
-        id_matricula_asignacion,
-        nota_final_Q1,
-        nota_final_Q2,
-        examen_recuperacion,
-        comportamiento_final
-      });
-    }
-
-    return res.status(200).json({
-      finalRecord,
-    });
+    const { id } = req.params;
+    const { examen_recuperacion } = req.body;
+    const [updated] = await CalificacionesFinales.update(
+      { examen_recuperacion },
+      { where: { ID: id } }
+    );
+    if (!updated) return res.status(404).json({ message: "No encontrado" });
+    const record = await CalificacionesFinales.findByPk(id);
+    return res.status(200).json(record);
   } catch (error) {
-    console.error("Error en updateQuimestre:", error);
-    if (error.name === "SequelizeValidationError") {
-      console.log("Estos son los errores", error);
-
-      const errEncontrado = error.errors.find(err =>
-        err.validatorKey === "notEmpty" ||
-        err.validatorKey === "isNumeric" ||
-        err.validatorKey === "len" ||
-        err.validatorKey ==="is_null"
-      );
-
-      if (errEncontrado) {
-        return res.status(400).json({ message: errEncontrado.message });
-      }
-    }
-    if (error instanceof TypeError) {
-      return res.status(400).json({ message: "Debe completar todos los campos" })
-    }
-    if (error.name === "SequelizeUniqueConstraintError") {
-      return res.status(400).json({ message: error.message })
-    }
-
-    res.status(500).json({ message: `Error al crear o editar en el servidor:` })
-    console.log("ESTE ES EL ERROR", error.name)
+    console.error("updateFinal error:", error);
+    return res.status(500).json({ message: "Error en servidor" });
   }
 };
 
-/**
- * GET registro de Quimestre por ID
- * GET /api/quimestres/:id
- * 
- * Devuelve el registro quimestral (donde parcial es null) y opcionalmente se pueden incluir
- * los datos de los parciales (P1 y P2) que lo componen.
- */
 module.exports.getFinal = async (req, res) => {
   try {
-    const id = req.params.id;
-    const finalRecord = await Calificaciones_finales.findByPk(id);
-    if (!finalRecord) {
-      return res.status(404).json({ message: "Registro de quimestre no encontrado." });
-    }
-    if (finalRecord.parcial !== null) {
-      return res.status(400).json({ message: "El ID proporcionado no corresponde a un registro de quimestre." });
-    }
-
-
-
-    return res.status(200).json({
-      finalRecord,
-    });
+    const record = await CalificacionesFinales.findByPk(req.params.id);
+    if (!record) return res.status(404).json({ message: "No encontrado" });
+    return res.status(200).json(record);
   } catch (error) {
-    console.error("Error en getQuimestre:", error);
-    return res.status(500).json({ message: "Error en el servidor" });
+    console.error("getFinal error:", error);
+    return res.status(500).json({ message: "Error en servidor" });
   }
 };
 
-/**
- * GET ALL quimestres
- * GET /api/quimestres
- * 
- * Devuelve todos los registros quimestrales (donde parcial es null).
- */
+module.exports.getFinalesPorAsignacion = async (req, res) => {
+  try {
+    const { id_asignacion } = req.params;
+    const records = await CalificacionesFinales.findAll({
+      include: [{
+        model: Inscripcion,
+        where: { ID_asignacion: id_asignacion },
+        include: [{
+          model: Matricula,
+          attributes: ['nivel'],
+          include: [{ model: Estudiante, attributes: ['ID','primer_nombre','segundo_nombre','primer_apellido','segundo_apellido'] }]
+        }]
+      }]
+    });
 
-/**
- * DELETE quimestre por ID
- * DELETE /api/quimestres/:id
- */
+    const result = records.map(r => {
+      const est = r.Inscripcion?.Matricula?.Estudiante;
+      const nombre = est
+        ? `${est.primer_apellido} ${est.segundo_apellido||''} ${est.primer_nombre} ${est.segundo_nombre||''}`.trim()
+        : null;
+      return {
+        id: r.ID,
+        idInscripcion: r.ID_inscripcion,
+        examen_recuperacion: r.examen_recuperacion,
+        idEstudiante: est?.ID || null,
+        nombreEstudiante: nombre,
+        nivel: r.Inscripcion?.Matricula?.nivel || null
+      };
+    });
+
+    result.sort((a,b) => (a.nombreEstudiante||'').localeCompare(b.nombreEstudiante));
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error("getFinalesPorAsignacion error:", error);
+    return res.status(500).json({ message: "Error en servidor" });
+  }
+};
+
 module.exports.deleteFinal = async (req, res) => {
   try {
-    const id = req.params.id;
-    const finalRecord = await Calificaciones_finales.findByPk(id);
-    if (!finalRecord) {
-      return res.status(404).json({ message: "Registro de quimestre no encontrado." });
-    }
-    if (finalRecord.parcial !== null) {
-      return res.status(400).json({ message: "El ID proporcionado no corresponde a un registro de quimestre." });
-    }
-    await Calificaciones_finales.destroy({ where: { ID: id } });
-    return res.status(200).json({
-      message: "Registro eliminado correctamente.",
-      record: finalRecord
-    });
+    const record = await CalificacionesFinales.findByPk(req.params.id);
+    if (!record) return res.status(404).json({ message: "No encontrado" });
+    await record.destroy();
+    return res.status(200).json({ message: "Eliminado correctamente", eliminado: record });
   } catch (error) {
-    console.error("Error en delete:", error);
-    return res.status(500).json({ message: "Error en el servidor" });
+    console.error("deleteFinal error:", error);
+    return res.status(500).json({ message: "Error en servidor" });
   }
 };
-
