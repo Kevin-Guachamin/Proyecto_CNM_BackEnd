@@ -13,11 +13,21 @@ module.exports = (app) => {
 
  
 
-  // Rutas para Quimestres
-  app.post('/api/quimestres', QuimestresController.updateQuimestre);
-  app.get('/api/quimestres/:id', QuimestresController.getQuimestre);
+  // Rutas para Quimestrales
+  app.post('/quimestrales', QuimestresController.createQuimestral);
+  app.post('/quimestrales/bulk', QuimestresController.createQuimestralBulk);
+  app.get('/quimestrales/:id', QuimestresController.getQuimestral);
+  app.get('/quimestrales/asignacion/:id_asignacion', QuimestresController.getQuimestralesPorAsignacion);
+  app.put('/quimestrales/:id', QuimestresController.updateQuimestral);
+  app.delete('/quimestrales/:id', QuimestresController.deleteQuimestral); 
   
 
   // Ruta para el Reporte Final Anual
-  app.get('/api/final', FinalController.getFinal);
+  app.post('/finales', FinalController.createFinal);
+  app.post('/finales/bulk', FinalController.createFinalBulk);
+  app.get('/finales/:id', FinalController.getFinal);
+  app.get('/finales/asignacion/:id_asignacion', FinalController.getFinalesPorAsignacion);
+  app.put('/finales/:id', FinalController.updateFinal);
+  app.delete('/finales/:id', FinalController.deleteFinal);
+
 };

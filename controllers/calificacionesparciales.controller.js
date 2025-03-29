@@ -2,6 +2,7 @@ const Calificaciones_parciales = require('../models/calificaciones_parciales.mod
 const Inscripcion = require('../models/inscripcion.model');
 const Matricula = require('../models/matricula.models');
 const Estudiante = require('../models/estudiante.model');
+const { Op } = require("sequelize");
 
 /**
  * CREATE Parcial (un solo registro)
@@ -82,9 +83,36 @@ module.exports.createParcialBulk = async (req, res) => {
     if (!Array.isArray(parcialesData) || parcialesData.length === 0) {
       return res.status(400).json({ message: "Se requiere un array de parciales para la creación masiva" });
     }
+    
+    // Construir condiciones OR para buscar registros existentes
+    const conditions = parcialesData.map(item => ({
+      ID_inscripcion: item.id_inscripcion,
+      quimestre: item.quimestre,
+      parcial: item.parcial
+    }));
 
-    // Mapeamos cada objeto para que coincida con la estructura del modelo
-    const toCreate = parcialesData.map(item => ({
+    // Consultar los registros existentes con esas claves
+    const existingParciales = await Calificaciones_parciales.findAll({
+      where: {
+        [Op.or]: conditions
+      }
+    });
+    
+    // Crear un Set con las claves existentes
+    const existingKeys = new Set(existingParciales.map(item => `${item.ID_inscripcion}-${item.quimestre}-${item.parcial}`));
+
+    // Filtrar solo los registros nuevos
+    const newRows = parcialesData.filter(item => {
+      const key = `${item.id_inscripcion}-${item.quimestre}-${item.parcial}`;
+      return !existingKeys.has(key);
+    });
+
+    if (newRows.length === 0) {
+      return res.status(200).json({ message: "No se han insertado registros, ya existen." });
+    }
+
+    // Preparar los registros a crear
+    const toCreate = newRows.map(item => ({
       ID_inscripcion: item.id_inscripcion,
       quimestre: item.quimestre,
       parcial: item.parcial,
