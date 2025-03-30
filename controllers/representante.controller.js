@@ -55,8 +55,15 @@ const crearRepresentante = async (request, response) => {
             return response.status(400).json({ message: "Debe completar todos los campos" })
         }
         if (error.name === "SequelizeUniqueConstraintError") {
-            return response.status(400).json({ message: error.message })
-        }
+            const errEncontrado = error.errors.find(err =>
+              err.validatorKey === "not_unique" 
+              
+            );
+            if (errEncontrado) {
+              return res.status(400).json({ message: `${errEncontrado.path} debe ser único` });
+            }
+      
+          }
         return response.status(500).json({ message: 'Error al crear el representante en el servidor' });
     }
 }
@@ -181,8 +188,15 @@ const updateRepresentante = async (request, response) => {
             return res.status(400).json({ message: "Debe completar todos los campos" })
         }
         if (error.name === "SequelizeUniqueConstraintError") {
-            return res.status(400).json({ message: error.message })
-        }
+            const errEncontrado = error.errors.find(err =>
+              err.validatorKey === "not_unique" 
+              
+            );
+            if (errEncontrado) {
+              return res.status(400).json({ message: `${errEncontrado.path} debe ser único` });
+            }
+      
+          }
         return response.status(500).json({ message: 'Error al actualizar el representante en el servidor' });
     }
 }

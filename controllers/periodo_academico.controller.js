@@ -33,9 +33,16 @@ const createPeriodo = async (req, res) => {
         if (error instanceof TypeError){
             return res.status(400).json({message: "Debe completar todos los campos"})
         }
-        if (error.name ==="SequelizeUniqueConstraintError"){
-            return res.status(400).json({message: error.message})
-        }
+        if (error.name === "SequelizeUniqueConstraintError") {
+            const errEncontrado = error.errors.find(err =>
+              err.validatorKey === "not_unique" 
+              
+            );
+            if (errEncontrado) {
+              return res.status(400).json({ message: `${errEncontrado.path} debe ser único` });
+            }
+      
+          }
         res.status(500).json({message: `Error al crear periodo en el servidor`})
     }
 }
@@ -70,9 +77,16 @@ const updatePeriodo= async (req, res)=>{
         if (error instanceof TypeError){
             return res.status(400).json({message: "Debe completar todos los campos"})
         }
-        if (error.name ==="SequelizeUniqueConstraintError"){
-            return res.status(400).json({message: error.message})
-        }
+        if (error.name === "SequelizeUniqueConstraintError") {
+            const errEncontrado = error.errors.find(err =>
+              err.validatorKey === "not_unique" 
+              
+            );
+            if (errEncontrado) {
+              return res.status(400).json({ message: `${errEncontrado.path} debe ser único` });
+            }
+      
+          }
         res.status(500).json({message: `Error al editar periodo en el servidor`})
     }
 }

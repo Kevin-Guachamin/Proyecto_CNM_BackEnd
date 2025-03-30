@@ -5,15 +5,53 @@ const Periodo_Academico = require('../models/periodo_academico.model');
 
 const createAsignacion = async (req, res) => {
   try {
-    const asignacion = req.body
-    const asignacionFound = await Asignacion.findOne({ where: { asignacion } })
+    const asignacion = req.body;
+    console.log("Esta es lo que se recibe:", asignacion);
+
+    // Verificar si la asignación ya existe. Cambié la búsqueda para comprobar los parámetros relevantes.
+    const asignacionFound = await Asignacion.findOne({
+      where: {
+        paralelo: asignacion.paralelo,
+        horaInicio: asignacion.horaInicio,
+        horaFin: asignacion.horaFin,
+        dias: asignacion.dias,
+        cupos: parseInt(asignacion.cupos, 10),
+        id_periodo_academico: asignacion.id_periodo_academico,
+        nroCedula_docente: asignacion.nroCedula_docente,
+        id_materia: asignacion.id_materia
+      }
+    });
+
     if (asignacionFound) {
-      return res.status(409).json({ message: "Error la asignación ya existe" })
+      return res.status(409).json({ message: "Error: la asignación ya existe" });
     }
-    const result = await Asignacion.create(asignacion)
-    res.status(201).json(result)
+
+    // Crear la asignación si no existe
+    const result = await Asignacion.create({
+      paralelo: asignacion.paralelo,
+      horaInicio: asignacion.horaInicio,
+      horaFin: asignacion.horaFin,
+      dias: asignacion.dias,
+      cupos: parseInt(asignacion.cupos, 10),
+      id_periodo_academico: asignacion.id_periodo_academico,
+      nroCedula_docente: asignacion.nroCedula_docente,
+      id_materia: asignacion.id_materia
+    });
+
+    res.status(201).json(result);
   } catch (error) {
     console.error("Error al crear la asignación", error)
+    console.log("ESTE ES EL ERROR", error.name)
+    if (error.name === "SequelizeUniqueConstraintError") {
+      const errEncontrado = error.errors.find(err =>
+        err.validatorKey === "not_unique" 
+        
+      );
+      if (errEncontrado) {
+        return res.status(400).json({ message: `${errEncontrado.path} debe ser único` });
+      }
+
+    }
     if (error.name === "SequelizeValidationError") {
       console.log("Estos son los errores", error);
 
@@ -31,12 +69,10 @@ const createAsignacion = async (req, res) => {
     if (error instanceof TypeError) {
       return res.status(400).json({ message: "Debe completar todos los campos" })
     }
-    if (error.name === "SequelizeUniqueConstraintError") {
-      return res.status(400).json({ message: error.message })
-    }
+    
 
     res.status(500).json({ message: `Error al crear asignación en el servidor:` })
-    console.log("ESTE ES EL ERROR", error.name)
+    
   }
 }
 const updateAsginacion = async (req, res) => {
@@ -50,7 +86,18 @@ const updateAsginacion = async (req, res) => {
     const result = await Asignacion.findByPk(id)
     res.status(200).json(result)
   } catch (error) {
-    console.error("Error al editar la asignación", error)
+    console.error("Error al crear la asignación", error)
+    console.log("ESTE ES EL ERROR", error.name)
+    if (error.name === "SequelizeUniqueConstraintError") {
+      const errEncontrado = error.errors.find(err =>
+        err.validatorKey === "not_unique" 
+        
+      );
+      if (errEncontrado) {
+        return res.status(400).json({ message: `${errEncontrado.path} debe ser único` });
+      }
+
+    }
     if (error.name === "SequelizeValidationError") {
       console.log("Estos son los errores", error);
 
@@ -67,9 +114,6 @@ const updateAsginacion = async (req, res) => {
     }
     if (error instanceof TypeError) {
       return res.status(400).json({ message: "Debe completar todos los campos" })
-    }
-    if (error.name === "SequelizeUniqueConstraintError") {
-      return res.status(400).json({ message: error.message })
     }
 
     res.status(500).json({ message: `Error al crear asignación en el servidor:` })

@@ -223,8 +223,15 @@ const updateEstudiante = async (request, response) => {
             return response.status(400).json({ message: "Debe completar todos los campos" })
         }
         if (error.name === "SequelizeUniqueConstraintError") {
-            return response.status(400).json({ message: error.message })
-        }
+            const errEncontrado = error.errors.find(err =>
+              err.validatorKey === "not_unique" 
+              
+            );
+            if (errEncontrado) {
+              return res.status(400).json({ message: `${errEncontrado.path} debe ser único` });
+            }
+      
+          }
 
         response.status(500).json({ message: `Error al editar estudiante en el servidor:` })
         console.log("ESTE ES EL ERROR", error.name)
