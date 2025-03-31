@@ -1,3 +1,4 @@
+const { where } = require('sequelize');
 const Asignacion = require('../models/asignacion.model');
 const Docente = require('../models/docente.model');
 const Materia = require('../models/materia.model');
@@ -341,8 +342,12 @@ const obtenerAsignacionesPorNivel = async (req, res) => {
 }
 const getAsignaciones = async (req, res) => {
   try {
+    const periodo=req.params.periodo
+    console.log("este es el periodo",periodo)
     const asignaciones = await Asignacion.findAll({
+      where: { id_periodo_academico: periodo},
       include: [
+        
         { model: Materia },
         { model: Docente },
       ]
