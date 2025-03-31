@@ -306,7 +306,10 @@ const obtenerAsignacionesPorNivel = async (req, res) => {
     const ID = req.params.periodo
     console.log("estos fueron los parametros", nivel, ID)
     const asignaciones = await Asignacion.findAll({
-      where: { id_periodo_academico: ID },
+      where: {
+        id_periodo_academico: ID,
+        paralelo: { [Op.ne]: "Individual" }
+      },
       include: [
         {
           model: Materia,
@@ -319,7 +322,7 @@ const obtenerAsignacionesPorNivel = async (req, res) => {
 
       ]
     })
-    
+
     const asignacionesFinal = asignaciones.map((asignacion) => {
       const asignacionPlain = asignacion.get({ plain: true }); // Convertimos el resultado a un objeto plano
       // Eliminamos las contraseñas de los docentes
@@ -342,12 +345,15 @@ const obtenerAsignacionesPorNivel = async (req, res) => {
 }
 const getAsignaciones = async (req, res) => {
   try {
-    const periodo=req.params.periodo
-    console.log("este es el periodo",periodo)
+    const periodo = req.params.periodo
+    console.log("este es el periodo", periodo)
     const asignaciones = await Asignacion.findAll({
-      where: { id_periodo_academico: periodo},
+      where: {
+        id_periodo_academico: periodo,
+        paralelo: { [Op.ne]: "Individual" }
+      },
       include: [
-        
+
         { model: Materia },
         { model: Docente },
       ]
