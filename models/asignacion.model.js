@@ -15,10 +15,10 @@ const Asignacion = sequelize.define("Asignacion", {
     paralelo: {
         type: DataTypes.STRING,
         allowNull: false,
-        defaultValue:"",
+        defaultValue: "",
         validate: {
             notNull: { msg: "El paralelo es requerido" },
-            len: { args: [1, 50], msg: "El paralelo tener entre 1 y 50 caracteres" },
+            len: { args: [0, 50], msg: "El paralelo tener entre 1 y 50 caracteres" },
         }
     },
     horaInicio: {
@@ -31,6 +31,10 @@ const Asignacion = sequelize.define("Asignacion", {
                 args: /^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/,
                 msg: "La hora de inicio debe estar en formato HH:MM o HH:MM:SS"
             }
+        },
+        get() {
+            const rawValue = this.getDataValue("horaInicio");
+            return rawValue ? rawValue.slice(0, 5) : null; // Extrae solo HH:MM
         }
     },
     horaFin: {
@@ -48,6 +52,10 @@ const Asignacion = sequelize.define("Asignacion", {
                     throw new Error("La hora de fin debe ser mayor que la hora de inicio");
                 }
             }
+        },
+        get() {
+            const rawValue = this.getDataValue("horaFin");
+            return rawValue ? rawValue.slice(0, 5) : null; // Extrae solo HH:MM
         }
     },
     dias: {
@@ -56,17 +64,17 @@ const Asignacion = sequelize.define("Asignacion", {
         validate: {
             isArrayOfValidDays(value) {
                 const validDays = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
-    
+
                 // 1. Verifica que sea un array
                 if (!Array.isArray(value)) {
                     throw new Error("El campo 'dias' debe ser un array");
                 }
-    
+
                 // 2. Verifica que tenga entre 1 y 2 elementos
                 if (value.length < 1 || value.length > 2) {
                     throw new Error("Debe seleccionar entre 1 y 2 días");
                 }
-    
+
                 // 3. Verifica que cada elemento sea un día válido
                 for (const day of value) {
                     if (!validDays.includes(day)) {
@@ -76,13 +84,13 @@ const Asignacion = sequelize.define("Asignacion", {
             }
         }
     },
-    cupos:{
-        type: DataTypes.INTEGER, 
+    cupos: {
+        type: DataTypes.INTEGER,
         allowNull: false,
-        validate:{
-            notEmpty: {msg: "No se permiten valores vacíos"},
-            notNull: {msg: "No se permiten valores nulos"},
-            isInt: {msg: "Debe ser un número entero"},
+        validate: {
+            notEmpty: { msg: "No se permiten valores vacíos" },
+            notNull: { msg: "No se permiten valores nulos" },
+            isInt: { msg: "Debe ser un número entero" },
             min: { args: 1, msg: "La cantidad mínima debe ser 1" }, // Valor mínimo
         }
     }
@@ -97,6 +105,6 @@ Periodo_Academico.hasMany(Asignacion, { foreignKey: "id_periodo_academico", sour
 
 // Permite incluir directamente datos de Docente y Materia desde Asignación
 Asignacion.belongsTo(Docente, { foreignKey: "nroCedula_docente", targetKey: "nroCedula" });
-Asignacion.belongsTo(Materia, { as: "materiaDetalle", foreignKey: "id_materia", targetKey: "ID" });
-  
+Asignacion.belongsTo(Materia, { foreignKey: "id_materia", targetKey: "ID" });
+
 module.exports = Asignacion;

@@ -130,9 +130,7 @@ const getDocente = async(req, res)=>{
 const getDocentes = async(req, res)=>{
     try {
         const Docentes= await Docente.findAll()
-        if(!Docentes){
-            return res.status(404).json({message: "No se encontro ningún usuario"})
-        }
+        
         res.status(200).json(Docentes)
     } catch (error) {
         console.error("Error al obtener docentes", error)

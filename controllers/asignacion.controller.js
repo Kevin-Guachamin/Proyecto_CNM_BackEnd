@@ -23,7 +23,7 @@ const createAsignacion = async (req, res) => {
     });
 
     if (asignacionFound) {
-      return res.status(409).json({ message: "Error: la asignación ya existe" });
+      return res.status(409).json({ message: "la asignación ya existe" });
     }
 
     // Crear la asignación si no existe
@@ -44,8 +44,8 @@ const createAsignacion = async (req, res) => {
     console.log("ESTE ES EL ERROR", error.name)
     if (error.name === "SequelizeUniqueConstraintError") {
       const errEncontrado = error.errors.find(err =>
-        err.validatorKey === "not_unique" 
-        
+        err.validatorKey === "not_unique"
+
       );
       if (errEncontrado) {
         return res.status(400).json({ message: `${errEncontrado.path} debe ser único` });
@@ -59,7 +59,7 @@ const createAsignacion = async (req, res) => {
         err.validatorKey === "notEmpty" ||
         err.validatorKey === "is_null" ||
         err.validatorKey === "isArrayOfValidDays" ||
-        err.validatorKey ==="validarOrden"
+        err.validatorKey === "validarOrden"
       );
 
       if (errEncontrado) {
@@ -69,29 +69,49 @@ const createAsignacion = async (req, res) => {
     if (error instanceof TypeError) {
       return res.status(400).json({ message: "Debe completar todos los campos" })
     }
-    
+
 
     res.status(500).json({ message: `Error al crear asignación en el servidor:` })
-    
+
   }
 }
 const updateAsginacion = async (req, res) => {
   try {
     const asignacion = req.body
+    console.log("esto es lo que viene", asignacion)
     const id = req.params.id
     const [updatedRows] = await Asignacion.update(asignacion, { where: { id } })
     if (updatedRows === 0) {
       return res.status(404).json({ message: "Asignación no encontrada" })
     }
-    const result = await Asignacion.findByPk(id)
-    res.status(200).json(result)
+    const result = await Asignacion.findByPk(id, {
+      include: [
+        { model: Materia },
+        { model: Docente }
+      ]
+    })
+    const asignacionFinal = result.get({ plain: true }); // Convertimos la asignación a un objeto plano
+
+    // Eliminamos las contraseñas de los docentes
+    if (asignacionFinal.Docente) {
+      delete asignacionFinal.Docente.password;
+    }
+
+    // Renombramos Materium a Materia
+    if (asignacionFinal.Materium) {
+      asignacionFinal.Materia = asignacionFinal.Materium;
+      delete asignacionFinal.Materium;
+    }
+
+    // Devolvemos la asignación final
+    res.status(200).json(asignacionFinal);
   } catch (error) {
-    console.error("Error al crear la asignación", error)
+    console.error("Error al editar la asignación", error)
     console.log("ESTE ES EL ERROR", error.name)
     if (error.name === "SequelizeUniqueConstraintError") {
       const errEncontrado = error.errors.find(err =>
-        err.validatorKey === "not_unique" 
-        
+        err.validatorKey === "not_unique"
+
       );
       if (errEncontrado) {
         return res.status(400).json({ message: `${errEncontrado.path} debe ser único` });
@@ -105,7 +125,7 @@ const updateAsginacion = async (req, res) => {
         err.validatorKey === "notEmpty" ||
         err.validatorKey === "is_null" ||
         err.validatorKey === "isArrayOfValidDays" ||
-        err.validatorKey ==="validarOrden"
+        err.validatorKey === "validarOrden"
       );
 
       if (errEncontrado) {
@@ -116,7 +136,7 @@ const updateAsginacion = async (req, res) => {
       return res.status(400).json({ message: "Debe completar todos los campos" })
     }
 
-    res.status(500).json({ message: `Error al crear asignación en el servidor:` })
+    res.status(500).json({ message: `Error al editar asignación en el servidor:` })
     console.log("ESTE ES EL ERROR", error.name)
   }
 }
@@ -149,11 +169,11 @@ const getAsignacion = async (req, res) => {
     // 1. Construimos el nombre completo del docente
     const docente = asignacion.Docente
       ? [
-          asignacion.Docente.primer_nombre,
-          asignacion.Docente.segundo_nombre,
-          asignacion.Docente.primer_apellido,
-          asignacion.Docente.segundo_apellido
-        ]
+        asignacion.Docente.primer_nombre,
+        asignacion.Docente.segundo_nombre,
+        asignacion.Docente.primer_apellido,
+        asignacion.Docente.segundo_apellido
+      ]
         .filter(Boolean)
         .join(" ")
       : null;
@@ -238,11 +258,11 @@ const obtenerAsignacionesPorDocente = async (req, res) => {
       // 1. Nombre completo del docente
       const docente = asignacion.Docente
         ? [
-            asignacion.Docente.primer_nombre,
-            asignacion.Docente.segundo_nombre,
-            asignacion.Docente.primer_apellido,
-            asignacion.Docente.segundo_apellido
-          ]
+          asignacion.Docente.primer_nombre,
+          asignacion.Docente.segundo_nombre,
+          asignacion.Docente.primer_apellido,
+          asignacion.Docente.segundo_apellido
+        ]
           .filter(Boolean)
           .join(" ")
         : null;
@@ -282,22 +302,68 @@ const obtenerAsignacionesPorDocente = async (req, res) => {
 const obtenerAsignacionesPorNivel = async (req, res) => {
   try {
     const nivel = req.params.nivel;
+    const ID = req.params.periodo
+    console.log("estos fueron los parametros", nivel, ID)
     const asignaciones = await Asignacion.findAll({
+      where: { id_periodo_academico: ID },
       include: [
         {
           model: Materia,
-          where: { nivel }
+          where: { nivel },
+
         },
         {
           model: Docente
-        }
+        },
+
       ]
     })
     
-    return res.json(asignaciones);
+    const asignacionesFinal = asignaciones.map((asignacion) => {
+      const asignacionPlain = asignacion.get({ plain: true }); // Convertimos el resultado a un objeto plano
+      // Eliminamos las contraseñas de los docentes
+      if (asignacionPlain.Docente) {
+        delete asignacionPlain.Docente.password;
+      }
+      // Renombramos Materium a Materia
+      if (asignacionPlain.Materium) {
+        asignacionPlain.Materia = asignacionPlain.Materium;
+        delete asignacionPlain.Materium;
+      }
+      return asignacionPlain;
+    });
+    console.log("estas fueron las asignaciones finales", asignacionesFinal)
+    return res.json(asignacionesFinal);
   } catch (error) {
     console.error("Error al obtener asignaciones por nivel:", error);
     return res.status(500).json({ message: "Error al obtener asignaciones en el servidor" });
+  }
+}
+const getAsignaciones = async (req, res) => {
+  try {
+    const asignaciones = await Asignacion.findAll({
+      include: [
+        { model: Materia },
+        { model: Docente },
+      ]
+    })
+    const asignacionesFinal = asignaciones.map((asignacion) => {
+      const asignacionPlain = asignacion.get({ plain: true }); // Convertimos el resultado a un objeto plano
+      // Eliminamos las contraseñas de los docentes
+      if (asignacionPlain.Docente) {
+        delete asignacionPlain.Docente.password;
+      }
+      // Renombramos Materium a Materia
+      if (asignacionPlain.Materium) {
+        asignacionPlain.Materia = asignacionPlain.Materium;
+        delete asignacionPlain.Materium;
+      }
+      return asignacionPlain;
+    });
+    res.status(200).json(asignacionesFinal)
+  } catch (error) {
+    console.error("Error al obtener docentes", error)
+    res.status(500).json({ message: `Error al obtener docentes en el servidor:` })
   }
 }
 
@@ -307,5 +373,6 @@ module.exports = {
   getAsignacion,
   deleteAsignacion,
   obtenerAsignacionesPorDocente,
-  obtenerAsignacionesPorNivel
+  obtenerAsignacionesPorNivel,
+  getAsignaciones
 }
