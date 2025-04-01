@@ -1,5 +1,5 @@
 const { DataTypes } = require("sequelize");
-const {sequelize}= require('../config/sequelize.config')
+const { sequelize } = require('../config/sequelize.config')
 
 const Fechas_notas = sequelize.define("Fechas_notas",
     {
@@ -24,7 +24,7 @@ const Fechas_notas = sequelize.define("Fechas_notas",
                 }
                 return null;
             }
-            
+
         },
         fecha_fin: {
             type: DataTypes.DATEONLY,  // Solo guarda la fecha sin hora
@@ -41,8 +41,25 @@ const Fechas_notas = sequelize.define("Fechas_notas",
                 }
                 return null;
             }
-            
-        }
+
+        },
+        descripcion: {
+            type: DataTypes.ENUM,
+            values: [
+                "parcial1_quim1",
+                "parcial2_quim1",
+                "quimestre1",
+                "parcial1_quim2",
+                "parcial2_quim2",
+                "quimestre2",
+                "nota_final"
+            ],
+            allowNull: false,
+            validate: {
+                notNull: { msg: "La descripción es obligatoria" },
+                notEmpty: { msg: "La descripción no puede estar vacía" },
+            },
+        },
     },
     {
         tableName: "fechas_notas"
@@ -50,4 +67,4 @@ const Fechas_notas = sequelize.define("Fechas_notas",
 )
 
 
-module.exports=Fechas_notas
+module.exports = Fechas_notas
