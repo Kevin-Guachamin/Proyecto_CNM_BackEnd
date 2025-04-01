@@ -8,7 +8,7 @@ require('./models/asignacion.model')
 require('./models/estudiante.model')
 
 require('./models/matricula.models')
-
+require('./models/fechas_notas.model')
 
 
 const express = require('express')
@@ -67,5 +67,8 @@ allLogin(app)
 
 const allInscripcion=require('./routes/inscripcion.routes')
 allInscripcion(app)
+
+const AllFechasNotas=require('./routes/fechas_notas.routes')
+AllFechasNotas(app)
 startServer();
 
