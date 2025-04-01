@@ -110,7 +110,7 @@ const getPeriodoActivo = async(req, res)=>{
     
     try {
         
-        const periodo = await Periodo.findOne({where:{estado:"activo"}})
+        const periodo = await Periodo.findOne({where:{estado:"Activo"}})
         if(!periodo){
             return res.status(404).json({message: "Periodo no encontrado"})
         }
