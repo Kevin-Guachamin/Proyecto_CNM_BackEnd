@@ -83,7 +83,8 @@ const getRepresentanteEstudiante = async (request, response) => {
                 'primer_apellido',
                 'segundo_apellido',
                 'jornada', 
-                'especialidad'
+                'especialidad',
+                'nivel'
             ]
         });
 
@@ -154,7 +155,7 @@ const getEstudianteByCedula = async (request, response) => {
 const getAllEstudiantes = async (request, response) => {
     try {
 
-        let { page = 1, limit = 1 } = request.query;
+        let { page = 1, limit = 12 } = request.query;
         page = parseInt(page)
         limit = parseInt(limit)
         const { count, rows: estudiantes } = await Estudiante.findAndCountAll({

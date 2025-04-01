@@ -206,7 +206,8 @@ const Estudiante = sequelize.define('Estudiante', {
             "3ro Básico Superior",
             "1ro Bachillerato",
             "2do Bachillerato",
-            "3ro Bachillerato"
+            "3ro Bachillerato",
+            "Graduado"
         ),
         allowNull: false,
         validate:{

@@ -106,6 +106,22 @@ const getPeriodo = async(req, res)=>{
         res.status(500).json({message: `Error al obtener periodo en el servidor`})
     }
 }
+const getPeriodoActivo = async(req, res)=>{
+    
+    try {
+        
+        const periodo = await Periodo.findOne({where:{estado:"Activo"}})
+        if(!periodo){
+            return res.status(404).json({message: "Periodo no encontrado"})
+        }
+        
+        
+        res.status(200).json(periodo)
+    } catch (error) {
+        console.error("Error al obtener periodo", error)
+        res.status(500).json({message: `Error al obtener periodo en el servidor`})
+    }
+}
 const getPeriodos = async(req, res)=>{
     try {
         const periodos= await Periodo.findAll()
@@ -119,6 +135,7 @@ const getPeriodos = async(req, res)=>{
         res.status(500).json({message: `Error al obtener periodos en el servidor:`})
     }
 }
+
 
 const deletePeriodo = async(req, res)=>{
     try {
@@ -141,5 +158,6 @@ module.exports= {
     updatePeriodo,
     getPeriodo,
     getPeriodos,
-    deletePeriodo
+    deletePeriodo,
+    getPeriodoActivo
 }
