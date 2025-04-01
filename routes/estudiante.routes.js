@@ -10,4 +10,5 @@ module.exports = (app) => {
     app.delete('/estudiante/eliminar/:ID', EstudianteController.deleteEstudiante);
     app.get('/api/representantes/:cedula/estudiantes', EstudianteController.getRepresentanteEstudiante);
     app.get('/estudiante/download/:folder/:filename',EstudianteController.getFile)
+    app.get('/estudiante/obtener/:cedula',EstudianteController.getEstudianteByCedula)
 }

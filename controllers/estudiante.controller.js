@@ -128,6 +128,25 @@ const getEstudiante = async (request, response) => {
         return response.status(500).json({ message: 'Error al obtener el estudiante en el servidor' });
     }
 }
+const getEstudianteByCedula = async (request, response) => {
+    const cedula = request.params.cedula;
+
+    try {
+        const estudiante = await Estudiante.findOne({where: {nroCedula: cedula}});
+        if (!estudiante) {
+            return response.status(404).json({ message: 'Estudiante no encontrado' });
+        }
+        return response.status(200).json(estudiante);
+
+    } catch (error) {
+        console.log('Error al obtener el estudiante:', error);
+        if (error.name === 'SequelizeValidationError') {
+            const mensajes = error.errors.map(err => err.message);
+            return response.status(400).json({ message: mensajes });
+        }
+        return response.status(500).json({ message: 'Error al obtener el estudiante en el servidor' });
+    }
+}
 
 /**
  * Obtener todos los estudiantes
@@ -295,5 +314,6 @@ module.exports = {
     updateEstudiante,
     deleteEstudiante,
     getRepresentanteEstudiante,
-    getFile
+    getFile,
+    getEstudianteByCedula
 };
