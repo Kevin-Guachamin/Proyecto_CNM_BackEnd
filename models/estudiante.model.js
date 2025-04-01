@@ -194,6 +194,27 @@ const Estudiante = sequelize.define('Estudiante', {
             len: { args: [2, 100], msg: "Debe tener entre 2 y 100 caracteres" }
         }
     },
+    nivel: {
+        type: DataTypes.ENUM(
+            "1ro Básico Elemental",
+            "2do Básico Elemental",
+            "1ro Básico Medio",
+            "2do Básico Medio",
+            "3ro Básico Medio",
+            "1ro Básico Superior",
+            "2do Básico Superior",
+            "3ro Básico Superior",
+            "1ro Bachillerato",
+            "2do Bachillerato",
+            "3ro Bachillerato"
+        ),
+        allowNull: false,
+        validate:{
+            notEmpty: {msg: "No se permiten valores vacíos"},
+            notNull: {msg: "No se permiten valores nulos"},
+
+        }
+    }
 
 },
     {
