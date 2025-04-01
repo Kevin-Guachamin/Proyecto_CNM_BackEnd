@@ -1,4 +1,5 @@
 const { where } = require('sequelize');
+const { Op, Sequelize } = require("sequelize");
 const Asignacion = require('../models/asignacion.model');
 const Docente = require('../models/docente.model');
 const Materia = require('../models/materia.model');
@@ -225,7 +226,7 @@ const deleteAsignacion = async (req, res) => {
   }
 }
 
-const obtenerAsignacionesPorDocente = async (req, res) => {
+const getAsignacionesPorDocente = async (req, res) => {
   try {
     const { id_docente } = req.params;
 
@@ -300,7 +301,7 @@ const obtenerAsignacionesPorDocente = async (req, res) => {
   }
 };
 
-const obtenerAsignacionesPorNivel = async (req, res) => {
+const getAsignacionesPorNivel = async (req, res) => {
   try {
     const nivel = req.params.nivel;
     const ID = req.params.periodo
@@ -377,13 +378,61 @@ const getAsignaciones = async (req, res) => {
     res.status(500).json({ message: `Error al obtener docentes en el servidor:` })
   }
 }
+const getAsignacionesPorAsignatura = async (req, res) => {
+  try {
+    const nivel = req.params.nivel;
+    const ID = req.params.periodo
+    const asignatura = req.params.materia
 
+    const asignaciones = await Asignacion.findAll({
+      where: {
+        id_periodo_academico: ID,
+        paralelo: { [Op.ne]: "Individual" }
+      },
+      include: [
+        {
+          model: Materia,
+          where: {
+            nivel, [Op.and]: [
+              Sequelize.where(Sequelize.fn("LOWER", Sequelize.col("nombre")), "LIKE", `%${asignatura.toLowerCase()}%`)
+            ]
+          },
+
+        },
+        {
+          model: Docente
+        },
+
+      ]
+    })
+
+    const asignacionesFinal = asignaciones.map((asignacion) => {
+      const asignacionPlain = asignacion.get({ plain: true }); // Convertimos el resultado a un objeto plano
+      // Eliminamos las contraseñas de los docentes
+      if (asignacionPlain.Docente) {
+        delete asignacionPlain.Docente.password;
+      }
+      // Renombramos Materium a Materia
+      if (asignacionPlain.Materium) {
+        asignacionPlain.Materia = asignacionPlain.Materium;
+        delete asignacionPlain.Materium;
+      }
+      return asignacionPlain;
+    });
+    console.log("estas fueron las asignaciones finales", asignacionesFinal)
+    return res.json(asignacionesFinal);
+  } catch (error) {
+    console.error("Error al obtener asignaciones por nivel:", error);
+    return res.status(500).json({ message: "Error al obtener asignaciones en el servidor" });
+  }
+}
 module.exports = {
   createAsignacion,
   updateAsginacion,
   getAsignacion,
   deleteAsignacion,
-  obtenerAsignacionesPorDocente,
-  obtenerAsignacionesPorNivel,
-  getAsignaciones
+  getAsignacionesPorDocente,
+  getAsignacionesPorNivel,
+  getAsignaciones,
+  getAsignacionesPorAsignatura
 }
