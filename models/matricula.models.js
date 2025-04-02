@@ -23,8 +23,14 @@ const Matrícula = sequelize.define('Matricula', {
             "1ro Bachillerato",
             "2do Bachillerato",
             "3ro Bachillerato",
-            
-        )
+            "Graduado"
+        ),
+        allowNull: false,
+        validate:{
+            notEmpty: {msg: "No se permiten valores vacíos"},
+            notNull: {msg: "No se permiten valores nulos"},
+
+        }
     }
 },
     {
