@@ -11,7 +11,7 @@ const crearRepresentante = async (request, response) => {
         // Verificar si el representante existe
         const representanteEncontrado = await Representante.findByPk(usuario.nroCedula);
         if (representanteEncontrado) {
-            return response.status(409).json({ message: 'El usuario ya existe!' }); // 409 conflict
+            return response.status(409).json({ message: 'El representante ya existe!' }); // 409 conflict
         }
         const provicional = crypto.randomBytes(8).toString('hex').slice(0, 8);
         usuario.password = provicional
@@ -48,7 +48,7 @@ const crearRepresentante = async (request, response) => {
             );
 
             if (errEncontrado) {
-                return res.status(400).json({ message: errEncontrado.message });
+                return response.status(400).json({ message: errEncontrado.message });
             }
         }
         if (error instanceof TypeError) {

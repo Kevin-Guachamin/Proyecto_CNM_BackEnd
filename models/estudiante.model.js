@@ -7,18 +7,18 @@ const Estudiante = sequelize.define('Estudiante', {
         type: DataTypes.STRING,
         allowNull: false,
         
-        unique: { msg: "la cedula ya existe" },
+        unique: { msg: "La cédula del estudiante ya existe" },
         validate: {
             notNull: { msg: "El número de cédula es requerido" },
             notEmpty: { msg: "El número de cédula no puede estar vacío" },
             len: {
                 args: [10, 10],
-                msg: "El número de cédula debe tener 10 dígitos"
+                msg: "El número de cédula del estudiante debe tener 10 dígitos"
             },
             isNumeric: { msg: "El número de cédula solo debe contener números" },
             isEcuadorianID(value) {
                 if (!validarCedulaEcuatoriana(value)) {
-                    throw new Error("El número de cédula no es válido");
+                    throw new Error("El número de cédula del estudiante no es válido");
                 }
             }
         }

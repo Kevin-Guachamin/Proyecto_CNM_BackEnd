@@ -5,7 +5,7 @@ const Estudiante = require('../models/estudiante.model');
 
 const crearEstudiante = async (request, res) => {
     const usuario = request.body;
-
+    console.log("llego este usuario", usuario)
     try {
         // Verificar que el objeto usuario exista y tenga contenido
         if (!usuario || Object.keys(usuario).length === 0) {
@@ -16,9 +16,10 @@ const crearEstudiante = async (request, res) => {
 
 
         // Verificar que el estudiante no exista
-        const estudianteEncontrado = await Estudiante.findOne({ nroCedula: usuario.nroCedula });
+        const estudianteEncontrado = await Estudiante.findOne( {where: { nroCedula: usuario.nroCedula }} );
+        console.log("este es el estudiante encontrado", estudianteEncontrado)
         if (estudianteEncontrado) {
-            return res.status(409).json({ message: 'El usuario ya existe' });
+            return res.status(409).json({ message: 'El estudiante ya existe' });
         }
         const copiaCedulaPath = request.files.copiaCedula ? request.files.copiaCedula[0].path : null;
         const matriculaIERPath = request.files.matricula_IER ? request.files.matricula_IER[0].path : null;
@@ -26,6 +27,7 @@ const crearEstudiante = async (request, res) => {
         usuario.matricula_IER_PDF = matriculaIERPath
         const anioActual = parseInt(new Date().getFullYear());
         usuario.anioMatricula = anioActual
+        usuario.nivel="1ro Básico Elemental"
         console.log("esta es la objeto", usuario)
 
         const result = await Estudiante.create(usuario)
