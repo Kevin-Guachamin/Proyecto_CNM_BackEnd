@@ -4,7 +4,7 @@ module.exports = (app) => {
     app.post('/fechas_notas/crear', FechasNotasController.createFechasNotas);
     app.put('/fechas_notas/editar/:id', FechasNotasController.updateFechasNotas);
     app.get('/fechas_notas/obtener/:id', FechasNotasController.getFechasNotas);
-    app.get('/fechas_notas/obtener', FechasNotasController.getAllFechasNotas);
+    app.get('/fechas_notas/obtener_todo', FechasNotasController.getAllFechasNotas);
     app.delete('/fechas_notas/eliminar/:id', FechasNotasController.deleteFechasNotas);
     app.get('/fechas_notas/fecha_actual', FechasNotasController.fechaActual);
 }
