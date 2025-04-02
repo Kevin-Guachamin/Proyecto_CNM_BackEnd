@@ -315,6 +315,7 @@ const getAsignacionesPorNivel = async (req, res) => {
         {
           model: Materia,
           where: { nivel },
+           as: "materiaDetalle"
 
         },
         {
@@ -355,7 +356,9 @@ const getAsignaciones = async (req, res) => {
       },
       include: [
 
-        { model: Materia },
+        { model: Materia, 
+          as: "materiaDetalle"
+        },
         { model: Docente },
       ]
     })
