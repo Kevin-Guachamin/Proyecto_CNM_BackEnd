@@ -10,7 +10,22 @@ const Matrícula = sequelize.define('Matricula', {
         autoIncrement: true,
         primaryKey: true,
     },
-     
+    nivel: {
+        type: DataTypes.ENUM(
+            "1ro Básico Elemental",
+            "2do Básico Elemental",
+            "1ro Básico Medio",
+            "2do Básico Medio",
+            "3ro Básico Medio",
+            "1ro Básico Superior",
+            "2do Básico Superior",
+            "3ro Básico Superior",
+            "1ro Bachillerato",
+            "2do Bachillerato",
+            "3ro Bachillerato",
+            
+        )
+    }
 },
     {
         tableName: "Matriculas"
