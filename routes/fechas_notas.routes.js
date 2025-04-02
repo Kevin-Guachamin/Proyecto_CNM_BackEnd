@@ -6,4 +6,5 @@ module.exports = (app) => {
     app.get('/fechas_notas/obtener/:id', FechasNotasController.getFechasNotas);
     app.get('/fechas_notas/obtener', FechasNotasController.getAllFechasNotas);
     app.delete('/fechas_notas/eliminar/:id', FechasNotasController.deleteFechasNotas);
+    app.get('/fechas_notas/fecha_actual', FechasNotasController.fechaActual);
 }
