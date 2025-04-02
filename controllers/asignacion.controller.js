@@ -100,9 +100,9 @@ const updateAsginacion = async (req, res) => {
     }
 
     // Renombramos Materium a Materia
-    if (asignacionFinal.Materium) {
-      asignacionFinal.Materia = asignacionFinal.Materium;
-      delete asignacionFinal.Materium;
+    if (asignacionFinal.materiaDetalle) {
+      asignacionFinal.Materia = asignacionFinal.materiaDetalle;
+      delete asignacionFinal.materiaDetalle;
     }
 
     // Devolvemos la asignación final
@@ -315,6 +315,7 @@ const getAsignacionesPorNivel = async (req, res) => {
         {
           model: Materia,
           where: { nivel },
+           as: "materiaDetalle"
 
         },
         {
@@ -331,9 +332,9 @@ const getAsignacionesPorNivel = async (req, res) => {
         delete asignacionPlain.Docente.password;
       }
       // Renombramos Materium a Materia
-      if (asignacionPlain.Materium) {
-        asignacionPlain.Materia = asignacionPlain.Materium;
-        delete asignacionPlain.Materium;
+      if (asignacionPlain.materiaDetalle) {
+        asignacionPlain.Materia = asignacionPlain.materiaDetalle;
+        delete asignacionPlain.materiaDetalle;
       }
       return asignacionPlain;
     });
@@ -355,10 +356,13 @@ const getAsignaciones = async (req, res) => {
       },
       include: [
 
-        { model: Materia },
+        { model: Materia, 
+          as: "materiaDetalle"
+        },
         { model: Docente },
       ]
     })
+    
     const asignacionesFinal = asignaciones.map((asignacion) => {
       const asignacionPlain = asignacion.get({ plain: true }); // Convertimos el resultado a un objeto plano
       // Eliminamos las contraseñas de los docentes
@@ -366,12 +370,13 @@ const getAsignaciones = async (req, res) => {
         delete asignacionPlain.Docente.password;
       }
       // Renombramos Materium a Materia
-      if (asignacionPlain.Materium) {
-        asignacionPlain.Materia = asignacionPlain.Materium;
-        delete asignacionPlain.Materium;
+      if (asignacionPlain.materiaDetalle) {
+        asignacionPlain.Materia = asignacionPlain.materiaDetalle;
+        delete asignacionPlain.materiaDetalle;
       }
       return asignacionPlain;
     });
+    console.log("este es el resultado", asignacionesFinal)
     res.status(200).json(asignacionesFinal)
   } catch (error) {
     console.error("Error al obtener docentes", error)
@@ -413,9 +418,9 @@ const getAsignacionesPorAsignatura = async (req, res) => {
         delete asignacionPlain.Docente.password;
       }
       // Renombramos Materium a Materia
-      if (asignacionPlain.Materium) {
-        asignacionPlain.Materia = asignacionPlain.Materium;
-        delete asignacionPlain.Materium;
+      if (asignacionPlain.materiaDetalle) {
+        asignacionPlain.Materia = asignacionPlain.materiaDetalle;
+        delete asignacionPlain.materiaDetalle;
       }
       return asignacionPlain;
     });
