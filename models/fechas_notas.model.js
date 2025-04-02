@@ -15,14 +15,6 @@ const Fechas_notas = sequelize.define("Fechas_notas",
             validate: {
                 notNull: { msg: "La fecha de nacimiento es obligatoria" },
                 notEmpty: { msg: "La fecha de nacimiento no puede estar vacía" },
-            },
-            get() {
-                const rawValue = this.getDataValue("fecha_inicio");
-                if (rawValue) {
-                    const date = new Date(rawValue + "T00:00:00"); // Asegura que la fecha esté en el inicio del día
-                    return date.toLocaleDateString("es-ES");
-                }
-                return null;
             }
 
         },
@@ -32,16 +24,7 @@ const Fechas_notas = sequelize.define("Fechas_notas",
             validate: {
                 notNull: { msg: "La fecha de nacimiento es obligatoria" },
                 notEmpty: { msg: "La fecha de nacimiento no puede estar vacía" },
-            },
-            get() {
-                const rawValue = this.getDataValue("fecha_fin");
-                if (rawValue) {
-                    const date = new Date(rawValue + "T00:00:00"); // Asegura que la fecha esté en el inicio del día
-                    return date.toLocaleDateString("es-ES");
-                }
-                return null;
             }
-
         },
         descripcion: {
             type: DataTypes.ENUM,
