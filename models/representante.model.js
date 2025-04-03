@@ -8,18 +8,18 @@ const Representante = sequelize.define('Representante', {
         type: DataTypes.STRING,
         allowNull: false,
         primaryKey: true,
-        unique: {msg: "la cedula ya existe"},
+        unique: {msg: "La cédula del representante ya existe"},
         validate: {
             notNull: { msg: "El número de cédula es requerido" },
             notEmpty: { msg: "El número de cédula no puede estar vacío" },
             len: {
                 args: [10, 10],
-                msg: "El número de cédula debe tener 10 dígitos"
+                msg: "El número de cédula del representante debe tener 10 dígitos"
             },
             isNumeric: { msg: "El número de cédula solo debe contener números" },
             isEcuadorianID(value) {
                 if (!validarCedulaEcuatoriana(value)) {
-                    throw new Error("El número de cédula no es válido");
+                    throw new Error("El número de cédula del representante no es válido");
                 }
             }
         }
