@@ -60,7 +60,7 @@ module.exports.login = async (req, res) => {
             rol,      // "docente" o "representante"
             subRol,   // "profesor", "coordinador", etc.
             type,
-            token: generateToken({ id: user.id, rol, type, subRol })
+            token: generateToken({ id: user.nroCedula, rol, type, subRol })
         });
 
     } catch (error) {
