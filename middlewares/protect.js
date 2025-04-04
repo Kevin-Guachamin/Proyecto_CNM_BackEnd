@@ -133,12 +133,13 @@ module.exports.docenteSecretaria = async (req, res, next) => {
       if (decoded.rol !== "docente" || decoded.subRol !== "Secretaria") {
         return res.status(403).json({ message: "No autorizado, se requiere ser docente con subrol Secretaria" });
       }
-
+      
       // Buscar el docente por su ID
       const user = await Docente.findOne({ where: { nroCedula: decoded.id }, attributes: { exclude: ["password"] } });
       if (!user) {
         return res.status(401).json({ message: "Usuario no autorizado" });
       }
+     
 
       // Asignar la información extraída del token al objeto req.user
       req.user = user;
@@ -173,11 +174,11 @@ module.exports.Representante = async (req, res, next) => {
       }
 
       // Buscar el representante por su ID
-      const user = await Representante.findOne({ where: { nroCedula: decoded.id }, attributes: { exclude: ["password"] } });
+      const user = await Representante.findOne({ where: { nroCedula: decoded.id }, attributes: { exclude: ["password"] },raw: true, });
       if (!user) {
         return res.status(401).json({ message: "Usuario no autorizado" });
       }
-
+      
       // Asignar la información extraída del token al objeto req.user
       req.user = user;
       req.user.rol = decoded.rol;
