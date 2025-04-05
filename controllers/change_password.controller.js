@@ -13,21 +13,24 @@ module.exports.validatePasswordChange = [
     .matches(/[!@#$%^&*(),.?":{}|<>]/).withMessage('Debe contener al menos un carácter especial'),
 ];
 module.exports.changePassword = async(req,res)=>{
+    
     try {
+        
         const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({  message: errors.array()[0].msg });
     let user
     const { currentPassword, newPassword, type } = req.body;
-    if(type==="Docente"){
+    
+    if(type==="docente"){
          user = await Docente.findByPk(req.user.nroCedula);
 
-    }else if(type==="Representante"){
+    }else if(type==="representante"){
         user = await Representante.findByPk(req.user.nroCedula);
     }
     else{
         return res.status(400).json({ message: "Tipo de usuario no válido" });
     }
-    console.log("estoy aca",user)
+    
     // Verificar la contraseña actual
     const isMatch = await bcrypt.compare(currentPassword, user.password);
     if (!isMatch) return res.status(400).json({ message: "Contraseña incorrecta" });

@@ -78,6 +78,43 @@ module.exports.docenteAdministrador = async (req, res, next) => {
 
   return res.status(401).json({ message: "No autorizado, token no encontrado" });
 }
+module.exports.Docente = async (req, res, next) => {
+  let token;
+
+  if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
+    try {
+      // Extraer el token
+      token = req.headers.authorization.split(" ")[1];
+      console.log("Token recibido:", token);
+      // Verificar el token con el JWT_SECRET definido en el .env
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      console.log("Decoded token:", decoded);
+
+      // Verificar que el rol sea docente y el subRol sea Administrador
+      if (decoded.rol !== "docente") {
+        return res.status(403).json({ message: "No autorizado, se requiere ser docente" });
+      }
+
+      // Buscar el docente por su ID
+      const user = await Docente.findOne({ where: { nroCedula: decoded.id }, attributes: { exclude: ["password"] } });
+      if (!user) {
+        return res.status(401).json({ message: "Usuario no autorizado" });
+      }
+
+      // Asignar la información extraída del token al objeto req.user
+      req.user = user;
+      req.user.rol = decoded.rol;
+      req.user.subRol = decoded.subRol;
+      console.log("estoy acasote")
+      return next();
+    } catch (error) {
+      console.error("Error en el middleware Docente:", error);
+      return res.status(401).json({ message: "Token inválido o expirado" });
+    }
+  }
+
+  return res.status(401).json({ message: "No autorizado, token no encontrado" });
+}
 
 module.exports.docenteProfesor = async (req, res, next) => {
   let token;

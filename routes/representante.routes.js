@@ -2,7 +2,6 @@ const RepresentanteController = require('../controllers/representante.controller
 const upload=require('../middlewares/uploadFiles')
 const {changePassword}=require('../controllers/change_password.controller')
 const {validatePasswordChange}=require('../controllers/change_password.controller')
-const { body } = require('express-validator');
 const {Representante}=require('../middlewares/protect')
 
 
@@ -13,5 +12,5 @@ module.exports = (app) => {
     app.get('/representante/obtener', RepresentanteController.getAllRepresentantes);
     app.delete('/representante/eliminar/:cedula', RepresentanteController.deleteRepresentante);
     app.get('/representante/download/:folder/:filename',RepresentanteController.getFile)
-    app.post('/password/',Representante,validatePasswordChange,changePassword)
+    app.post('/representante/password/',Representante,validatePasswordChange,changePassword)
 }
