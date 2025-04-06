@@ -60,7 +60,7 @@ const crearRepresentante = async (request, response) => {
               
             );
             if (errEncontrado) {
-              return res.status(400).json({ message: `${errEncontrado.path} debe ser único` });
+              return response.status(400).json({ message: `${errEncontrado.path} debe ser único` });
             }
       
           }

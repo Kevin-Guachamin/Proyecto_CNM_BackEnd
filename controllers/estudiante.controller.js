@@ -254,9 +254,9 @@ const updateEstudiante = async (request, response) => {
             }
       
           }
-
-        response.status(500).json({ message: `Error al editar estudiante en el servidor:` })
-        console.log("ESTE ES EL ERROR", error.name)
+          console.log("ESTE ES EL ERROR", error.name)
+        return response.status(500).json({ message: `Error al editar estudiante en el servidor:` })
+        
     }
 }
 

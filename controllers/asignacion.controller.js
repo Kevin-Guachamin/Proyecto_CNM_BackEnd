@@ -11,25 +11,46 @@ const createAsignacion = async (req, res) => {
     console.log("Esta es lo que se recibe:", asignacion);
 
     // Verificar si la asignación ya existe. Cambié la búsqueda para comprobar los parámetros relevantes.
-    const asignacionFound = await Asignacion.findOne({
+    
+    const asignacionesDocente = await Asignacion.findAll({
       where: {
-        paralelo: asignacion.paralelo,
-        horaInicio: asignacion.horaInicio,
-        horaFin: asignacion.horaFin,
-        dias: asignacion.dias,
-        cupos: parseInt(asignacion.cupos, 10),
-        id_periodo_academico: asignacion.id_periodo_academico,
         nroCedula_docente: asignacion.nroCedula_docente,
-        id_materia: asignacion.id_materia
+        id_periodo_academico: asignacion.id_periodo_academico
       }
     });
-
-    if (asignacionFound) {
-      return res.status(409).json({ message: "la asignación ya existe" });
+    
+    function tienenDiasSolapados(dias1, dias2) {
+      return dias1.some(dia => dias2.includes(dia));
+    }
+    
+    function tienenHorariosSolapados(horaInicioA, horaFinA, horaInicioB, horaFinB) {
+      return horaInicioA < horaFinB && horaFinA > horaInicioB;
+    }
+    
+    // Primero, verifica si hay conflicto de días + horarios
+    const conflicto = asignacionesDocente.some(asig => {
+      const hayDiasSolapados = tienenDiasSolapados(asig.dias, asignacion.dias);
+      const hayHorarioSolapado = tienenHorariosSolapados(
+        asignacion.horaInicio,
+        asignacion.horaFin,
+        asig.horaInicio,
+        asig.horaFin
+      );
+    
+      return hayDiasSolapados && hayHorarioSolapado;
+    });
+    
+    if (conflicto) {
+      return res.status(400).json({
+       message: "El docente ya tiene una asignación con cruce de horario en los días seleccionados para este período."
+      });
     }
 
+
+    
+
     // Crear la asignación si no existe
-    const result = await Asignacion.create({
+    const result1 = await Asignacion.create({
       paralelo: asignacion.paralelo,
       horaInicio: asignacion.horaInicio,
       horaFin: asignacion.horaFin,
@@ -37,10 +58,39 @@ const createAsignacion = async (req, res) => {
       cupos: parseInt(asignacion.cupos, 10),
       id_periodo_academico: asignacion.id_periodo_academico,
       nroCedula_docente: asignacion.nroCedula_docente,
-      id_materia: asignacion.id_materia
-    });
+      id_materia: asignacion.id_materia,
+      cuposDisponibles: asignacion.cuposDisponibles
+    })
+    const result = await Asignacion.findByPk(result1.ID,{
+      include: [
+        {
+          model: Docente,
+        },
+        {
+          model: Materia,
+          as: "materiaDetalle"
+        }
+      ]
+    })
+    const asignacionFinal = result.get({ plain: true }); // Convertimos la asignación a un objeto plano
 
-    res.status(201).json(result);
+    // Eliminamos las contraseñas de los docentes
+    if (asignacionFinal.Docente) {
+      delete asignacionFinal.Docente.password;
+    }
+
+    // Renombramos Materium a Materia
+    if (asignacionFinal.materiaDetalle) {
+      asignacionFinal.Materia = asignacionFinal.materiaDetalle;
+      delete asignacionFinal.materiaDetalle;
+    }
+
+    // Devolvemos la asignación final
+    return res.status(200).json(asignacionFinal);
+    
+    
+
+    
   } catch (error) {
     console.error("Error al crear la asignación", error)
     console.log("ESTE ES EL ERROR", error.name)
@@ -61,7 +111,8 @@ const createAsignacion = async (req, res) => {
         err.validatorKey === "notEmpty" ||
         err.validatorKey === "is_null" ||
         err.validatorKey === "isArrayOfValidDays" ||
-        err.validatorKey === "validarOrden"
+        err.validatorKey === "validarOrden" ||
+        err.validatorKey ==="min"
       );
 
       if (errEncontrado) {
@@ -80,6 +131,44 @@ const createAsignacion = async (req, res) => {
 const updateAsginacion = async (req, res) => {
   try {
     const asignacion = req.body
+    const asignacionesDocente = await Asignacion.findAll({
+      where: {
+        nroCedula_docente: asignacion.nroCedula_docente,
+        id_periodo_academico: asignacion.id_periodo_academico,
+        ID: {
+          [Op.not]: asignacion.ID  // 👈 Excluye la asignación actual
+        }
+      }
+    });
+    console.log("me encontre a mi mismo",asignacionesDocente)
+    
+    function tienenDiasSolapados(dias1, dias2) {
+      return dias1.some(dia => dias2.includes(dia));
+    }
+    
+    function tienenHorariosSolapados(horaInicioA, horaFinA, horaInicioB, horaFinB) {
+      return horaInicioA < horaFinB && horaFinA > horaInicioB;
+    }
+    
+    // Primero, verifica si hay conflicto de días + horarios
+    const conflicto = asignacionesDocente.some(asig => {
+      const hayDiasSolapados = tienenDiasSolapados(asig.dias, asignacion.dias);
+      const hayHorarioSolapado = tienenHorariosSolapados(
+        asignacion.horaInicio,
+        asignacion.horaFin,
+        asig.horaInicio,
+        asig.horaFin
+      );
+      
+      return hayDiasSolapados && hayHorarioSolapado;
+    });
+    
+    if (conflicto) {
+      return res.status(400).json({
+       message: "El docente ya tiene una asignación con cruce de horario en los días seleccionados para este período."
+      });
+    }
+
     console.log("esto es lo que viene", asignacion)
     const id = req.params.id
     const [updatedRows] = await Asignacion.update(asignacion, { where: { id } })
@@ -88,7 +177,7 @@ const updateAsginacion = async (req, res) => {
     }
     const result = await Asignacion.findByPk(id, {
       include: [
-        { model: Materia },
+        { model: Materia, as:"materiaDetalle" },
         { model: Docente }
       ]
     })
@@ -127,7 +216,8 @@ const updateAsginacion = async (req, res) => {
         err.validatorKey === "notEmpty" ||
         err.validatorKey === "is_null" ||
         err.validatorKey === "isArrayOfValidDays" ||
-        err.validatorKey === "validarOrden"
+        err.validatorKey === "validarOrden" ||
+        err.validatorKey ==="min"
       );
 
       if (errEncontrado) {
