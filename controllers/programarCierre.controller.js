@@ -1,4 +1,4 @@
-// /cron/cierreUnico.js
+
 const schedule = require('node-schedule');
 const Periodo = require('../models/periodo_academico.model')
 const Matricula = require('../models/matricula.models')
@@ -8,6 +8,22 @@ async function cerrarPeriodo(periodoId) {
   try {
     const periodo = await Periodo.findByPk(periodoId);
     if (!periodo || periodo.estado === 'Finalizado') return;
+    const [inscripcionesValidas] = await sequelize.query(`
+      SELECT i.ID
+      FROM inscripciones i
+      JOIN matriculas m ON i.ID_matricula = m.ID
+      JOIN calificaciones_quimestrales cq ON i.ID = cq.ID_inscripcion
+      WHERE m.ID_periodo_academico = ?
+      GROUP BY i.ID
+      HAVING COUNT(DISTINCT cq.quimestre) = 2
+    `, {
+      replacements: [periodoId]
+    });
+    
+    if (inscripcionesValidas.length === 0) {
+      console.warn(`⚠️ No se puede cerrar el periodo ${periodoId}, faltan calificaciones`);
+      return;
+    }
 
     console.log(`🕒 Cerrando automáticamente el periodo: ${periodo.descripcion}`);
 
@@ -90,37 +106,38 @@ async function cerrarPeriodo(periodoId) {
       "Graduado"
     ];
 
-    // Traemos los estudiantes y su nivel actual
-    const [estudiantes] = await sequelize.query(`
-  SELECT e.ID, e.nivel
-  FROM estudiante e
-  WHERE e.ID IN (${actualizaciones
-        .filter(a => a.estado === "Aprobado")
-        .map(a => a.ID_estudiante)
-        .join(",")})
-`);
+    // Traer las matrículas aprobadas del periodo con su estudiante y nivel actual
+const [matriculasAprobadas] = await sequelize.query(`
+  SELECT e.ID AS estudiante_id, e.nivel
+  FROM matriculas m
+  JOIN estudiantes e ON m.ID_estudiante = e.ID
+  WHERE m.estado = 'Aprobado' AND m.ID_periodo_academico = ?
+`, {
+  replacements: [periodoId],
+});
 
-    const promociones = estudiantes
-      .map(e => {
-        const idx = niveles.indexOf(e.nivel);
-        if (idx >= 0 && idx < niveles.length - 1) {
-          return {
-            id: e.ID,
-            nuevoNivel: niveles[idx + 1]
-          };
-        }
-        return null;
-      })
-      .filter(p => p); // Quitamos nulls por si ya estaba en Graduado
+// Generar los nuevos niveles
+const promociones = matriculasAprobadas
+  .map(({ estudiante_id, nivel }) => {
+    const idx = niveles.indexOf(nivel);
+    if (idx >= 0 && idx < niveles.length - 1) {
+      return {
+        id: estudiante_id,
+        nuevoNivel: niveles[idx + 1]
+      };
+    }
+    return null;
+  })
+  .filter(p => p);
 
-    // Generamos SQL para actualización masiva
-    if (promociones.length > 0) {
-      const caseNivel = promociones
-        .map(p => `WHEN ${p.id} THEN '${p.nuevoNivel}'`)
-        .join("\n");
-      const ids = promociones.map(p => p.id).join(",");
+// Ejecutar el bulk update si hay estudiantes por promover
+if (promociones.length > 0) {
+  const caseNivel = promociones
+    .map(p => `WHEN ${p.id} THEN '${p.nuevoNivel}'`)
+    .join("\n");
+  const ids = promociones.map(p => p.id).join(",");
 
-      const updateNiveles = `
+  const updateNiveles = `
     UPDATE estudiante
     SET nivel = CASE ID
       ${caseNivel}
@@ -128,13 +145,30 @@ async function cerrarPeriodo(periodoId) {
     WHERE ID IN (${ids});
   `;
 
-      await sequelize.query(updateNiveles);
-    }
+  await sequelize.query(updateNiveles);
+  console.log(`🎓 Se promovieron ${promociones.length} estudiantes de nivel.`);
 
-    await periodo.update({ estado: 'Finalizado' });
-    console.log(`✅ Periodo ${periodo.descripcion} cerrado con éxito`);
-  } catch (err) {
-    console.error('❌ Error al cerrar el periodo:', err);
+} else {
+  console.log(`📘 No hay estudiantes para promover.`);
+}
+}
+catch(err){
+  console.log("ocurrio un error durante el cierre del periodo: ",err)
+}
+}
+
+async function reprogramarPeriodosPendientes() {
+  const periodos = await Periodo.findAll({
+    where: {
+      estado: 'Activo',
+      fecha_fin: {
+        [Op.gt]: new Date()
+      }
+    }
+  });
+
+  for (const periodo of periodos) {
+    programarCierrePeriodo(periodo.id, periodo.fecha_fin);
   }
 }
 
@@ -151,4 +185,7 @@ function programarCierrePeriodo(periodoId, fechaFin) {
   console.log(`📅 Tarea programada para cerrar periodo ID ${periodoId} el ${fecha}`);
 }
 
-module.exports = programarCierrePeriodo;
+module.exports = {
+  programarCierrePeriodo,
+  reprogramarPeriodosPendientes
+};

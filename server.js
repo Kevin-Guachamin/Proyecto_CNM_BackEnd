@@ -1,5 +1,5 @@
 const sequelize=require('./config/sequelize.config');
-
+const {reprogramarPeriodosPendientes}=require('./controllers/programarCierre.controller')
 
 require('./models/docente.model')
 require('./models/materia.model')
@@ -70,5 +70,6 @@ allInscripcion(app)
 
 const AllFechasNotas=require('./routes/fechas_notas.routes')
 AllFechasNotas(app)
+reprogramarPeriodosPendientes()
 startServer();
 
