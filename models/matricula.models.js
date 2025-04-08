@@ -31,6 +31,10 @@ const Matrícula = sequelize.define('Matricula', {
             notNull: {msg: "No se permiten valores nulos"},
 
         }
+    },
+    estado: {
+        type: DataTypes.ENUM("Aprobado", "Reprobado"),
+        allowNull: false,
     }
 },
     {
