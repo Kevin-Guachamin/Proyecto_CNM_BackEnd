@@ -450,6 +450,10 @@ const getAsignaciones = async (req, res) => {
           as: "materiaDetalle"
         },
         { model: Docente },
+        {
+          model: Periodo_Academico, 
+          attributes: ["descripcion"] 
+        }
       ]
     })
     
