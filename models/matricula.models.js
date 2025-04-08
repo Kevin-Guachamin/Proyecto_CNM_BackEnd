@@ -22,8 +22,7 @@ const Matrícula = sequelize.define('Matricula', {
             "3ro Básico Superior",
             "1ro Bachillerato",
             "2do Bachillerato",
-            "3ro Bachillerato",
-            "Graduado"
+            "3ro Bachillerato"
         ),
         allowNull: false,
         validate:{
@@ -33,7 +32,7 @@ const Matrícula = sequelize.define('Matricula', {
         }
     },
     estado: {
-        type: DataTypes.ENUM("Aprobado", "Reprobado"),
+        type: DataTypes.ENUM("Aprobado", "Reprobado","En curso"),
         allowNull: false,
     }
 },

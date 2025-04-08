@@ -3,11 +3,14 @@ const Matricula = require('../models/matricula.models')
 const createMatricula = async (req, res) => {
     try {
         const matricula = req.body
-        const matriculaFound = await Matricula.findOne({where: {asignacion} })
+        console.log("este es el nivel",matricula)
+        const matriculaFound = await Matricula.findOne({where: {nivel: matricula.nivel, estado: matricula.estado, ID_estudiante: matricula.ID_estudiante, ID_periodo_academico: matricula.ID_periodo_academico} })
         if (matriculaFound) {
             return res.status(409).json({ message: "Error la matrícula ya existe" })
         }
-        const result = await Matricula.create(matricula)
+        const result = await Matricula.create({
+            nivel: matricula.nivel, estado: matricula.estado, ID_estudiante: matricula.ID_estudiante, ID_periodo_academico: matricula.ID_periodo_academico
+        })
         res.status(201).json(result)
     } catch (error) {
         console.error("Error al crear la matrícula", error)
@@ -110,9 +113,6 @@ const getMatriculaByEstudiante = async(req, res)=>{
             ID_estudiante: estudiante,
             ID_periodo_academico: periodo
         }})
-        if(!matricula){
-            return res.status(404).json({message: "Matricula no encontrada"})
-        }
         
         
         res.status(200).json(matricula)
