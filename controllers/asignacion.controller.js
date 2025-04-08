@@ -398,13 +398,15 @@ const getAsignacionesPorNivel = async (req, res) => {
     console.log("estos fueron los parametros", nivel, ID)
     const asignaciones = await Asignacion.findAll({
       where: {
-        id_periodo_academico: ID,
-        paralelo: { [Op.ne]: "Individual" }
+        id_periodo_academico: ID
+        
       },
       include: [
         {
           model: Materia,
-          where: { nivel },
+          where: { nivel: nivel,
+            tipo: { [Op.ne]: "individual" }
+          },
            as: "materiaDetalle"
 
         },
@@ -437,16 +439,20 @@ const getAsignacionesPorNivel = async (req, res) => {
 }
 const getAsignaciones = async (req, res) => {
   try {
+    console.log("AQUI ESTA EL ERROR")
     const periodo = req.params.periodo
     console.log("este es el periodo", periodo)
     const asignaciones = await Asignacion.findAll({
       where: {
         id_periodo_academico: periodo,
-        paralelo: { [Op.ne]: "Individual" }
+        
       },
       include: [
 
         { model: Materia, 
+          where: {
+            tipo: { [Op.ne]: "individual" }
+          },
           as: "materiaDetalle"
         },
         { model: Docente },
@@ -456,7 +462,7 @@ const getAsignaciones = async (req, res) => {
         }
       ]
     })
-    
+    console.log("tenemos las asignaciones",asignaciones)
     const asignacionesFinal = asignaciones.map((asignacion) => {
       const asignacionPlain = asignacion.get({ plain: true }); // Convertimos el resultado a un objeto plano
       // Eliminamos las contraseñas de los docentes
@@ -473,8 +479,8 @@ const getAsignaciones = async (req, res) => {
     console.log("este es el resultado", asignacionesFinal)
     res.status(200).json(asignacionesFinal)
   } catch (error) {
-    console.error("Error al obtener docentes", error)
-    res.status(500).json({ message: `Error al obtener docentes en el servidor:` })
+    console.error("Error al obtener asignaciones", error)
+    res.status(500).json({ message: `Error al obtener asignaciones en el servidor:` })
   }
 }
 const getAsignacionesPorAsignatura = async (req, res) => {
@@ -485,8 +491,8 @@ const getAsignacionesPorAsignatura = async (req, res) => {
 
     const asignaciones = await Asignacion.findAll({
       where: {
-        id_periodo_academico: ID,
-        paralelo: { [Op.ne]: "Individual" }
+        id_periodo_academico: ID
+        
       },
       include: [
         {

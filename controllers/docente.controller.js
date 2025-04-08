@@ -133,6 +133,7 @@ const getDocentes = async(req, res)=>{
         
         res.status(200).json(Docentes)
     } catch (error) {
+        console.log("el error es aquí")
         console.error("Error al obtener docentes", error)
         res.status(500).json({message: `Error al obtener docentes en el servidor:`})
     }

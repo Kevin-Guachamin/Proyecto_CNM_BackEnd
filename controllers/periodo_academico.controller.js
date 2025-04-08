@@ -1,5 +1,5 @@
 const Periodo = require('../models/periodo_academico.model');
-//const {ProgramarCierre} = require('./cierrePeriodos.controller')
+const {ProgramarCierre} = require('./programarCierre.controller')
 
 const createPeriodo = async (req, res) => {
     try {
@@ -11,7 +11,7 @@ const createPeriodo = async (req, res) => {
         }
         console.log("este es el periodo a crear", periodo_academico)
         const result = await Periodo.create(periodo_academico)
-       // ProgramarCierre(result.ID,result.fecha_fin)
+       ProgramarCierre(result.ID,result.fecha_fin)
         
         res.status(201).json(result)
     } catch (error) {
@@ -56,7 +56,7 @@ const updatePeriodo= async (req, res)=>{
             return res.status(404).json({message: "Periodo no encontrada"})
         }
         const result= await Periodo.findByPk(id)
-        //ProgramarCierre(result.ID,result.fecha_fin)
+        ProgramarCierre(result.ID,result.fecha_fin)
         console.log("ESto se envia da la base al actualizar",result)
         res.status(200).json(result)
     } catch (error) {
