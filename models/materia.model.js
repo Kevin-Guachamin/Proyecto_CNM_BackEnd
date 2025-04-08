@@ -36,23 +36,35 @@ const Materia = sequelize.define('Materia', {
             "BS BCH",
         ),
         allowNull: false,
-        validate:{
-            notEmpty: {msg: "No se permiten valores vacíos"},
-            notNull: {msg: "No se permiten valores nulos"},
+        validate: {
+            notEmpty: { msg: "No se permiten valores vacíos" },
+            notNull: { msg: "No se permiten valores nulos" },
 
         }
     },
-    edadMin: {
-        type: DataTypes.INTEGER, 
+    tipo: {
+        type: DataTypes.ENUM("grupal", "individual"),
         allowNull: false,
-        validate:{
-            notEmpty: {msg: "No se permiten valores vacíos"},
-            notNull: {msg: "No se permiten valores nulos"},
-            isInt: {msg: "Debe ser un número entero"},
+        validate: {
+            notNull: { msg: "El tipo de materia es requerido" },
+            notEmpty: { msg: "El tipo de materia no puede estar vacío" }
+        }
+    },
+    observaciones: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+
+    edadMin: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        validate: {
+            notEmpty: { msg: "No se permiten valores vacíos" },
+            notNull: { msg: "No se permiten valores nulos" },
+            isInt: { msg: "Debe ser un número entero" },
             min: { args: 7, msg: "La edad mínima debe ser al menos 7 años" }, // Valor mínimo
         }
-    } 
-
+    }
 },
     {
         tableName: 'materias'
