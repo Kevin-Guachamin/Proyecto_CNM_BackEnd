@@ -498,7 +498,7 @@ const getAsignacionesPorAsignatura = async (req, res) => {
         {
           model: Materia,
           where: {
-            nivel, [Op.and]: [
+             [Op.and]: [
               Sequelize.where(Sequelize.fn("LOWER", Sequelize.col("nombre")), "LIKE", `%${asignatura.toLowerCase()}%`)
             ]
           },

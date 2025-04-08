@@ -101,6 +101,26 @@ const getMatricula = async(req, res)=>{
         res.status(500).json({message: `Error al obtener la matrícula en el servidor:`})
     }
 }
+const getMatriculaByEstudiante = async(req, res)=>{
+    
+    try {
+        const estudiante= req.params.estudiante
+        const periodo=req.params.periodo
+        const matricula = await Matricula.findOne({where:{
+            ID_estudiante: estudiante,
+            ID_periodo_academico: periodo
+        }})
+        if(!matricula){
+            return res.status(404).json({message: "Matricula no encontrada"})
+        }
+        
+        
+        res.status(200).json(matricula)
+    } catch (error) {
+        console.error("Error al obtener la matrícula", error)
+        res.status(500).json({message: `Error al obtener la matrícula en el servidor:`})
+    }
+}
 
 const deleteMatricula = async(req, res)=>{
     try {
@@ -122,5 +142,6 @@ module.exports= {
     createMatricula,
     updateMatricula,
     deleteMatricula,
-    getMatricula
+    getMatricula,
+    getMatriculaByEstudiante
 }
