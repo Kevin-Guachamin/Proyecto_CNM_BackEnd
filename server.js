@@ -70,6 +70,6 @@ allInscripcion(app)
 
 const AllFechasNotas=require('./routes/fechas_notas.routes')
 AllFechasNotas(app)
-reprogramarPeriodosPendientes()
+//reprogramarPeriodosPendientes()
 startServer();
 
