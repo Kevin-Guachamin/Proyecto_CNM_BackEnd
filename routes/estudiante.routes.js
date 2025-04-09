@@ -1,15 +1,15 @@
 // Rutas para ESTUDIANTE
 const upload=require('../middlewares/uploadFiles')
 const EstudianteController = require('../controllers/estudiante.controller');
-
+const {docenteSecretaria, DocenteANDReprsentante}=require('../middlewares/protect')
 module.exports = (app) => {
-    app.post('/estudiante/crear', upload.uploadEstudiantesFields,EstudianteController.crearEstudiante);
-    app.put('/estudiante/editar/:ID',upload.uploadEstudiantesFields, EstudianteController.updateEstudiante);
-    app.get('/estudiante/obtener/:cedula',EstudianteController.getEstudianteByCedula)
+    app.post('/estudiante/crear',docenteSecretaria ,upload.uploadEstudiantesFields,EstudianteController.crearEstudiante);
+    app.put('/estudiante/editar/:ID',DocenteANDReprsentante,upload.uploadEstudiantesFields, EstudianteController.updateEstudiante);
+    app.get('/estudiante/obtener/:cedula',DocenteANDReprsentante,EstudianteController.getEstudianteByCedula)
     //app.get('/estudiante/obtener/:ID', EstudianteController.getEstudiante);
-    app.get('/estudiante/obtener', EstudianteController.getAllEstudiantes);
-    app.delete('/estudiante/eliminar/:ID', EstudianteController.deleteEstudiante);
-    app.get('/api/representantes/:cedula/estudiantes', EstudianteController.getRepresentanteEstudiante);
-    app.get('/estudiante/download/:folder/:filename',EstudianteController.getFile)
+    app.get('/estudiante/obtener',DocenteANDReprsentante, EstudianteController.getAllEstudiantes);
+    app.delete('/estudiante/eliminar/:ID', docenteSecretaria,EstudianteController.deleteEstudiante);
+    app.get('/api/representantes/:cedula/estudiantes',DocenteANDReprsentante ,EstudianteController.getRepresentanteEstudiante);
+    app.get('/estudiante/download/:folder/:filename',DocenteANDReprsentante,EstudianteController.getFile)
     
 }

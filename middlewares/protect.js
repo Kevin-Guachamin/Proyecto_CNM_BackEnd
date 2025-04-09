@@ -16,8 +16,8 @@ module.exports.docenteVicerrector = async (req, res, next) => {
       console.log("Decoded token:", decoded);
 
       // Verificar que el rol sea docente y el subRol sea Vicerrector
-      if (decoded.rol !== "docente" || decoded.subRol !== "Vicerrector") {
-        return res.status(403).json({ message: "No autorizado, se requiere ser docente con subrol Vicerrector" });
+      if (decoded.rol !== "docente" || decoded.subRol !== "Vicerrector" || decoded.subRol !=="Administrador") {
+        return res.status(403).json({ message: "No autorizado, se requiere ser docente con subrol Vicerrector o Admin" });
       }
 
       // Buscar el docente por su ID
@@ -129,7 +129,7 @@ module.exports.docenteProfesor = async (req, res, next) => {
       console.log("Decoded token:", decoded);
 
       // Verificar que el rol sea docente y el subRol sea Profesor
-      if (decoded.rol !== "docente" || decoded.subRol !== "Profesor") {
+      if (decoded.rol !== "docente" || decoded.subRol !== "Profesor" || decoded.subRol !== "Administrador") {
         return res.status(403).json({ message: "No autorizado, se requiere ser docente con subrol Profesor" });
       }
 
@@ -167,7 +167,7 @@ module.exports.docenteSecretaria = async (req, res, next) => {
       console.log("Decoded token:", decoded);
 
       // Verificar que el rol sea docente y el subRol sea Secretaria
-      if (decoded.rol !== "docente" || decoded.subRol !== "Secretaria") {
+      if (decoded.rol !== "docente" || decoded.subRol !== "Secretaria" || decoded.subRol!=="Administrador") {
         return res.status(403).json({ message: "No autorizado, se requiere ser docente con subrol Secretaria" });
       }
       
@@ -206,7 +206,7 @@ module.exports.Representante = async (req, res, next) => {
       console.log("Decoded token:", decoded);
 
       // Verificar que el rol sea representante
-      if (decoded.rol !== "representante") {
+      if (decoded.rol !== "representante" || decoded.subRol !== "Administrador") {
         return res.status(403).json({ message: "No autorizado, se requiere ser representante" });
       }
 
@@ -270,3 +270,4 @@ module.exports.DocenteANDReprsentante= async (req, res, next) => {
 
   return res.status(401).json({ message: "No autorizado, token no encontrado" });
 }
+
