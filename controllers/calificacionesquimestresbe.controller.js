@@ -1,114 +1,103 @@
-const Calificaciones_quimestrales = require('../models/calificaciones_quimestrales.model');
+const Calificaciones_quimestrales_be = require('../models/calificaciones_quimestrales_be.model');
 const Inscripcion = require('../models/inscripcion.model');
 const Matricula = require('../models/matricula.models');
 const Estudiante = require('../models/estudiante.model');
 const { Op } = require('sequelize');
 
-module.exports.createQuimestral = async (req, res) => {
+module.exports.createQuimestralBE = async (req, res) => {
   try {
     const { id_inscripcion, quimestre, examen } = req.body;
     if (!id_inscripcion || !quimestre) {
       return res.status(400).json({ message: "Faltan datos requeridos" });
     }
-    const newRecord = await Calificaciones_quimestrales.create({
+    const nuevo = await Calificaciones_quimestrales_be.create({
       ID_inscripcion: id_inscripcion,
       quimestre,
       examen
     });
-    return res.status(201).json(newRecord);
+    return res.status(201).json(nuevo);
   } catch (error) {
-    console.error("Error en createQuimestral:", error);
+    console.error("Error en createQuimestralBE:", error);
     return res.status(500).json({ message: "Error en el servidor" });
   }
 };
 
-module.exports.createQuimestralBulk = async (req, res) => {
+module.exports.createQuimestralBulkBE = async (req, res) => {
   try {
     const items = req.body;
     if (!Array.isArray(items) || items.length === 0) {
       return res.status(400).json({ message: "Se requiere un array de registros" });
     }
 
-    // 1. Construir condiciones OR para buscar duplicados
     const conditions = items.map(i => ({
       ID_inscripcion: i.id_inscripcion,
       quimestre: i.quimestre
     }));
 
-    // 2. Buscar registros existentes con esas claves
-    const existingRecords = await Calificaciones_quimestrales.findAll({
-      where: {
-        [Op.or]: conditions
-      }
+    const existing = await Calificaciones_quimestrales_be.findAll({
+      where: { [Op.or]: conditions }
     });
 
-    // 3. Crear un Set con las claves existentes
-    const existingKeys = new Set(
-      existingRecords.map(r => `${r.ID_inscripcion}-${r.quimestre}`)
-    );
+    const existingKeys = new Set(existing.map(r => `${r.ID_inscripcion}-${r.quimestre}`));
 
-    // 4. Filtrar los registros nuevos
-    const newRows = items.filter(i => {
+    const nuevos = items.filter(i => {
       const key = `${i.id_inscripcion}-${i.quimestre}`;
       return !existingKeys.has(key);
     });
 
-    // 5. Si no hay nada nuevo, retornamos 200 con un mensaje
-    if (newRows.length === 0) {
+    if (nuevos.length === 0) {
       return res.status(200).json({ message: "No se han insertado registros, ya existen." });
     }
 
-    // 6. Preparar payload para bulkCreate
-    const payload = newRows.map(i => ({
+    const payload = nuevos.map(i => ({
       ID_inscripcion: i.id_inscripcion,
       quimestre: i.quimestre,
       examen: i.examen
     }));
 
-    // 7. Insertar registros nuevos
-    const created = await Calificaciones_quimestrales.bulkCreate(payload, { validate: true });
-    return res.status(201).json(created);
+    const creados = await Calificaciones_quimestrales_be.bulkCreate(payload, { validate: true });
+    return res.status(201).json(creados);
 
   } catch (error) {
-    console.error("Error en createQuimestralBulk:", error);
+    console.error("Error en createQuimestralBulkBE:", error);
     return res.status(500).json({ message: "Error en el servidor" });
   }
 };
 
-module.exports.updateQuimestral = async (req, res) => {
+module.exports.updateQuimestralBE = async (req, res) => {
   try {
     const { id } = req.params;
-    const updateData = {};
     const { examen, quimestre } = req.body;
+    const updateData = {};
     if (examen !== undefined) updateData.examen = examen;
     if (quimestre !== undefined) updateData.quimestre = quimestre;
 
-    const [updated] = await Calificaciones_quimestrales.update(updateData, { where: { ID: id } });
+    const [updated] = await Calificaciones_quimestrales_be.update(updateData, { where: { ID: id } });
     if (!updated) return res.status(404).json({ message: "Registro no encontrado" });
 
-    const record = await Calificaciones_quimestrales.findByPk(id);
-    return res.status(200).json(record);
+    const registro = await Calificaciones_quimestrales_be.findByPk(id);
+    return res.status(200).json(registro);
   } catch (error) {
-    console.error("Error en updateQuimestral:", error);
+    console.error("Error en updateQuimestralBE:", error);
     return res.status(500).json({ message: "Error en el servidor" });
   }
 };
 
-module.exports.getQuimestral = async (req, res) => {
+module.exports.getQuimestralBE = async (req, res) => {
   try {
-    const record = await Calificaciones_quimestrales.findByPk(req.params.id);
-    if (!record) return res.status(404).json({ message: "Registro no encontrado" });
-    return res.status(200).json(record);
+    const registro = await Calificaciones_quimestrales_be.findByPk(req.params.id);
+    if (!registro) return res.status(404).json({ message: "Registro no encontrado" });
+    return res.status(200).json(registro);
   } catch (error) {
-    console.error("Error en getQuimestral:", error);
+    console.error("Error en getQuimestralBE:", error);
     return res.status(500).json({ message: "Error en el servidor" });
   }
 };
 
-module.exports.getQuimestralesPorAsignacion = async (req, res) => {
+module.exports.getQuimestralesPorAsignacionBE = async (req, res) => {
   try {
     const { id_asignacion } = req.params;
-    const records = await Calificaciones_quimestrales.findAll({
+    const records = await Calificaciones_quimestrales_be.findAll({
       include: [{
         model: Inscripcion,
         where: { ID_asignacion: id_asignacion },
@@ -139,19 +128,19 @@ module.exports.getQuimestralesPorAsignacion = async (req, res) => {
     result.sort((a,b) => (a.nombreEstudiante||'').localeCompare(b.nombreEstudiante));
     return res.status(200).json(result);
   } catch (error) {
-    console.error("Error en getQuimestralesPorAsignacion:", error);
+    console.error("Error en getQuimestralesPorAsignacionBE:", error);
     return res.status(500).json({ message: "Error en el servidor" });
   }
 };
 
-module.exports.deleteQuimestral = async (req, res) => {
+module.exports.deleteQuimestralBE = async (req, res) => {
   try {
-    const record = await Calificaciones_quimestrales.findByPk(req.params.id);
-    if (!record) return res.status(404).json({ message: "Registro no encontrado" });
-    await record.destroy();
-    return res.status(200).json({ message: "Eliminado correctamente", eliminado: record });
+    const registro = await Calificaciones_quimestrales_be.findByPk(req.params.id);
+    if (!registro) return res.status(404).json({ message: "Registro no encontrado" });
+    await registro.destroy();
+    return res.status(200).json({ message: "Eliminado correctamente", eliminado: registro });
   } catch (error) {
-    console.error("Error en deleteQuimestral:", error);
+    console.error("Error en deleteQuimestralBE:", error);
     return res.status(500).json({ message: "Error en el servidor" });
   }
 };

@@ -4,20 +4,6 @@ const Matricula = require('../models/matricula.models');
 const Estudiante = require('../models/estudiante.model');
 const { Op } = require("sequelize");
 
-/**
- * CREATE Parcial (un solo registro)
- * POST /api/parciales
- * Body esperado:
- * {
- *   "id_inscripcion": number,
- *   "quimestre": "Q1" | "Q2",
- *   "parcial": "P1" | "P2",
- *   "insumo1": number,
- *   "insumo2": number,
- *   "evaluacion": number,
- *   "comportamiento": any
- * }
- */
 module.exports.createParcial = async (req, res) => {
   try {
     const {
@@ -55,28 +41,6 @@ module.exports.createParcial = async (req, res) => {
   }
 };
 
-/**
- * CREATE Parciales en bloque (varios registros a la vez)
- * POST /api/parciales/bulk
- * Body esperado: array de objetos con la misma estructura que createParcial
- * [
- *   {
- *     "id_inscripcion": 1,
- *     "quimestre": "Q1",
- *     "parcial": "P1",
- *     "insumo1": 8,
- *     "insumo2": 9,
- *     "evaluacion": 7.5,
- *     "comportamiento": ...
- *   },
- *   {
- *     "id_inscripcion": 2,
- *     "quimestre": "Q1",
- *     "parcial": "P1",
- *     ...
- *   }
- * ]
- */
 module.exports.createParcialBulk = async (req, res) => {
   try {
     const parcialesData = req.body; // Se espera un array
@@ -130,19 +94,6 @@ module.exports.createParcialBulk = async (req, res) => {
   }
 };
 
-/**
- * UPDATE Parcial (un solo registro)
- * PUT /api/parciales/:id
- * Body esperado (mismo formato que createParcial):
- * {
- *   "insumo1": number,
- *   "insumo2": number,
- *   "evaluacion": number,
- *   "comportamiento": any,
- *   "quimestre": "Q1" | "Q2",
- *   "parcial": "P1" | "P2"
- * }
- */
 module.exports.updateParcial = async (req, res) => {
   try {
     const id = req.params.id;
@@ -184,11 +135,6 @@ module.exports.updateParcial = async (req, res) => {
   }
 };
 
-/**
- * GET Parcial por ID
- * GET /api/parciales/:id
- * Devuelve un registro de calificación parcial
- */
 module.exports.getParcial = async (req, res) => {
   try {
     const id = req.params.id;
@@ -203,11 +149,6 @@ module.exports.getParcial = async (req, res) => {
   }
 };
 
-/**
- * GET /api/parciales/asignacion/:id_asignacion
- * Devuelve los datos de las calificaciones parciales 
- * e incluye información básica del estudiante.
- */
 module.exports.getParcialesPorAsignacion = async (req, res) => {
   try {
     const { id_asignacion } = req.params;
@@ -265,10 +206,6 @@ module.exports.getParcialesPorAsignacion = async (req, res) => {
   }
 };
 
-/**
- * DELETE Parcial
- * DELETE /api/parciales/:id
- */
 module.exports.deleteParcial = async (req, res) => {
   try {
     const { id } = req.params;
