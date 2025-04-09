@@ -33,7 +33,7 @@ module.exports.changePassword = async(req,res)=>{
     
     // Verificar la contraseña actual
     const isMatch = await bcrypt.compare(currentPassword, user.password);
-    if (!isMatch) return res.status(400).json({ message: "Contraseña incorrecta" });
+    if (!isMatch) return res.status(400).json({ message: "Contraseña actual incorrecta" });
 
     // Hashear y guardar nueva contraseña
     const salt = await bcrypt.genSalt(10);
