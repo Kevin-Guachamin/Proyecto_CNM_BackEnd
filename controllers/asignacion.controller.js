@@ -4,6 +4,9 @@ const Asignacion = require('../models/asignacion.model');
 const Docente = require('../models/docente.model');
 const Materia = require('../models/materia.model');
 const Periodo_Academico = require('../models/periodo_academico.model');
+const Matricula = require('../models/matricula.models')
+const Inscripcion = require('../models/inscripcion.model');
+const matriculaRoute = require('../routes/matricula.route');
 
 const createAsignacion = async (req, res) => {
   try {
@@ -11,22 +14,22 @@ const createAsignacion = async (req, res) => {
     console.log("Esta es lo que se recibe:", asignacion);
 
     // Verificar si la asignación ya existe. Cambié la búsqueda para comprobar los parámetros relevantes.
-    
+
     const asignacionesDocente = await Asignacion.findAll({
       where: {
         nroCedula_docente: asignacion.nroCedula_docente,
         id_periodo_academico: asignacion.id_periodo_academico
       }
     });
-    
+
     function tienenDiasSolapados(dias1, dias2) {
       return dias1.some(dia => dias2.includes(dia));
     }
-    
+
     function tienenHorariosSolapados(horaInicioA, horaFinA, horaInicioB, horaFinB) {
       return horaInicioA < horaFinB && horaFinA > horaInicioB;
     }
-    
+
     // Primero, verifica si hay conflicto de días + horarios
     const conflicto = asignacionesDocente.some(asig => {
       const hayDiasSolapados = tienenDiasSolapados(asig.dias, asignacion.dias);
@@ -36,18 +39,18 @@ const createAsignacion = async (req, res) => {
         asig.horaInicio,
         asig.horaFin
       );
-    
+
       return hayDiasSolapados && hayHorarioSolapado;
     });
-    
+
     if (conflicto) {
       return res.status(400).json({
-       message: "El docente ya tiene una asignación con cruce de horario en los días seleccionados para este período."
+        message: "El docente ya tiene una asignación con cruce de horario en los días seleccionados para este período."
       });
     }
 
 
-    
+
 
     // Crear la asignación si no existe
     const result1 = await Asignacion.create({
@@ -61,7 +64,7 @@ const createAsignacion = async (req, res) => {
       id_materia: asignacion.id_materia,
       cuposDisponibles: asignacion.cuposDisponibles
     })
-    const result = await Asignacion.findByPk(result1.ID,{
+    const result = await Asignacion.findByPk(result1.ID, {
       include: [
         {
           model: Docente,
@@ -87,10 +90,10 @@ const createAsignacion = async (req, res) => {
 
     // Devolvemos la asignación final
     return res.status(200).json(asignacionFinal);
-    
-    
 
-    
+
+
+
   } catch (error) {
     console.error("Error al crear la asignación", error)
     console.log("ESTE ES EL ERROR", error.name)
@@ -112,7 +115,7 @@ const createAsignacion = async (req, res) => {
         err.validatorKey === "is_null" ||
         err.validatorKey === "isArrayOfValidDays" ||
         err.validatorKey === "validarOrden" ||
-        err.validatorKey ==="min"
+        err.validatorKey === "min"
       );
 
       if (errEncontrado) {
@@ -140,16 +143,16 @@ const updateAsginacion = async (req, res) => {
         }
       }
     });
-    console.log("me encontre a mi mismo",asignacionesDocente)
-    
+    console.log("me encontre a mi mismo", asignacionesDocente)
+
     function tienenDiasSolapados(dias1, dias2) {
       return dias1.some(dia => dias2.includes(dia));
     }
-    
+
     function tienenHorariosSolapados(horaInicioA, horaFinA, horaInicioB, horaFinB) {
       return horaInicioA < horaFinB && horaFinA > horaInicioB;
     }
-    
+
     // Primero, verifica si hay conflicto de días + horarios
     const conflicto = asignacionesDocente.some(asig => {
       const hayDiasSolapados = tienenDiasSolapados(asig.dias, asignacion.dias);
@@ -159,13 +162,13 @@ const updateAsginacion = async (req, res) => {
         asig.horaInicio,
         asig.horaFin
       );
-      
+
       return hayDiasSolapados && hayHorarioSolapado;
     });
-    
+
     if (conflicto) {
       return res.status(400).json({
-       message: "El docente ya tiene una asignación con cruce de horario en los días seleccionados para este período."
+        message: "El docente ya tiene una asignación con cruce de horario en los días seleccionados para este período."
       });
     }
 
@@ -177,7 +180,7 @@ const updateAsginacion = async (req, res) => {
     }
     const result = await Asignacion.findByPk(id, {
       include: [
-        { model: Materia, as:"materiaDetalle" },
+        { model: Materia, as: "materiaDetalle" },
         { model: Docente }
       ]
     })
@@ -217,7 +220,7 @@ const updateAsginacion = async (req, res) => {
         err.validatorKey === "is_null" ||
         err.validatorKey === "isArrayOfValidDays" ||
         err.validatorKey === "validarOrden" ||
-        err.validatorKey ==="min"
+        err.validatorKey === "min"
       );
 
       if (errEncontrado) {
@@ -399,15 +402,16 @@ const getAsignacionesPorNivel = async (req, res) => {
     const asignaciones = await Asignacion.findAll({
       where: {
         id_periodo_academico: ID
-        
+
       },
       include: [
         {
           model: Materia,
-          where: { nivel: nivel,
+          where: {
+            nivel: nivel,
             tipo: { [Op.ne]: "individual" }
           },
-           as: "materiaDetalle"
+          as: "materiaDetalle"
 
         },
         {
@@ -430,7 +434,7 @@ const getAsignacionesPorNivel = async (req, res) => {
       }
       return asignacionPlain;
     });
-    console.log("estas fueron las asignaciones finales", asignacionesFinal)
+    
     return res.json(asignacionesFinal);
   } catch (error) {
     console.error("Error al obtener asignaciones por nivel:", error);
@@ -445,11 +449,12 @@ const getAsignaciones = async (req, res) => {
     const asignaciones = await Asignacion.findAll({
       where: {
         id_periodo_academico: periodo,
-        
+
       },
       include: [
 
-        { model: Materia, 
+        {
+          model: Materia,
           where: {
             tipo: { [Op.ne]: "individual" }
           },
@@ -457,12 +462,12 @@ const getAsignaciones = async (req, res) => {
         },
         { model: Docente },
         {
-          model: Periodo_Academico, 
-          attributes: ["descripcion"] 
+          model: Periodo_Academico,
+          attributes: ["descripcion"]
         }
       ]
     })
-    console.log("tenemos las asignaciones",asignaciones)
+    console.log("tenemos las asignaciones", asignaciones)
     const asignacionesFinal = asignaciones.map((asignacion) => {
       const asignacionPlain = asignacion.get({ plain: true }); // Convertimos el resultado a un objeto plano
       // Eliminamos las contraseñas de los docentes
@@ -485,24 +490,24 @@ const getAsignaciones = async (req, res) => {
 }
 const getAsignacionesPorAsignatura = async (req, res) => {
   try {
-    const nivel = req.params.nivel;
+
     const ID = req.params.periodo
     const asignatura = req.params.materia
 
     const asignaciones = await Asignacion.findAll({
       where: {
         id_periodo_academico: ID
-        
+
       },
       include: [
         {
           model: Materia,
           where: {
-             [Op.and]: [
+            [Op.and]: [
               Sequelize.where(Sequelize.fn("LOWER", Sequelize.col("nombre")), "LIKE", `%${asignatura.toLowerCase()}%`)
             ]
           },
-          as:"materiaDetalle"
+          as: "materiaDetalle"
 
         },
         {
@@ -525,13 +530,61 @@ const getAsignacionesPorAsignatura = async (req, res) => {
       }
       return asignacionPlain;
     });
-    console.log("estas fueron las asignaciones finales", asignacionesFinal)
+    
     return res.json(asignacionesFinal);
   } catch (error) {
     console.error("Error al obtener asignaciones por nivel:", error);
     return res.status(500).json({ message: "Error al obtener asignaciones en el servidor" });
   }
 }
+const getAsignacionesPorMatricula = async (req, res) => {
+  const matricula = req.params.matricula; // Obtienes el ID de matrícula desde los parámetros de la URL
+
+  try {
+    const inscripciones = await Inscripcion.findAll({
+      where: { ID_matricula: matricula }, // Aquí usamos matricula_id como clave foránea
+      include: [
+        {
+          model: Asignacion,
+          include: [
+            {
+              model: Materia,
+              as: 'materiaDetalle', // Materia asociada a la asignación
+            },
+            {
+              model: Docente, // Docente de la asignación
+            }
+          ]
+        }
+      ]
+    });
+
+    if (inscripciones && inscripciones.length > 0) {
+      // Extraemos las asignaciones completas
+      const asignaciones = inscripciones.map(inscripcion => inscripcion.Asignacion).flat();
+
+      const asignacionesFinal = asignaciones.map((asignacion) => {
+        const asignacionPlain = asignacion.get({ plain: true }); // Convertimos el resultado a un objeto plano
+        // Eliminamos las contraseñas de los docentes
+        if (asignacionPlain.Docente) {
+          delete asignacionPlain.Docente.password;
+        }
+        // Renombramos Materium a Materia
+        if (asignacionPlain.materiaDetalle) {
+          asignacionPlain.Materia = asignacionPlain.materiaDetalle;
+          delete asignacionPlain.materiaDetalle;
+        }
+        return asignacionPlain;
+      });
+      return res.json(asignacionesFinal)
+    }
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Error al obtener las asignaciones' });
+  }
+};
+
 module.exports = {
   createAsignacion,
   updateAsginacion,
@@ -540,5 +593,6 @@ module.exports = {
   getAsignacionesPorDocente,
   getAsignacionesPorNivel,
   getAsignaciones,
-  getAsignacionesPorAsignatura
+  getAsignacionesPorAsignatura,
+  getAsignacionesPorMatricula
 }

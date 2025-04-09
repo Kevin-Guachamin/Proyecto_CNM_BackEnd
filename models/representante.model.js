@@ -1,6 +1,5 @@
 const { DataTypes } = require('sequelize');
 const {sequelize} = require('../config/sequelize.config')
-const {validarCedulaEcuatoriana}= require('../utils/validarCedulaEcuatoriana')
 const Estudiante = require('./estudiante.model')
 
 const Representante = sequelize.define('Representante', {
@@ -8,20 +7,15 @@ const Representante = sequelize.define('Representante', {
         type: DataTypes.STRING,
         allowNull: false,
         primaryKey: true,
-        unique: {msg: "La cédula del representante ya existe"},
+        unique: {msg: "La identificación del representante ya existe"},
         validate: {
-            notNull: { msg: "El número de cédula es requerido" },
-            notEmpty: { msg: "El número de cédula no puede estar vacío" },
-            len: {
-                args: [10, 10],
-                msg: "El número de cédula del representante debe tener 10 dígitos"
-            },
-            isNumeric: { msg: "El número de cédula solo debe contener números" },
-            isEcuadorianID(value) {
-                if (!validarCedulaEcuatoriana(value)) {
-                    throw new Error("El número de cédula del representante no es válido");
-                }
-            }
+            notNull: { msg: "La identificación es requerida" },
+            notEmpty: { msg: "La identifiación no puede estar vacío" },
+            is: {
+                args: /^[A-Z0-9]{7,10}$/i,
+                msg: "La identificación debe tener entre 7 y 10 caracteres alfanuméricos"
+              }
+        
         }
     },
     primer_nombre: {

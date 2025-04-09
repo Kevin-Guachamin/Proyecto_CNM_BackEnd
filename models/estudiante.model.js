@@ -1,26 +1,21 @@
 const { DataTypes } = require('sequelize')
 const { sequelize } = require('../config/sequelize.config')
-const { validarCedulaEcuatoriana } = require('../utils/validarCedulaEcuatoriana')
+
 
 const Estudiante = sequelize.define('Estudiante', {
     nroCedula: {
         type: DataTypes.STRING,
         allowNull: false,
         
-        unique: { msg: "La cédula del estudiante ya existe" },
+        unique: { msg: "La identificación del estudiante ya existe" },
         validate: {
-            notNull: { msg: "El número de cédula es requerido" },
-            notEmpty: { msg: "El número de cédula no puede estar vacío" },
-            len: {
-                args: [10, 10],
-                msg: "El número de cédula del estudiante debe tener 10 dígitos"
-            },
-            isNumeric: { msg: "El número de cédula solo debe contener números" },
-            isEcuadorianID(value) {
-                if (!validarCedulaEcuatoriana(value)) {
-                    throw new Error("El número de cédula del estudiante no es válido");
-                }
-            }
+            notNull: { msg: "La identificación es requerida" },
+            notEmpty: { msg: "La identificación no puede estar vacío" },
+            is: {
+                args: /^[A-Z0-9]{7,10}$/i,
+                msg: "La identificación debe tener entre 7 y 10 caracteres alfanuméricos"
+              }
+            
         }
     },
     ID: {
@@ -160,15 +155,15 @@ const Estudiante = sequelize.define('Estudiante', {
             }
         }
     },
-    // nacionalidad: {
-    //     type: DataTypes.STRING,
-    //     allowNull: false,
-    //     validate: {
-    //         notNull: { msg: "La nacionalidad es requerida" },
-    //         notEmpty: { msg: "La nacionalidad no puede ser vacío" },
-    //         len: { args: [2, 50], msg: "Debe tener entre 4 y 50 caracteres" }
-    //     }
-    // },
+    nacionalidad: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+            notNull: { msg: "La nacionalidad es requerida" },
+            notEmpty: { msg: "La nacionalidad no puede ser vacío" },
+            len: { args: [2, 50], msg: "Debe tener entre 4 y 50 caracteres" }
+        }
+    },
     IER: { //instituación de educación regular
         type: DataTypes.STRING,
         allowNull: false,

@@ -42,7 +42,7 @@ const crearRepresentante = async (request, response) => {
                 err.validatorKey === "isNumeric" ||
                 err.validatorKey === "len" ||
                 err.validatorKey === "isEmail" ||
-                err.validatorKey === "isEcuadorianID" ||
+                err.validatorKey === "is" ||
                 err.validatorKey ==="isOnlyLetters" ||
                 err.validatorKey ==="is_null"
             );
@@ -176,7 +176,7 @@ const updateRepresentante = async (request, response) => {
                 err.validatorKey === "len" ||
                 err.validatorKey === "isEmail" ||
                 err.validatorKey ==="isOnlyLetters" ||
-                err.validatorKey === "isEcuadorianID" ||
+                err.validatorKey==="is" ||
                 err.validatorKey ==="is_null"
             );
 

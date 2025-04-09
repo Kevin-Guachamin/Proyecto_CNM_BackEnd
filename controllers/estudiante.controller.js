@@ -43,7 +43,7 @@ const crearEstudiante = async (request, res) => {
                 err.validatorKey === "notEmpty" ||
                 err.validatorKey === "isNumeric" ||
                 err.validatorKey === "len" ||
-                err.validatorKey === "isEcuadorianID" ||
+                err.validatorKey === "is" ||
                 err.validatorKey ==="isOnlyLetters" ||
                 err.validatorKey ==="isIn" ||
                 err.validatorKey ==="is_null"
@@ -115,9 +115,7 @@ const getEstudiante = async (request, response) => {
 
     try {
         const estudiante = await Estudiante.findByPk(ID);
-        if (!estudiante) {
-            return response.status(404).json({ message: 'Estudiante no encontrado' });
-        }
+       
 
 
         return response.status(200).json(estudiante);
@@ -136,9 +134,7 @@ const getEstudianteByCedula = async (request, response) => {
 
     try {
         const estudiante = await Estudiante.findOne({where: {nroCedula: cedula}});
-        if (!estudiante) {
-            return response.status(404).json({ message: 'Estudiante no encontrado' });
-        }
+        
         return response.status(200).json(estudiante);
 
     } catch (error) {
@@ -231,7 +227,7 @@ const updateEstudiante = async (request, response) => {
                 err.validatorKey === "notEmpty" ||
                 err.validatorKey === "isNumeric" ||
                 err.validatorKey === "len" ||
-                err.validatorKey === "isEcuadorianID" ||
+                err.validatorKey === "is" ||
                 err.validatorKey ==="isOnlyLetters" ||
                 err.validatorKey ==="isIn" ||
                 err.validatorKey ==="is_null"

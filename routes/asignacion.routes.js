@@ -9,4 +9,5 @@ module.exports = (app) => {
     app.get('/asignacion/nivel/:nivel/:periodo',AsignacionController.getAsignacionesPorNivel)
     app.get('/asignacion/obtener/periodo/:periodo', AsignacionController.getAsignaciones);
     app.get('/asignacion/obtener/materias/:periodo/:nivel/:materia', AsignacionController.getAsignacionesPorAsignatura);
+    app.get('/asignacion/obtener/matricula/:matricula', AsignacionController.getAsignacionesPorMatricula);
 }

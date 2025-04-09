@@ -3,6 +3,7 @@ const Matricula = require('../models/matricula.models');
 const Asignacion = require('../models/asignacion.model');
 const Inscripcion = require('../models/inscripcion.model');
 const Materia = require('../models/materia.model');
+const { sequelize } = require('../config/sequelize.config')
 
 const getEstudiantesPorAsignacion = async (req, res) => {
     const { id_asignacion } = req.params;
@@ -60,42 +61,108 @@ const getEstudiantesPorAsignacion = async (req, res) => {
     }
   };  
 
-const createInscripcion = async (req, res) => {
+  const createInscripcion = async (req, res) => {
+    const t = await sequelize.transaction();
     try {
-        const inscripcion = req.body
-        const inscripcionFound = await Materia.findOne({ where: { inscripcion } })
-        if (inscripcionFound) {
-            return res.status(409).json({ message: "Error la matricula_asignación ya existe" })
+        const inscripcion = req.body;
+
+        // Verificar si ya está inscrito en esta asignación
+        const inscripcionFounded = await Inscripcion.findOne({
+            where: {
+                ID_asignacion: inscripcion.ID_asignacion,
+                ID_matricula: inscripcion.ID_matricula
+            },
+            transaction: t
+        });
+        if (inscripcionFounded) {
+            await t.rollback();
+            return res.status(400).json({ message: 'El estudiante ya está inscrito en esta materia' });
         }
-        const result = await Inscripcion.create(inscripcion)
-        res.status(201).json(result)
+
+        // Buscar asignación con lock
+        const asignacionActual = await Asignacion.findByPk(inscripcion.ID_asignacion, {
+            include: [
+                {
+                    model: Materia,
+                    as: "materiaDetalle"
+                }
+            ],
+            lock: t.LOCK.UPDATE,
+            transaction: t
+        });
+
+        if (!asignacionActual) {
+            await t.rollback();
+            return res.status(404).json({ message: 'Asignación no encontrada' });
+        }
+
+        if (asignacionActual.cuposDisponibles <= 0) {
+            await t.rollback();
+            return res.status(400).json({ message: 'No hay cupos disponibles en esta asignación' });
+        }
+
+        // Verificar si ya está inscrito en la misma materia (otro docente)
+        const yaInscrito = await Inscripcion.findOne({
+            where: {
+                ID_matricula: inscripcion.ID_matricula
+            },
+            include: {
+                model: Asignacion,
+                where: {
+                    ID_materia: asignacionActual.ID_materia
+                }
+            },
+            transaction: t
+        });
+
+        if (yaInscrito) {
+            await t.rollback();
+            return res.status(400).json({ message: 'El estudiante ya está inscrito en esta materia con otro profesor' });
+        }
+
+        // Crear inscripción
+        const nuevaInscripcion = await Inscripcion.create(inscripcion, { transaction: t });
+
+        // Restar cupo
+        asignacionActual.cuposDisponibles -= 1;
+        await asignacionActual.save({ transaction: t });
+
+        await t.commit();
+        return res.status(201).json(nuevaInscripcion);
+
     } catch (error) {
-        console.log('Error al crear el estudiante:', error);
+        await t.rollback();
+        console.log('Error al crear inscripcion:', error);
+
         if (error.name === "SequelizeValidationError") {
-            console.log("Estos son los errores", error);
-            
             const errEncontrado = error.errors.find(err =>
                 err.validatorKey === "notEmpty" ||
                 err.validatorKey === "isNumeric" ||
                 err.validatorKey === "len" ||
-                err.validatorKey ==="is_null"
+                err.validatorKey === "is_null"
             );
-        
             if (errEncontrado) {
                 return res.status(400).json({ message: errEncontrado.message });
             }
         }
-        if (error instanceof TypeError){
-            return res.status(400).json({message: "Debe completar todos los campos"})
+
+        if (error instanceof TypeError) {
+            return res.status(400).json({ message: "Debe completar todos los campos" });
         }
-        if (error.name ==="SequelizeUniqueConstraintError"){
-            return res.status(400).json({message: error.message})
+
+        if (error.name === "SequelizeUniqueConstraintError") {
+            const errEncontrado = error.errors.find(err =>
+                err.validatorKey === "not_unique"
+            );
+            if (errEncontrado) {
+                return res.status(400).json({ message: `${errEncontrado.path} debe ser único` });
+            }
         }
-        
-        res.status(500).json({message: `Error al crear inscripción en el servidor:`})
-        console.log("ESTE ES EL ERROR",error.name)
+
+        res.status(500).json({ message: `Error al crear inscripción en el servidor:` });
     }
-}
+};
+
 const updateInscripcion = async (req, res) => {
     try {
         const inscripcion = req.body
@@ -166,10 +233,12 @@ const deleteInscripcion = async (req, res) => {
         res.status(500).json({ message: `Error al eliminar la inscripción en el servidor:` })
     }
 }
+
 module.exports = {
     createInscripcion,
     updateInscripcion,
     deleteInscripcion,
     getInscripcion,
     getEstudiantesPorAsignacion
+    
 }
