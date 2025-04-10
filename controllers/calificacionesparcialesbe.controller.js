@@ -64,7 +64,7 @@ module.exports.createParcialBEBulk = async (req, res) => {
     });
 
     if (nuevos.length === 0) {
-      return res.status(200).json({ message: "No se insertaron registros, ya existen." });
+      return res.status(200).json({ message: "No se han insertado registros, ya existen." });
     }
 
     const registros = nuevos.map(item => ({

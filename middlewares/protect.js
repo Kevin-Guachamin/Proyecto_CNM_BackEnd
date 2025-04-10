@@ -16,7 +16,7 @@ module.exports.docenteVicerrector = async (req, res, next) => {
       console.log("Decoded token:", decoded);
 
       // Verificar que el rol sea docente y el subRol sea Vicerrector
-      if (decoded.rol !== "docente" || decoded.subRol !== "Vicerrector" || decoded.subRol !=="Administrador") {
+      if (decoded.rol !== "docente" || decoded.subRol !== "Vicerrector" && decoded.subRol !=="Administrador") {
         return res.status(403).json({ message: "No autorizado, se requiere ser docente con subrol Vicerrector o Admin" });
       }
 
@@ -129,7 +129,7 @@ module.exports.docenteProfesor = async (req, res, next) => {
       console.log("Decoded token:", decoded);
 
       // Verificar que el rol sea docente y el subRol sea Profesor
-      if (decoded.rol !== "docente" || decoded.subRol !== "Profesor" || decoded.subRol !== "Administrador") {
+      if (decoded.rol !== "docente" || decoded.subRol !== "Profesor" && decoded.subRol !== "Administrador") {
         return res.status(403).json({ message: "No autorizado, se requiere ser docente con subrol Profesor" });
       }
 
