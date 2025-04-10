@@ -247,7 +247,7 @@ const getAsignacion = async (req, res) => {
         },
         {
           model: Materia,
-          attributes: ["nombre"],
+          attributes: ["nombre","nivel"],
           as: "materiaDetalle"
         },
         {
@@ -292,7 +292,8 @@ const getAsignacion = async (req, res) => {
       horario: horarioStr,        // <-- reconstruido
       periodo: periodoStr,        // <-- viene de Periodo_Academico.descripcion
       docente,
-      materia: asignacion.materiaDetalle?.nombre || null,
+      materia: asignacion.materiaDetalle?.nombre,
+      nivel: asignacion.materiaDetalle?.nivel,
       createdAt: asignacion.createdAt,
       updatedAt: asignacion.updatedAt
     });
@@ -333,7 +334,7 @@ const getAsignacionesPorDocente = async (req, res) => {
         },
         {
           model: Materia,
-          attributes: ["nombre"],
+          attributes: ["nombre", "nivel"],
           as: "materiaDetalle"
         },
         {
@@ -380,7 +381,8 @@ const getAsignacionesPorDocente = async (req, res) => {
         horario: horarioStr,                  // Reconstruido
         periodo: periodoStr,                  // Descripción del período
         docente,                              // Nombre completo
-        materia: asignacion.materiaDetalle?.nombre || null,
+        materia: asignacion.materiaDetalle?.nombre,
+        nivel: asignacion.materiaDetalle?.nivel,
         createdAt: asignacion.createdAt,
         updatedAt: asignacion.updatedAt
       };
