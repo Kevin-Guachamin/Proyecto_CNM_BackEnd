@@ -9,7 +9,7 @@ module.exports = (app) => {
     app.post('/representante/crear',docenteSecretaria,upload.uploadRepresentantesFields ,RepresentanteController.crearRepresentante);
     app.put('/representante/editar/:cedula',DocenteANDReprsentante,upload.uploadRepresentantesFields, RepresentanteController.updateRepresentante);
     app.get('/representante/obtener/:cedula',DocenteANDReprsentante, RepresentanteController.getRepresentante);
-    app.get('/representante/obtener', DocenteANDReprsentante,mRepresentanteController.getAllRepresentantes);
+    app.get('/representante/obtener', DocenteANDReprsentante,RepresentanteController.getAllRepresentantes);
     app.delete('/representante/eliminar/:cedula', docenteSecretaria,RepresentanteController.deleteRepresentante);
     app.get('/representante/download/:folder/:filename',DocenteANDReprsentante,RepresentanteController.getFile)
     app.post('/representante/password/',Representante,validatePasswordChange,changePassword)

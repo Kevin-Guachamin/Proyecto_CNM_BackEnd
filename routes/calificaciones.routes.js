@@ -31,18 +31,18 @@ module.exports = (app) => {
   app.delete('/finales/:id', docenteProfesor,FinalController.deleteFinal);
 
   // Rutas para Parciales BE
-  app.post('/parciales/be', ParcialesControllerBE.createParcialBE);
-  app.post('/parciales/be/bulk', ParcialesControllerBE.createParcialBEBulk);
-  app.get('/parciales/be/:id', ParcialesControllerBE.getParcialBE);
-  app.get('/parciales/be/asignacion/:id_asignacion', ParcialesControllerBE.getParcialesPorAsignacionBE);
-  app.put('/parciales/be/:id', ParcialesControllerBE.updateParcialBE);
-  app.delete('/parciales/be/:id', ParcialesControllerBE.deleteParcialBE);
+  app.post('/parcialesbe', ParcialesControllerBE.createParcialBE);
+  app.post('/parcialesbe/bulk', ParcialesControllerBE.createParcialBEBulk);
+  app.get('/parcialesbe/:id', ParcialesControllerBE.getParcialBE);
+  app.get('/parcialesbe/asignacion/:id_asignacion', ParcialesControllerBE.getParcialesBEPorAsignacion);
+  app.put('/parcialesbe/:id', ParcialesControllerBE.updateParcialBE);
+  app.delete('/parcialesbe/:id', ParcialesControllerBE.deleteParcialBE);
 
   // Rutas para Quimestrales BE
-  app.post('/quimestrales/be', QuimestresControllerBE.createQuimestralBE);
-  app.post('/quimestrales/be/bulk', QuimestresControllerBE.createQuimestralBulkBE);
-  app.get('/quimestrales/be/:id', QuimestresControllerBE.getQuimestralBE);
-  app.get('/quimestrales/be/asignacion/:id_asignacion', QuimestresControllerBE.getQuimestralesPorAsignacionBE);
-  app.put('/quimestrales/be/:id', QuimestresControllerBE.updateQuimestralBE);
-  app.delete('/quimestrales/be/:id', QuimestresControllerBE.deleteQuimestralBE);
+  app.post('/quimestralesbe', QuimestresControllerBE.createQuimestralBE);
+  app.post('/quimestralesbe/bulk', QuimestresControllerBE.createQuimestralBulkBE);
+  app.get('/quimestralesbe/:id', QuimestresControllerBE.getQuimestralBE);
+  app.get('/quimestralesbe/asignacion/:id_asignacion', QuimestresControllerBE.getQuimestralesPorAsignacionBE);
+  app.put('/quimestralesbe/:id', QuimestresControllerBE.updateQuimestralBE);
+  app.delete('/quimestralesbe/:id', QuimestresControllerBE.deleteQuimestralBE);
 };
