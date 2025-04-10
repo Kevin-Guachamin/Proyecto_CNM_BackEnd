@@ -108,8 +108,8 @@ const Asignacion = sequelize.define("Asignacion", {
     {
         tableName: "asignaciones"
     })
-Docente.belongsToMany(Materia, { through: Asignacion, foreignKey: "nroCedula_docente" })
-Materia.belongsToMany(Docente, { through: Asignacion, foreignKey: "ID_materia" })
+Docente.belongsToMany(Materia, { through: Asignacion, foreignKey: {name: "nroCedula_docente", allowNull:false }})
+Materia.belongsToMany(Docente, { through: Asignacion, foreignKey: {name: "ID_materia", allowNull:false} })
 Asignacion.belongsTo(Periodo_Academico, { foreignKey: "ID_periodo_academico", targetKey: "ID" })
 Periodo_Academico.hasMany(Asignacion, { foreignKey: "ID_periodo_academico", sourceKey: "ID" })
 

@@ -37,7 +37,7 @@ const createAsignacion = async (req, res) => {
     const asignacionesDocente = await Asignacion.findAll({
       where: {
         nroCedula_docente: asignacion.nroCedula_docente,
-        id_periodo_academico: asignacion.id_periodo_academico
+        ID_periodo_academico: asignacion.ID_periodo_academico
       }
     });
 
@@ -78,9 +78,9 @@ const createAsignacion = async (req, res) => {
       horaFin: asignacion.horaFin,
       dias: asignacion.dias,
       cupos: parseInt(asignacion.cupos, 10),
-      id_periodo_academico: asignacion.id_periodo_academico,
+      ID_periodo_academico: asignacion.ID_periodo_academico,
       nroCedula_docente: asignacion.nroCedula_docente,
-      id_materia: asignacion.id_materia,
+      ID_materia: asignacion.ID_materia,
       cuposDisponibles: asignacion.cuposDisponibles
     })
     const result = await Asignacion.findByPk(result1.ID, {
@@ -156,7 +156,7 @@ const updateAsginacion = async (req, res) => {
     const asignacionesDocente = await Asignacion.findAll({
       where: {
         nroCedula_docente: asignacion.nroCedula_docente,
-        id_periodo_academico: asignacion.id_periodo_academico,
+        ID_periodo_academico: asignacion.ID_periodo_academico,
         ID: {
           [Op.not]: asignacion.ID  // 👈 Excluye la asignación actual
         }
@@ -422,7 +422,7 @@ const getAsignacionesPorNivel = async (req, res) => {
     console.log("estos fueron los parametros", nivel, ID)
     const asignaciones = await Asignacion.findAll({
       where: {
-        id_periodo_academico: ID
+        ID_periodo_academico: ID
 
       },
       include: [
@@ -469,7 +469,7 @@ const getAsignaciones = async (req, res) => {
     console.log("este es el periodo", periodo)
     const asignaciones = await Asignacion.findAll({
       where: {
-        id_periodo_academico: periodo,
+        ID_periodo_academico: periodo,
 
       },
       include: [
@@ -518,8 +518,7 @@ const getAsignacionesPorAsignatura = async (req, res) => {
     const nivelesMateria = mapearNivelEstudianteAMateria(nivelEstudiante);
     const asignaciones = await Asignacion.findAll({
       where: {
-        id_periodo_academico: ID
-
+        ID_periodo_academico: ID,
       },
       include: [
         {
@@ -527,18 +526,18 @@ const getAsignacionesPorAsignatura = async (req, res) => {
           where: {
             [Op.and]: [
               Sequelize.where(Sequelize.fn("LOWER", Sequelize.col("nombre")), "LIKE", `%${asignatura.toLowerCase()}%`),
-              // Aquí usamos Sequelize.Op.in para permitir que coincidan los niveles exactos o parciales
-              Sequelize.where(Sequelize.col("nivel"), Sequelize.Op.in, nivelesMateria)
-            ]
+            ],
+            nivel: {
+              [Op.in]: [nivelesMateria]  // Cambiado para usar IN con un arreglo
+            }
           },
           as: "materiaDetalle"
         },
         {
           model: Docente
         },
-
       ]
-    })
+    });
 
     const asignacionesFinal = asignaciones.map((asignacion) => {
       const asignacionPlain = asignacion.get({ plain: true }); // Convertimos el resultado a un objeto plano
