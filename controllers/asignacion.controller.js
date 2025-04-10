@@ -7,6 +7,25 @@ const Periodo_Academico = require('../models/periodo_academico.model');
 const Matricula = require('../models/matricula.models')
 const Inscripcion = require('../models/inscripcion.model');
 const matriculaRoute = require('../routes/matricula.route');
+const mapearNivelEstudianteAMateria = (nivelEstudiante) => {
+  const mapeoNiveles = {
+    "1ro Básico Elemental": ["1ro BE"],
+    "2do Básico Elemental": ["2do BE"],
+    "1ro Básico Medio": ["1ro BM", "BM"],
+    "2do Básico Medio": ["2do BM", "BM"],
+    "3ro Básico Medio": ["3ro BM", "BM"],
+    "1ro Básico Superior": ["1ro BS", "BS", "BS BCH"],
+    "2do Básico Superior": ["2do BS", "BS", "BS BCH"],
+    "3ro Básico Superior": ["3ro BS", "BS", "BS BCH"],
+    "1ro Bachillerato": ["1ro BCH", "BCH", "BS BCH"],
+    "2do Bachillerato": ["2do BCH", "BCH", "BS BCH"],
+    "3ro Bachillerato": ["3ro BCH", "BCH", "BS BCH"],
+    
+  };
+
+  // Si el nivel del estudiante existe en el mapeo, devolvemos los niveles de materia correspondientes
+  return mapeoNiveles[nivelEstudiante] || [];
+};
 
 const createAsignacion = async (req, res) => {
   try {
@@ -495,7 +514,8 @@ const getAsignacionesPorAsignatura = async (req, res) => {
 
     const ID = req.params.periodo
     const asignatura = req.params.materia
-
+    const nivelEstudiante=req.params.nivel
+    const nivelesMateria = mapearNivelEstudianteAMateria(nivelEstudiante);
     const asignaciones = await Asignacion.findAll({
       where: {
         id_periodo_academico: ID
@@ -506,11 +526,12 @@ const getAsignacionesPorAsignatura = async (req, res) => {
           model: Materia,
           where: {
             [Op.and]: [
-              Sequelize.where(Sequelize.fn("LOWER", Sequelize.col("nombre")), "LIKE", `%${asignatura.toLowerCase()}%`)
+              Sequelize.where(Sequelize.fn("LOWER", Sequelize.col("nombre")), "LIKE", `%${asignatura.toLowerCase()}%`),
+              // Aquí usamos Sequelize.Op.in para permitir que coincidan los niveles exactos o parciales
+              Sequelize.where(Sequelize.col("nivel"), Sequelize.Op.in, nivelesMateria)
             ]
           },
           as: "materiaDetalle"
-
         },
         {
           model: Docente

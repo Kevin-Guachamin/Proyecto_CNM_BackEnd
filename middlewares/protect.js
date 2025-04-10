@@ -237,7 +237,7 @@ module.exports.DocenteANDReprsentante = async (req, res, next) => {
     try {
       token = req.headers.authorization.split(" ")[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
+      console.log("este es el rol", decoded.rol)
       // Verificar que el rol sea válido
       if (decoded.rol !== "representante" && decoded.rol !== "docente") {
         return res.status(403).json({ message: "No autorizado, se requiere ser representante o docente" });
