@@ -8,6 +8,5 @@ module.exports = (app) => {
     app.get('/asignacion/docente/:id_docente', DocenteANDReprsentante,AsignacionController.getAsignacionesPorDocente);
     app.get('/asignacion/nivel/:nivel/:periodo',DocenteANDReprsentante,AsignacionController.getAsignacionesPorNivel)
     app.get('/asignacion/obtener/periodo/:periodo',DocenteANDReprsentante ,AsignacionController.getAsignaciones);
-    app.get('/asignacion/obtener/materias/:periodo/:nivel/:materia', DocenteANDReprsentante,AsignacionController.getAsignacionesPorAsignatura);
-    app.get('/asignacion/obtener/matricula/:matricula', DocenteANDReprsentante,AsignacionController.getAsignacionesPorMatricula);
+    app.get('/asignacion/obtener/materias/:periodo/:nivel/:materia/:jornada', DocenteANDReprsentante,AsignacionController.getAsignacionesPorAsignatura);
 }

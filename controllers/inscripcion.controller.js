@@ -5,67 +5,75 @@ const Inscripcion = require('../models/inscripcion.model');
 const Materia = require('../models/materia.model');
 const { sequelize } = require('../config/sequelize.config')
 
+const tienenDiasSolapados = (dias1, dias2) => {
+    return dias1.some(dia => dias2.includes(dia));
+}
+
+const tienenHorariosSolapados = (horaInicioA, horaFinA, horaInicioB, horaFinB) => {
+    return horaInicioA < horaFinB && horaFinA > horaInicioB;
+}
 const getEstudiantesPorAsignacion = async (req, res) => {
     const { id_asignacion } = req.params;
-  
-    try {
-      const inscripciones = await Inscripcion.findAll({
-        where: { ID_asignacion: id_asignacion },
-        include: [{
-          model: Matricula,
-          attributes: ['nivel'],
-          include: [{
-            model: Estudiante,
-            // Ajusta el nombre del PK real de tu modelo Estudiante (puede ser 'ID', 'id', etc.)
-            attributes: ['ID', 'primer_nombre', 'segundo_nombre', 'primer_apellido', 'segundo_apellido']
-          }]
-        }]
-      });
-  
-      const estudiantes = inscripciones
-        .map((insc) => {
-          const est = insc.Matricula?.Estudiante;
-          if (!est) return null;
-  
-          const nivel = insc.Matricula?.nivel || "";
-          const nombreCompleto = [
-            est.primer_apellido,
-            est.segundo_apellido ?? '',
-            est.primer_nombre,
-            est.segundo_nombre ?? ''
-          ].join(' ');
-  
-          return {
-            // ID de la inscripción (clave para calificaciones)
-            idInscripcion: insc.ID, 
-            // ID del estudiante (por si lo necesitas también)
-            idEstudiante: est.ID, 
-            nombreCompleto,
-            nivel
-          };
-        })
-        .filter(Boolean)
-        .sort((a, b) => a.nombreCompleto.localeCompare(b.nombreCompleto))
-        .map((est, index) => ({
-          nro: index + 1,
-          idInscripcion: est.idInscripcion,
-          idEstudiante: est.idEstudiante,
-          nombre: est.nombreCompleto,
-          nivel: est.nivel
-        }));
-  
-      res.status(200).json(estudiantes);
-    } catch (error) {
-      console.error("Error al obtener estudiantes por asignación", error);
-      res.status(500).json({ message: "Error en el servidor" });
-    }
-  };  
 
-  const createInscripcion = async (req, res) => {
+    try {
+        const inscripciones = await Inscripcion.findAll({
+            where: { ID_asignacion: id_asignacion },
+            include: [{
+                model: Matricula,
+                attributes: ['nivel'],
+                include: [{
+                    model: Estudiante,
+                    // Ajusta el nombre del PK real de tu modelo Estudiante (puede ser 'ID', 'id', etc.)
+                    attributes: ['ID', 'primer_nombre', 'segundo_nombre', 'primer_apellido', 'segundo_apellido']
+                }]
+            }]
+        });
+
+        const estudiantes = inscripciones
+            .map((insc) => {
+                const est = insc.Matricula?.Estudiante;
+                if (!est) return null;
+
+                const nivel = insc.Matricula?.nivel || "";
+                const nombreCompleto = [
+                    est.primer_apellido,
+                    est.segundo_apellido ?? '',
+                    est.primer_nombre,
+                    est.segundo_nombre ?? ''
+                ].join(' ');
+
+                return {
+                    // ID de la inscripción (clave para calificaciones)
+                    idInscripcion: insc.ID,
+                    // ID del estudiante (por si lo necesitas también)
+                    idEstudiante: est.ID,
+                    nombreCompleto,
+                    nivel
+                };
+            })
+            .filter(Boolean)
+            .sort((a, b) => a.nombreCompleto.localeCompare(b.nombreCompleto))
+            .map((est, index) => ({
+                nro: index + 1,
+                idInscripcion: est.idInscripcion,
+                idEstudiante: est.idEstudiante,
+                nombre: est.nombreCompleto,
+                nivel: est.nivel
+            }));
+
+        res.status(200).json(estudiantes);
+    } catch (error) {
+        console.error("Error al obtener estudiantes por asignación", error);
+        res.status(500).json({ message: "Error en el servidor" });
+    }
+};
+
+const createInscripcion = async (req, res) => {
     const t = await sequelize.transaction();
     try {
-        const inscripcion = req.body;
 
+        const inscripcion = req.body;
+        console.log("esto se recibió del front", inscripcion)
         // Verificar si ya está inscrito en esta asignación
         const inscripcionFounded = await Inscripcion.findOne({
             where: {
@@ -118,6 +126,41 @@ const getEstudiantesPorAsignacion = async (req, res) => {
         if (yaInscrito) {
             await t.rollback();
             return res.status(400).json({ message: 'El estudiante ya está inscrito en esta materia con otro profesor' });
+        }
+        const inscripciones = await Inscripcion.findAll({
+            where: {
+                ID_matricula: inscripcion.ID_matricula
+            },
+            include:
+                [{
+                    model: Asignacion,
+                    
+                }]
+
+        })
+         
+         const asignaciones = inscripciones.map((inscripcion) => {
+            const inscripcionPlain = inscripcion.get({ plain: true }); // Convertimos la inscripción a un objeto plano
+          
+            
+          
+            return inscripcionPlain.Asignacion;
+          });
+
+        const conflicto = asignaciones.some(asig => {
+            const hayDiasSolapados = tienenDiasSolapados(asig.dias, asignacionActual.dias);
+            const hayHorarioSolapado = tienenHorariosSolapados(
+                asignacionActual.horaInicio,
+                asignacionActual.horaFin,
+                asig.horaInicio,
+                asig.horaFin
+            );
+
+            return hayDiasSolapados && hayHorarioSolapado;
+        });
+
+        if (conflicto) {
+            return res.status(400).json({message: "Inscripción no válida por cruze de horarios"})
         }
 
         // Crear inscripción
@@ -174,30 +217,30 @@ const updateInscripcion = async (req, res) => {
         const result = await Inscripcion.findByPk(id)
         res.status(200).json(result)
     } catch (error) {
-        
+
         if (error.name === "SequelizeValidationError") {
             console.log("Estos son los errores", error);
-            
+
             const errEncontrado = error.errors.find(err =>
                 err.validatorKey === "notEmpty" ||
                 err.validatorKey === "isNumeric" ||
                 err.validatorKey === "len" ||
-                err.validatorKey ==="is_null"
+                err.validatorKey === "is_null"
             );
-        
+
             if (errEncontrado) {
                 return res.status(400).json({ message: errEncontrado.message });
             }
         }
-        if (error instanceof TypeError){
-            return res.status(400).json({message: "Debe completar todos los campos"})
+        if (error instanceof TypeError) {
+            return res.status(400).json({ message: "Debe completar todos los campos" })
         }
-        if (error.name ==="SequelizeUniqueConstraintError"){
-            return res.status(400).json({message: error.message})
+        if (error.name === "SequelizeUniqueConstraintError") {
+            return res.status(400).json({ message: error.message })
         }
-        
-        res.status(500).json({message: `Error al editar inscripción en el servidor:`})
-        
+
+        res.status(500).json({ message: `Error al editar inscripción en el servidor:` })
+
     }
 }
 const getInscripcion = async (req, res) => {
@@ -233,12 +276,69 @@ const deleteInscripcion = async (req, res) => {
         res.status(500).json({ message: `Error al eliminar la inscripción en el servidor:` })
     }
 }
+const getInscripcionesByMatricula = async (req, res) => {
+
+    try {
+        const matricula = req.params.matricula
+        
+        if (!matricula || matricula === "undefined" || matricula.trim() === "") {
+            
+            return res.status(400).json({ message: "No se seleccionó estudiante" });
+          }
+        console.log("este es el id", matricula)
+        const inscripciones = await Inscripcion.findAll({
+            where: {
+                ID_matricula: matricula
+            },
+            include:
+                [{
+                    model: Asignacion,
+                    include: [{
+                        model: Materia,
+                        as: "materiaDetalle",
+
+                    }]
+                }]
+
+        })
+
+        // Aplanamos los datos de las inscripciones
+        const inscripcionesFinal = inscripciones.map((inscripcion) => {
+            const inscripcionPlain = inscripcion.get({ plain: true }); // Convertimos la inscripción a un objeto plano
+          
+            // Aplanamos las asignaciones dentro de la inscripción
+            if (inscripcionPlain.Asignacion) {
+              // Ya estamos trabajando con un objeto plano, no necesitamos llamar a get
+              const asignacionPlain = inscripcionPlain.Asignacion;
+              
+              // Renombramos "materiaDetalle" a "Materia" si existe
+              if (asignacionPlain.materiaDetalle) {
+                asignacionPlain.Materia = asignacionPlain.materiaDetalle;
+                delete asignacionPlain.materiaDetalle; // Eliminamos la propiedad materiaDetalle
+              }
+          
+              inscripcionPlain.Asignacion = asignacionPlain;
+            }
+          
+            return inscripcionPlain;
+          });
+
+        console.log("estas son las inscripciones", inscripcionesFinal)
+
+        return res.status(200).json(inscripcionesFinal)
+    } catch (error) {
+        console.error("Error al obtener la inscripción", error)
+        res.status(500).json({ message: `Error al obtener la inscripción en el servidor:` })
+    }
+}
+
 
 module.exports = {
     createInscripcion,
     updateInscripcion,
     deleteInscripcion,
     getInscripcion,
-    getEstudiantesPorAsignacion
-    
+    getEstudiantesPorAsignacion,
+    getInscripcionesByMatricula
+
 }

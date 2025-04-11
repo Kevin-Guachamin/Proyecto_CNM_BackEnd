@@ -515,10 +515,25 @@ const getAsignacionesPorAsignatura = async (req, res) => {
     const ID = req.params.periodo
     const asignatura = req.params.materia
     const nivelEstudiante=req.params.nivel
+    const jornada=req.params.jornada
+    let inicio
+    let fin
+    if(jornada==="Matutina"){
+      inicio="07:00:00"
+      fin="12:15:00"
+    }
+    if(jornada==="Vespertina"){
+      inicio="14:30:00"
+      fin="19:00:00"
+    }
+
     const nivelesMateria = mapearNivelEstudianteAMateria(nivelEstudiante);
+
     const asignaciones = await Asignacion.findAll({
       where: {
         ID_periodo_academico: ID,
+        horaInicio: {[Op.gte]:inicio },
+        horaFin: {[Op.lte]:fin}
       },
       include: [
         {
@@ -559,53 +574,7 @@ const getAsignacionesPorAsignatura = async (req, res) => {
     return res.status(500).json({ message: "Error al obtener asignaciones en el servidor" });
   }
 }
-const getAsignacionesPorMatricula = async (req, res) => {
-  const matricula = req.params.matricula; // Obtienes el ID de matrícula desde los parámetros de la URL
 
-  try {
-    const inscripciones = await Inscripcion.findAll({
-      where: { ID_matricula: matricula }, // Aquí usamos matricula_id como clave foránea
-      include: [
-        {
-          model: Asignacion,
-          include: [
-            {
-              model: Materia,
-              as: 'materiaDetalle', // Materia asociada a la asignación
-            },
-            {
-              model: Docente, // Docente de la asignación
-            }
-          ]
-        }
-      ]
-    });
-
-    if (inscripciones && inscripciones.length > 0) {
-      // Extraemos las asignaciones completas
-      const asignaciones = inscripciones.map(inscripcion => inscripcion.Asignacion).flat();
-
-      const asignacionesFinal = asignaciones.map((asignacion) => {
-        const asignacionPlain = asignacion.get({ plain: true }); // Convertimos el resultado a un objeto plano
-        // Eliminamos las contraseñas de los docentes
-        if (asignacionPlain.Docente) {
-          delete asignacionPlain.Docente.password;
-        }
-        // Renombramos Materium a Materia
-        if (asignacionPlain.materiaDetalle) {
-          asignacionPlain.Materia = asignacionPlain.materiaDetalle;
-          delete asignacionPlain.materiaDetalle;
-        }
-        return asignacionPlain;
-      });
-      return res.json(asignacionesFinal)
-    }
-
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: 'Error al obtener las asignaciones' });
-  }
-};
 
 module.exports = {
   createAsignacion,
@@ -615,6 +584,5 @@ module.exports = {
   getAsignacionesPorDocente,
   getAsignacionesPorNivel,
   getAsignaciones,
-  getAsignacionesPorAsignatura,
-  getAsignacionesPorMatricula
+  getAsignacionesPorAsignatura
 }
