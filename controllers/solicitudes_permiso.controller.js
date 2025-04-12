@@ -10,7 +10,7 @@ const createSolicitud = async (req, res) => {
             where: {
                 nroCedula_docente:solicitud.nroCedula_docente,
                 fecha_inicio: solicitud.fecha_inicio,
-                fehca_fin:solicitud.fehca_fin,
+                fecha_fin:solicitud.fecha_fin,
                 motivo: solicitud.motivo
             }
         });
@@ -26,7 +26,7 @@ const createSolicitud = async (req, res) => {
                 }
             ]
         })
-        const result = newSolicitud.result.get({ plain: true });
+        const result = newSolicitud.get({ plain: true });
         return res.status(201).json(result);
 
     } catch (error) {
@@ -46,10 +46,6 @@ const createSolicitud = async (req, res) => {
             }
         }
 
-        if (error instanceof TypeError) {
-            return res.status(400).json({ message: "Debe completar todos los campos" });
-        }
-
         if (error.name === "SequelizeUniqueConstraintError") {
             const errEncontrado = error.errors.find(err =>
                 err.validatorKey === "not_unique"
@@ -65,19 +61,10 @@ const createSolicitud = async (req, res) => {
 
 const updateSolicitud= async (req, res) => {
     try {
+        
         const solicitud = req.body
         const id = req.params.id
-        const solicitudFound = await Solicitudes.findOne({
-            where: {
-                nroCedula_docente:solicitud.nroCedula_docente,
-                fecha_inicio: solicitud.fecha_inicio,
-                fehca_fin:solicitud.fehca_fin,
-                motivo: solicitud.motivo
-            }
-        });
-        if (solicitudFound) {
-            return res.status(400).json({ message: 'Esta solicitud ya fue echa' });
-        }
+       console.log("este es el ID",id)
         const [updatedRows] = await Solicitudes.update(solicitud, { where: { id } })
         if (updatedRows === 0) {
             return res.status(404).json({ message: "solicitud no encontrada" })
@@ -91,7 +78,7 @@ const updateSolicitud= async (req, res) => {
         const newSolicitud= result.get({plain: true})
         return res.status(200).json(newSolicitud)
     } catch (error) {
-
+        console.log("este es el error", error)
         if (error.name === "SequelizeValidationError") {
             console.log("Estos son los errores", error);
 
@@ -106,9 +93,6 @@ const updateSolicitud= async (req, res) => {
             if (errEncontrado) {
                 return res.status(400).json({ message: errEncontrado.message });
             }
-        }
-        if (error instanceof TypeError) {
-            return res.status(400).json({ message: "Debe completar todos los campos" })
         }
         if (error.name === "SequelizeUniqueConstraintError") {
             return res.status(400).json({ message: error.message })
@@ -153,13 +137,43 @@ const getAllSolicitud = async (req, res) => {
                 attributes:["primer_nombre","primer_apellido"]
             }
         ]})
+        console.log("estas son las solicitudes",solicitudes)
         const result=solicitudes.map(solicitud=>{
             return solicitud.get({plain:true})
         })
+        console.log("esto se mando del backedn",result)
         return res.status(200).json(result)
     } catch (error) {
         console.error("Error al obtener las solicitudes", error)
         return res.status(500).json({ message: `Error al obtener las solicitudes en el servidor:` })
+    }
+}
+const getUltimaSolicitud = async (req, res) => {
+
+    try {
+        const nroCedula = req.user.nroCedula
+
+        const solicitud= await Solicitudes.findOne({where:{
+            nroCedula_docente:nroCedula
+        },
+        include:[
+            {
+                model:Docente,
+                attributes:["primer_nombre","primer_apellido"]
+            }
+        ],
+        order: [["fechaSolicitud", "DESC"]], // Se ordena por fecha de la solicitud
+    })
+    if (!solicitud) {
+        return res.status(404).json({ message: "No se encontró ninguna solicitud." });
+      }
+        const result=solicitud.get({plain:true})
+       
+
+        return res.status(200).json(result)
+    } catch (error) {
+        console.error("Error al obtener las solicitudes", error)
+        return res.status(500).json({ message: `Error al obtener la solicitud en el servidor:` })
     }
 }
 
@@ -188,5 +202,6 @@ module.exports = {
     updateSolicitud,
     deleteSolicitud,
     getSolicitudesByDocente,
-    getAllSolicitud
+    getAllSolicitud,
+    getUltimaSolicitud
 }

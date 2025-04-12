@@ -141,9 +141,7 @@ const createAsignacion = async (req, res) => {
         return res.status(400).json({ message: errEncontrado.message });
       }
     }
-    if (error instanceof TypeError) {
-      return res.status(400).json({ message: "Debe completar todos los campos" })
-    }
+   
 
 
     return res.status(500).json({ message: `Error al crear asignación en el servidor:` })
@@ -245,9 +243,6 @@ const updateAsginacion = async (req, res) => {
       if (errEncontrado) {
         return res.status(400).json({ message: errEncontrado.message });
       }
-    }
-    if (error instanceof TypeError) {
-      return res.status(400).json({ message: "Debe completar todos los campos" })
     }
 
     return res.status(500).json({ message: `Error al editar asignación en el servidor:` })

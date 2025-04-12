@@ -51,9 +51,7 @@ const crearRepresentante = async (request, response) => {
                 return response.status(400).json({ message: errEncontrado.message });
             }
         }
-        if (error instanceof TypeError) {
-            return response.status(400).json({ message: "Debe completar todos los campos" })
-        }
+        
         if (error.name === "SequelizeUniqueConstraintError") {
             const errEncontrado = error.errors.find(err =>
               err.validatorKey === "not_unique" 
@@ -184,9 +182,7 @@ const updateRepresentante = async (request, response) => {
                 return response.status(400).json({ message: errEncontrado.message });
             }
         }
-        if (error instanceof TypeError) {
-            return response.status(400).json({ message: "Debe completar todos los campos" })
-        }
+        
         if (error.name === "SequelizeUniqueConstraintError") {
             const errEncontrado = error.errors.find(err =>
               err.validatorKey === "not_unique" 

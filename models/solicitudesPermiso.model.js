@@ -54,27 +54,19 @@ const SolicitudesPermiso = sequelize.define("SolicitudesPermiso", {
         }
     },
     estado: {
-        type: DataTypes.ENUM("Pendiente", "Aceptado","Rechazado"),
+        type: DataTypes.ENUM("Pendiente", "Aceptada","Rechazada"),
         allowNull: false,
         defaultValue: "Pendiente",
     },
     fechaSolicitud: {
-        type: DataTypes.DATE,  // Solo guarda la fecha sin hora
+        type: DataTypes.DATEONLY,
         allowNull: false,
         validate: {
             notNull: { msg: "La fecha de solicitud es obligatoria" },
             notEmpty: { msg: "La fecha de solicitud no puede estar vacía" },
             isDate: { msg: "Debe ingresar una fecha válida" }
         },
-        // Getter: Para cuando recuperas la fecha de la BD
-        get() {
-            const rawValue = this.getDataValue("fecha_fin");
-            if (rawValue) {
-                const date = new Date(rawValue + "T00:00:00"); // Asegura que la fecha esté en el inicio del día
-                return date.toLocaleDateString("es-ES");
-            }
-            return null;
-        },
+        
     },
 },{
     tableName: "SolicitudesPermisos"

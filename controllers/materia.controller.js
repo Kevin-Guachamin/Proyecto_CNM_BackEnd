@@ -26,9 +26,7 @@ const createMateria = async (req, res) => {
                 return res.status(400).json({ message: errEncontrado.message });
             }
         }
-        if (error instanceof TypeError){
-            return res.status(400).json({message: "Debe completar todos los campos"})
-        }
+        
         if (error.name === "SequelizeUniqueConstraintError") {
             const errEncontrado = error.errors.find(err =>
               err.validatorKey === "not_unique" 
@@ -70,9 +68,7 @@ const updateMateria= async (req, res)=>{
                 return res.status(400).json({ message: errEncontrado.message });
             }
         }
-        if (error instanceof TypeError){
-            return res.status(400).json({message: "Debe completar todos los campos"})
-        }
+       
         if (error.name === "SequelizeUniqueConstraintError") {
             const errEncontrado = error.errors.find(err =>
               err.validatorKey === "not_unique" 

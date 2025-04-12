@@ -34,9 +34,7 @@ const createFechasNotas = async (request, response) => {
                 return response.status(400).json({ message: errEncontrado.message });
             }
         }
-        if (error instanceof TypeError) {
-            return response.status(400).json({ message: "Debe completar todos los campos" });
-        }
+       
         if (error.name === "SequelizeUniqueConstraintError") {
             const errEncontrado = error.errors.find(err =>
                 err.validatorKey === "not_unique"
@@ -81,9 +79,7 @@ const getFechasNotas = async (request, response) => {
                 return response.status(400).json({ message: errEncontrado.message });
             }
         }
-        if (error instanceof TypeError) {
-            return response.status(400).json({ message: "Debe completar todos los campos" });
-        }
+       
         if (error.name === "SequelizeUniqueConstraintError") {
             return response.status(400).json({ message: error.message });
         }
@@ -156,9 +152,7 @@ const updateFechasNotas = async (request, response) => {
             const mensajes = error.errors.map(err => err.message);
             return response.status(400).json({ message: mensajes });
         }
-        if (error instanceof TypeError) {
-            return response.status(400).json({ message: "Debe completar todos los campos" });
-        }
+        
         return response.status(500).json({ message: 'Error al actualizar la fecha en el servidor' });
     }
 };

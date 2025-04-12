@@ -1,5 +1,5 @@
 const Periodo = require('../models/periodo_academico.model');
-const {ProgramarCierre} = require('./programarCierre.controller')
+const {programarCierrePeriodo} = require('./programarCierre.controller')
 
 const createPeriodo = async (req, res) => {
     try {
@@ -11,7 +11,7 @@ const createPeriodo = async (req, res) => {
         }
         console.log("este es el periodo a crear", periodo_academico)
         const result = await Periodo.create(periodo_academico)
-       ProgramarCierre(result.ID,result.fecha_fin)
+       programarCierrePeriodo(result.ID,result.fecha_fin)
         
        return res.status(201).json(result)
     } catch (error) {
@@ -31,9 +31,7 @@ const createPeriodo = async (req, res) => {
                 return res.status(400).json({ message: errEncontrado.message });
             }
         }
-        if (error instanceof TypeError){
-            return res.status(400).json({message: "Debe completar todos los campos"})
-        }
+        
         if (error.name === "SequelizeUniqueConstraintError") {
             const errEncontrado = error.errors.find(err =>
               err.validatorKey === "not_unique" 
@@ -56,7 +54,7 @@ const updatePeriodo= async (req, res)=>{
             return res.status(404).json({message: "Periodo no encontrada"})
         }
         const result= await Periodo.findByPk(id)
-        ProgramarCierre(result.ID,result.fecha_fin)
+        programarCierrePeriodo(result.ID,result.fecha_fin)
         console.log("ESto se envia da la base al actualizar",result)
        return res.status(200).json(result)
     } catch (error) {
@@ -76,9 +74,7 @@ const updatePeriodo= async (req, res)=>{
                 return res.status(400).json({ message: errEncontrado.message });
             }
         }
-        if (error instanceof TypeError){
-            return res.status(400).json({message: "Debe completar todos los campos"})
-        }
+       
         if (error.name === "SequelizeUniqueConstraintError") {
             const errEncontrado = error.errors.find(err =>
               err.validatorKey === "not_unique" 
