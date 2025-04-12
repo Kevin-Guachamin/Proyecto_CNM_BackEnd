@@ -7,5 +7,6 @@ module.exports = (app) => {
     app.get('/matricula/obtener/:id',DocenteANDReprsentante ,MatriculaController.getMatricula);
     app.delete('/matricula/eliminar/:id',docenteSecretaria ,MatriculaController.deleteMatricula);
     app.get('/matricula/estudiante/periodo/:estudiante/:periodo', DocenteANDReprsentante,MatriculaController.getMatriculaByEstudiante);
+    app.get('/matricula/estudiante/:estudiante', DocenteANDReprsentante,MatriculaController.getPeriodosMatriculadosByEstudiante);
     
 }
