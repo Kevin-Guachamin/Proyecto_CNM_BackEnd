@@ -18,7 +18,16 @@ const createSolicitud = async (req, res) => {
             return res.status(400).json({ message: 'Esta solicitud ya fue echa' });
         }
         const nuevaSolicitud = await Solicitudes.create(solicitud);
-        return res.status(201).json(nuevaSolicitud);
+        const newSolicitud= await Solicitudes.findByPk(nuevaSolicitud.ID,{
+            include:[
+                {
+                    model:Docente,
+                    attributes:["primer_nombre","primer_apellido"]
+                }
+            ]
+        })
+        const result = newSolicitud.result.get({ plain: true });
+        return res.status(201).json(result);
 
     } catch (error) {
        
@@ -73,8 +82,14 @@ const updateSolicitud= async (req, res) => {
         if (updatedRows === 0) {
             return res.status(404).json({ message: "solicitud no encontrada" })
         }
-        const result = await Solicitudes.findByPk(id)
-        return res.status(200).json(result)
+        const result = await Solicitudes.findByPk(id,{include:[
+            {
+                model:Docente,
+                attributes:["primer_nombre","primer_apellido"]
+            }
+        ]})
+        const newSolicitud= result.get({plain: true})
+        return res.status(200).json(newSolicitud)
     } catch (error) {
 
         if (error.name === "SequelizeValidationError") {
@@ -103,28 +118,45 @@ const updateSolicitud= async (req, res) => {
 
     }
 }
-const getSolicitud = async (req, res) => {
+const getSolicitudesByDocente = async (req, res) => {
 
     try {
-        const id = req.params.id
-        const solicitud = await Solicitudes.findByPk(id)
-        if (!solicitud) {
-            return res.status(404).json({ message: "Solicitud no encontrada" })
-        }
+        const nroCedula = req.user.nroCedula
 
+        const solicitudes = await Solicitudes.findAll({where:{
+            nroCedula_docente:nroCedula
+        },
+        include:[
+            {
+                model:Docente,
+                attributes:["primer_nombre","primer_apellido"]
+            }
+        ]
+    })
+        const result=solicitudes.map(solicitud=>{
+            return solicitud.get({plain:true})
+        })
 
-        return res.status(200).json(solicitud)
+        return res.status(200).json(result)
     } catch (error) {
-        console.error("Error al obtener la solicitud", error)
-        return res.status(500).json({ message: `Error al obtener la solicitud en el servidor:` })
+        console.error("Error al obtener las solicitudes", error)
+        return res.status(500).json({ message: `Error al obtener las solicitudes en el servidor:` })
     }
 }
+
 const getAllSolicitud = async (req, res) => {
 
     try {
-        const solicitudes = await Solicitudes.findAll()
-    
-        return res.status(200).json(solicitudes)
+        const solicitudes = await Solicitudes.findAll({include:[
+            {
+                model:Docente,
+                attributes:["primer_nombre","primer_apellido"]
+            }
+        ]})
+        const result=solicitudes.map(solicitud=>{
+            return solicitud.get({plain:true})
+        })
+        return res.status(200).json(result)
     } catch (error) {
         console.error("Error al obtener las solicitudes", error)
         return res.status(500).json({ message: `Error al obtener las solicitudes en el servidor:` })
@@ -135,13 +167,16 @@ const deleteSolicitud = async (req, res) => {
     try {
 
         const id = req.params.id
-        const solicitud = await Solicitudes.findByPk(id)
+        const solicitud = await Solicitudes.findByPk(id,{include:[{
+            model:Docente,
+            attributes: ["primer_nombre","primer_apellido"]
+        }]})
         if (!solicitud) {
             return res.status(404).json({ message: "Solicitud no encontrada" })
         }
         await Solicitudes.destroy({ where: { id } })
-
-        return res.status(200).json(solicitud)
+        const result=solicitud.get({plain:true})
+        return res.status(200).json(result)
     } catch (error) {
         console.error("Error al eliminar la solicitud", error)
         return res.status(500).json({ message: `Error al eliminar la solicitud en el servidor:` })
@@ -152,6 +187,6 @@ module.exports = {
     createSolicitud,
     updateSolicitud,
     deleteSolicitud,
-    getSolicitud,
+    getSolicitudesByDocente,
     getAllSolicitud
 }

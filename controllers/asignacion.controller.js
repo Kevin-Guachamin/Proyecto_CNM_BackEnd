@@ -251,7 +251,7 @@ const updateAsginacion = async (req, res) => {
     }
 
     return res.status(500).json({ message: `Error al editar asignación en el servidor:` })
-    console.log("ESTE ES EL ERROR", error.name)
+    
   }
 }
 const getAsignacion = async (req, res) => {

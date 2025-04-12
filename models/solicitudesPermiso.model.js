@@ -11,10 +11,8 @@ const SolicitudesPermiso = sequelize.define("SolicitudesPermiso", {
     },
     fecha_inicio: {
         type: DataTypes.DATEONLY,  // Solo guarda la fecha sin hora
-        allowNull: false,
+        allowNull: true,
         validate: {
-            notNull: { msg: "La fecha de inicio es obligatoria" },
-            notEmpty: { msg: "La fecha de inicio no puede estar vacía" },
             isDate: { msg: "Debe ingresar una fecha válida" }
         },
         // Getter: Para cuando recuperas la fecha de la BD
@@ -30,10 +28,9 @@ const SolicitudesPermiso = sequelize.define("SolicitudesPermiso", {
     },
     fecha_fin: {
         type: DataTypes.DATEONLY,  // Solo guarda la fecha sin hora
-        allowNull: false,
+        allowNull: true,
         validate: {
-            notNull: { msg: "La fecha de finalización es obligatoria" },
-            notEmpty: { msg: "La fecha de finalización no puede estar vacía" },
+           
             isDate: { msg: "Debe ingresar una fecha válida" }
         },
         // Getter: Para cuando recuperas la fecha de la BD
