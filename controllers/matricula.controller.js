@@ -122,6 +122,48 @@ const getMatriculaByEstudiante = async(req, res)=>{
     }
 }
 
+
+/**
+ * Obtiene los periodos academicos en los cuales se matriculo un estudiante
+ * @async
+ * @function getPeriodosMatriculadosByEstudiante 
+ * @param {Object} request - Objeto de solicitud Express 
+ * @param {number} request.estudiante - ID del estudiante
+ * @param {Object} response - Objeto de respuesta Express   
+ * @returns {Promise<Object>} Respuesta HTTP con los periodos academicos o mensaje de error
+ * 
+ * @description Esta función consulta la base de datos para obtener todos los periodos académicos
+ * en los que un estudiante específico se ha matriculado, devolviendo solo los IDs de dichos periodos.
+ * 
+ * @throws {Error} Si ocurre un error durante la consulta a la base de datos
+ */
+const getPeriodosMatriculadosByEstudiante = async (request, response) => {
+    const idEstudiante = request.params.estudiante;
+
+    try {
+        
+        const periodosMatriculados = await Matricula.findAll({ 
+            where: {
+                ID_estudiante: idEstudiante 
+            },
+            attributes: ['ID_periodo_academico'] 
+        });
+
+        if(!periodosMatriculados || periodosMatriculados.length === 0) {
+            return response.status(404).json( {message: "No se encontraron periodos academicos matriculados"} );
+        }
+
+        // Formatear para que solo se devuelvan los IDs de los periodos academicos
+        const idPeriodos = periodosMatriculados.map(periodo => periodo.ID_periodo_academico);
+
+        return response.status(200).json(idPeriodos);
+
+    } catch (error) {
+        console.error("Error al obtener los periodos matriculados del estudiante", error)
+        response.status(500).json({message: `Error al obtener al obtener los periodos matriculados en el servidor:`})
+    }
+}
+
 const deleteMatricula = async(req, res)=>{
     try {
         
@@ -143,5 +185,6 @@ module.exports= {
     updateMatricula,
     deleteMatricula,
     getMatricula,
-    getMatriculaByEstudiante
+    getMatriculaByEstudiante,
+    getPeriodosMatriculadosByEstudiante
 }
