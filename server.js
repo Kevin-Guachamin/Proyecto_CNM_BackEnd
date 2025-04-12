@@ -73,6 +73,9 @@ AllFechasNotas(app)
 
 const AllMatriculas= require('./routes/matricula.route')
 AllMatriculas(app)
+
+const AllSolicitudes=require('./routes/solicitud.routes')
+AllSolicitudes(app)
 reprogramarPeriodosPendientes()
 startServer();
 
