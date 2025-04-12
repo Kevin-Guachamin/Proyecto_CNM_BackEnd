@@ -181,11 +181,11 @@ const updateRepresentante = async (request, response) => {
             );
 
             if (errEncontrado) {
-                return res.status(400).json({ message: errEncontrado.message });
+                return response.status(400).json({ message: errEncontrado.message });
             }
         }
         if (error instanceof TypeError) {
-            return res.status(400).json({ message: "Debe completar todos los campos" })
+            return response.status(400).json({ message: "Debe completar todos los campos" })
         }
         if (error.name === "SequelizeUniqueConstraintError") {
             const errEncontrado = error.errors.find(err =>
@@ -193,7 +193,7 @@ const updateRepresentante = async (request, response) => {
               
             );
             if (errEncontrado) {
-              return res.status(400).json({ message: `${errEncontrado.path} debe ser único` });
+              return response.status(400).json({ message: `${errEncontrado.path} debe ser único` });
             }
       
           }
@@ -236,10 +236,10 @@ const getFile = async (req, res) => {
     const { folder, filename } = req.params;
     const filePath = path.join(__dirname, "..",'uploads', folder, filename);
 
-    res.download(filePath, filename, (err) => {
+    return res.download(filePath, filename, (err) => {
         if (err) {
             console.error('Error al descargar el archivo:', err);
-            res.status(500).json({message: 'No se pudo descargar el archivo.'});
+            return res.status(500).json({message: 'No se pudo descargar el archivo.'});
         }
     });
 }

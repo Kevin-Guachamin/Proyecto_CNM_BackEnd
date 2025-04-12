@@ -59,7 +59,7 @@ const crearEstudiante = async (request, res) => {
         if (error.name === "SequelizeUniqueConstraintError") {
             return res.status(400).json({ message: error.message })
         }
-        res.status(500).json({ message: `Error al crear estudiante en el servidor:` })
+        return res.status(500).json({ message: `Error al crear estudiante en el servidor:` })
 
     }
 }
@@ -301,7 +301,7 @@ const getFile = async (req, res) => {
     res.download(filePath, filename, (err) => {
         if (err) {
             console.error('Error al descargar el archivo:', err);
-            res.status(500).json('No se pudo descargar el archivo.');
+            return res.status(500).json('No se pudo descargar el archivo.');
         }
     });
 }

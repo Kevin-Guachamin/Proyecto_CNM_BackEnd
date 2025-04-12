@@ -61,10 +61,10 @@ const getEstudiantesPorAsignacion = async (req, res) => {
                 nivel: est.nivel
             }));
 
-        res.status(200).json(estudiantes);
+        return res.status(200).json(estudiantes);
     } catch (error) {
         console.error("Error al obtener estudiantes por asignación", error);
-        res.status(500).json({ message: "Error en el servidor" });
+        return res.status(500).json({ message: "Error en el servidor" });
     }
 };
 
@@ -202,7 +202,7 @@ const createInscripcion = async (req, res) => {
             }
         }
 
-        res.status(500).json({ message: `Error al crear inscripción en el servidor:` });
+        return res.status(500).json({ message: `Error al crear inscripción en el servidor:` });
     }
 };
 
@@ -215,7 +215,7 @@ const updateInscripcion = async (req, res) => {
             return res.status(404).json({ message: "Inscripción no encontrada" })
         }
         const result = await Inscripcion.findByPk(id)
-        res.status(200).json(result)
+        return res.status(200).json(result)
     } catch (error) {
 
         if (error.name === "SequelizeValidationError") {
@@ -239,7 +239,7 @@ const updateInscripcion = async (req, res) => {
             return res.status(400).json({ message: error.message })
         }
 
-        res.status(500).json({ message: `Error al editar inscripción en el servidor:` })
+        return res.status(500).json({ message: `Error al editar inscripción en el servidor:` })
 
     }
 }
@@ -256,7 +256,7 @@ const getInscripcion = async (req, res) => {
         res.status(200).json(inscripcion)
     } catch (error) {
         console.error("Error al obtener la inscripción", error)
-        res.status(500).json({ message: `Error al obtener la inscripción en el servidor:` })
+        return res.status(500).json({ message: `Error al obtener la inscripción en el servidor:` })
     }
 }
 
@@ -270,10 +270,10 @@ const deleteInscripcion = async (req, res) => {
         }
         await Inscripcion.destroy({ where: { id } })
 
-        res.status(200).json(inscripcion)
+        return res.status(200).json(inscripcion)
     } catch (error) {
         console.error("Error al eliminar la inscripción", error)
-        res.status(500).json({ message: `Error al eliminar la inscripción en el servidor:` })
+        return res.status(500).json({ message: `Error al eliminar la inscripción en el servidor:` })
     }
 }
 const getInscripcionesByMatricula = async (req, res) => {
@@ -328,7 +328,7 @@ const getInscripcionesByMatricula = async (req, res) => {
         return res.status(200).json(inscripcionesFinal)
     } catch (error) {
         console.error("Error al obtener la inscripción", error)
-        res.status(500).json({ message: `Error al obtener la inscripción en el servidor:` })
+        return res.status(500).json({ message: `Error al obtener la inscripción en el servidor:` })
     }
 }
 

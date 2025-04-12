@@ -13,7 +13,7 @@ const createPeriodo = async (req, res) => {
         const result = await Periodo.create(periodo_academico)
        ProgramarCierre(result.ID,result.fecha_fin)
         
-        res.status(201).json(result)
+       return res.status(201).json(result)
     } catch (error) {
         console.error("Error al crear periodo", error)
         if (error.name === "SequelizeValidationError") {
@@ -44,7 +44,7 @@ const createPeriodo = async (req, res) => {
             }
       
           }
-        res.status(500).json({message: `Error al crear periodo en el servidor`})
+        return res.status(500).json({message: `Error al crear periodo en el servidor`})
     }
 }
 const updatePeriodo= async (req, res)=>{
@@ -58,7 +58,7 @@ const updatePeriodo= async (req, res)=>{
         const result= await Periodo.findByPk(id)
         ProgramarCierre(result.ID,result.fecha_fin)
         console.log("ESto se envia da la base al actualizar",result)
-        res.status(200).json(result)
+       return res.status(200).json(result)
     } catch (error) {
         console.error("Error al editar periodo", error)
         if (error.name === "SequelizeValidationError") {
@@ -89,7 +89,7 @@ const updatePeriodo= async (req, res)=>{
             }
       
           }
-        res.status(500).json({message: `Error al editar periodo en el servidor`})
+        return res.status(500).json({message: `Error al editar periodo en el servidor`})
     }
 }
 const getPeriodo = async(req, res)=>{
@@ -102,10 +102,10 @@ const getPeriodo = async(req, res)=>{
         }
         
         
-        res.status(200).json(periodo)
+        return res.status(200).json(periodo)
     } catch (error) {
         console.error("Error al obtener periodo", error)
-        res.status(500).json({message: `Error al obtener periodo en el servidor`})
+        return res.status(500).json({message: `Error al obtener periodo en el servidor`})
     }
 }
 const getPeriodoActivo = async(req, res)=>{
@@ -118,10 +118,10 @@ const getPeriodoActivo = async(req, res)=>{
         }
         
         
-        res.status(200).json(periodo)
+        return res.status(200).json(periodo)
     } catch (error) {
         console.error("Error al obtener periodo", error)
-        res.status(500).json({message: `Error al obtener periodo en el servidor`})
+       return  res.status(500).json({message: `Error al obtener periodo en el servidor`})
     }
 }
 const getPeriodos = async(req, res)=>{
@@ -130,11 +130,11 @@ const getPeriodos = async(req, res)=>{
         if(!periodos){
             return res.status(404).json({message: "No se encontro ningún registro"})
         }
-        res.status(200).json(periodos)
+        return res.status(200).json(periodos)
         
     } catch (error) {
         console.error("Error al obtener periodos", error)
-        res.status(500).json({message: `Error al obtener periodos en el servidor:`})
+        return res.status(500).json({message: `Error al obtener periodos en el servidor:`})
     }
 }
 
@@ -149,10 +149,10 @@ const deletePeriodo = async(req, res)=>{
         }
          await Periodo.destroy({where: {id}})
         
-        res.status(200).json(periodo)
+        return res.status(200).json(periodo)
     } catch (error) {
         console.error("Error al eliminar periodo", error)
-        res.status(500).json({message: `Error al eliminar periodo en el servidor:`})
+        return res.status(500).json({message: `Error al eliminar periodo en el servidor:`})
     }
 }
 module.exports= {

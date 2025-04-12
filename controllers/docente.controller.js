@@ -20,7 +20,7 @@ const createDocente = async (req, res) => {
         const newDocente = await Docente.create(docente)
         enivarCorreo(docente.email,provicional)
         const {password: _, ...result}=newDocente.toJSON()
-        res.status(201).json(result)
+        return res.status(201).json(result)
     } catch (error) {
         console.log("ESTE ES EL ERROR",error)
         if (error.name === "SequelizeValidationError") {
@@ -54,7 +54,7 @@ const createDocente = async (req, res) => {
       
           }
         
-        res.status(500).json({message: `Error al crear docente en el servidor:`})
+        return res.status(500).json({message: `Error al crear docente en el servidor:`})
         
     }
 }
@@ -73,7 +73,7 @@ const editDocente= async (req, res)=>{
         }
         const docenteEdited = await Docente.findByPk(nroCedula)
         const {password: _, ...result}=docenteEdited.toJSON()
-        res.status(200).json(result)
+        return res.status(200).json(result)
     } catch (error) {
         console.error("Error al editar docente", error)
         if (error.name === "SequelizeValidationError") {
@@ -107,8 +107,8 @@ const editDocente= async (req, res)=>{
       
           }
         
-        res.status(500).json({message: `Error al editar docente en el servidor:`})
-        console.log("ESTE ES EL ERROR",error.name)
+        return res.status(500).json({message: `Error al editar docente en el servidor:`})
+       
     }
 }
 const getDocente = async(req, res)=>{
@@ -121,21 +121,21 @@ const getDocente = async(req, res)=>{
         }
         
         const {password: _, ...result}=docente.toJSON()
-        res.status(200).json(result)
+        return res.status(200).json(result)
     } catch (error) {
         console.error("Error al obtener docente", error)
-        res.status(500).json({message: `Error al obtener docente en el servidor:`})
+        return res.status(500).json({message: `Error al obtener docente en el servidor:`})
     }
 }
 const getDocentes = async(req, res)=>{
     try {
         const Docentes= await Docente.findAll()
         
-        res.status(200).json(Docentes)
+        return res.status(200).json(Docentes)
     } catch (error) {
         console.log("el error es aquí")
         console.error("Error al obtener docentes", error)
-        res.status(500).json({message: `Error al obtener docentes en el servidor:`})
+        return res.status(500).json({message: `Error al obtener docentes en el servidor:`})
     }
 }
 
@@ -149,10 +149,10 @@ const eliminarDocente = async(req, res)=>{
         }
          await Docente.destroy({where: {nroCedula}})
         const {password: _, ...result}=docente.toJSON()
-        res.status(200).json(result)
+        return res.status(200).json(result)
     } catch (error) {
         console.error("Error al eliminar docente", error)
-        res.status(500).json({message: `Error al eliminar docente en el servidor:`})
+        return res.status(500).json({message: `Error al eliminar docente en el servidor:`})
     }
 }
 module.exports= {

@@ -9,7 +9,7 @@ const createMateria = async (req, res) => {
             return res.status(409).json({ message: "La asignatura ya existe" })
         }
         const result = await Materia.create(materia)
-        res.status(201).json(result)
+        return res.status(201).json(result)
     } catch (error) {
         console.log('Error al crear el estudiante:', error);
         if (error.name === "SequelizeValidationError") {
@@ -40,8 +40,8 @@ const createMateria = async (req, res) => {
       
           }
         
-        res.status(500).json({message: `Error al crear asignatura en el servidor:`})
-        console.log("ESTE ES EL ERROR",error.name)
+        return res.status(500).json({message: `Error al crear asignatura en el servidor:`})
+       
     }
 }
 const updateMateria= async (req, res)=>{
@@ -53,7 +53,7 @@ const updateMateria= async (req, res)=>{
             return res.status(404).json({message: "Asignatura no encontrada"})
         }
         const result= await Materia.findByPk(id)
-        res.status(200).json(result)
+        return res.status(200).json(result)
     } catch (error) {
         
         if (error.name === "SequelizeValidationError") {
@@ -84,8 +84,8 @@ const updateMateria= async (req, res)=>{
       
           }
         
-        res.status(500).json({message: `Error al editar asignatura en el servidor:`})
-        console.log("ESTE ES EL ERROR",error.name)
+        return res.status(500).json({message: `Error al editar asignatura en el servidor:`})
+        
     }
 }
 const getMateria = async(req, res)=>{
@@ -98,10 +98,10 @@ const getMateria = async(req, res)=>{
         }
         
         
-        res.status(200).json(materia)
+        return res.status(200).json(materia)
     } catch (error) {
         console.error("Error al obtener materia", error)
-        res.status(500).json({message: `Error al obtener materia en el servidor:`})
+        return res.status(500).json({message: `Error al obtener materia en el servidor:`})
     }
 }
 const getMaterias = async(req, res)=>{
@@ -110,10 +110,10 @@ const getMaterias = async(req, res)=>{
         if(!Materias){
             return res.status(404).json({message: "No se encontro ningún registro"})
         }
-        res.status(200).json(Materias)
+        return res.status(200).json(Materias)
     } catch (error) {
         console.error("Error al obtener materias", error)
-        res.status(500).json({message: `Error al obtener materias en el servidor:`})
+        return res.status(500).json({message: `Error al obtener materias en el servidor:`})
     }
 }
 
@@ -127,10 +127,10 @@ const deleteMateria = async(req, res)=>{
         }
          await Materia.destroy({where: {id}})
         
-        res.status(200).json(materia)
+        return res.status(200).json(materia)
     } catch (error) {
         console.error("Error al eliminar materia", error)
-        res.status(500).json({message: `Error al eliminar materia en el servidor:`})
+        return res.status(500).json({message: `Error al eliminar materia en el servidor:`})
     }
 }
 module.exports= {

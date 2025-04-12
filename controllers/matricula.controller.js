@@ -11,7 +11,7 @@ const createMatricula = async (req, res) => {
         const result = await Matricula.create({
             nivel: matricula.nivel, estado: matricula.estado, ID_estudiante: matricula.ID_estudiante, ID_periodo_academico: matricula.ID_periodo_academico
         })
-        res.status(201).json(result)
+       return res.status(201).json(result)
     } catch (error) {
         console.error("Error al crear la matrícula", error)
         if (error.name === "SequelizeValidationError") {
@@ -42,7 +42,7 @@ const createMatricula = async (req, res) => {
       
           }
         
-        res.status(500).json({message: `Error al crear matrícula en el servidor:`})
+        return res.status(500).json({message: `Error al crear matrícula en el servidor:`})
     }
 }
 const updateMatricula= async (req, res)=>{
@@ -54,7 +54,7 @@ const updateMatricula= async (req, res)=>{
             return res.status(404).json({message: "Matrícula no encontrada"})
         }
         const result= await Matricula.findByPk(id)
-        res.status(200).json(result)
+        return res.status(200).json(result)
     } catch (error) {
         console.error("Error al editar la matrícula", error)
         if (error.name === "SequelizeValidationError") {
@@ -85,7 +85,7 @@ const updateMatricula= async (req, res)=>{
       
           }
         
-        res.status(500).json({message: `Error al editar asignatura en el servidor:`})
+        return res.status(500).json({message: `Error al editar asignatura en el servidor:`})
     }
 }
 const getMatricula = async(req, res)=>{
@@ -98,10 +98,10 @@ const getMatricula = async(req, res)=>{
         }
         
         
-        res.status(200).json(matricula)
+        return res.status(200).json(matricula)
     } catch (error) {
         console.error("Error al obtener la matrícula", error)
-        res.status(500).json({message: `Error al obtener la matrícula en el servidor:`})
+        return res.status(500).json({message: `Error al obtener la matrícula en el servidor:`})
     }
 }
 const getMatriculaByEstudiante = async(req, res)=>{
@@ -115,10 +115,10 @@ const getMatriculaByEstudiante = async(req, res)=>{
         }})
         
         
-        res.status(200).json(matricula)
+        return res.status(200).json(matricula)
     } catch (error) {
         console.error("Error al obtener la matrícula", error)
-        res.status(500).json({message: `Error al obtener la matrícula en el servidor:`})
+        return res.status(500).json({message: `Error al obtener la matrícula en el servidor:`})
     }
 }
 
@@ -132,10 +132,10 @@ const deleteMatricula = async(req, res)=>{
         }
          await Matricula.destroy({where: {id}})
         
-        res.status(200).json(matricula)
+        return res.status(200).json(matricula)
     } catch (error) {
         console.error("Error al eliminar la matrícula", error)
-        res.status(500).json({message: `Error al eliminar la matrícula en el servidor:`})
+        return res.status(500).json({message: `Error al eliminar la matrícula en el servidor:`})
     }
 }
 module.exports= {

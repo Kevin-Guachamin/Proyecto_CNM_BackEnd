@@ -146,7 +146,7 @@ const createAsignacion = async (req, res) => {
     }
 
 
-    res.status(500).json({ message: `Error al crear asignación en el servidor:` })
+    return res.status(500).json({ message: `Error al crear asignación en el servidor:` })
 
   }
 }
@@ -250,7 +250,7 @@ const updateAsginacion = async (req, res) => {
       return res.status(400).json({ message: "Debe completar todos los campos" })
     }
 
-    res.status(500).json({ message: `Error al editar asignación en el servidor:` })
+    return res.status(500).json({ message: `Error al editar asignación en el servidor:` })
     console.log("ESTE ES EL ERROR", error.name)
   }
 }
@@ -305,7 +305,7 @@ const getAsignacion = async (req, res) => {
       ? asignacion.Periodo_Academico.descripcion
       : null;
 
-    res.status(200).json({
+    return res.status(200).json({
       ID: asignacion.ID,
       paralelo: asignacion.paralelo,
       horario: horarioStr,        // <-- reconstruido
@@ -318,7 +318,7 @@ const getAsignacion = async (req, res) => {
     });
   } catch (error) {
     console.error("Error al obtener la asignación", error);
-    res.status(500).json({ message: "Error al obtener la asignación en el servidor" });
+    return res.status(500).json({ message: "Error al obtener la asignación en el servidor" });
   }
 };
 
@@ -332,10 +332,10 @@ const deleteAsignacion = async (req, res) => {
     }
     await Asignacion.destroy({ where: { id } })
 
-    res.status(200).json(asignacion)
+    return status(200).json(asignacion)
   } catch (error) {
     console.error("Error al eliminar la asignación", error)
-    res.status(500).json({ message: `Error al eliminar la asignación en el servidor:` })
+    return res.status(500).json({ message: `Error al eliminar la asignación en el servidor:` })
   }
 }
 
@@ -408,10 +408,10 @@ const getAsignacionesPorDocente = async (req, res) => {
     });
 
     // Retornar el resultado
-    res.status(200).json(resultado);
+    return res.status(200).json(resultado);
   } catch (error) {
     console.error("Error al obtener asignaciones", error);
-    res.status(500).json({ message: "Error al obtener las asignaciones en el servidor" });
+    return res.status(500).json({ message: "Error al obtener las asignaciones en el servidor" });
   }
 };
 
@@ -503,10 +503,10 @@ const getAsignaciones = async (req, res) => {
       return asignacionPlain;
     });
     console.log("este es el resultado", asignacionesFinal)
-    res.status(200).json(asignacionesFinal)
+    return res.status(200).json(asignacionesFinal)
   } catch (error) {
     console.error("Error al obtener asignaciones", error)
-    res.status(500).json({ message: `Error al obtener asignaciones en el servidor:` })
+    return res.status(500).json({ message: `Error al obtener asignaciones en el servidor:` })
   }
 }
 const getAsignacionesPorAsignatura = async (req, res) => {

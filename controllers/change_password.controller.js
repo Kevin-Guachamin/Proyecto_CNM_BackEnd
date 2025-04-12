@@ -40,7 +40,7 @@ module.exports.changePassword = async(req,res)=>{
     user.password = await bcrypt.hash(newPassword, salt);
     await user.save();
 
-    res.json({ message: "Contraseña actualizada con éxito" });
+    return res.json({ message: "Contraseña actualizada con éxito" });
     } catch (error) {
         console.log("este es el error",error)
         return res.status(400).json({mesage: "error en el servidor"})
