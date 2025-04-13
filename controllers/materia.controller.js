@@ -102,23 +102,34 @@ const getMateria = async(req, res)=>{
 }
 const getMaterias = async(req, res)=>{
     try {
-        const Materias= await Materia.findAll({
+        let { page = 1, limit=13 } = req.query;
+        console.log("este es el limite que recibo", limit)
+        page = parseInt(page)
+        limit = parseInt(limit)
+        const { count, rows: materias } = await Materia.findAndCountAll({
+            limit,
+            offset: (page - 1) * limit,
             order: [
-                    [
-                      Sequelize.literal(`FIELD(materia.nivel, 
-                        '1ro BE', '2do BE', 
-                        '1ro BM', '2do BM', '3ro BM', 
-                        '1ro BS', '2do BS', '3ro BS', 
-                        '1ro BCH', '2do BCH', '3ro BCH', 
-                        'BCH', 'BM', 'BS', 'BS BCH')`),
-                      'ASC'
-                    ]
-                  ]
+                [
+                  Sequelize.literal(`FIELD(materia.nivel, 
+                    '1ro BE', '2do BE', 
+                    '1ro BM', '2do BM', '3ro BM', 
+                    '1ro BS', '2do BS', '3ro BS', 
+                    '1ro BCH', '2do BCH', '3ro BCH', 
+                    'BCH', 'BM', 'BS', 'BS BCH')`),
+                  'ASC'
+                ]
+              ]
         })
-        if(!Materias){
-            return res.status(404).json({message: "No se encontro ningún registro"})
-        }
-        return res.status(200).json(Materias)
+        console.log("esto se envia",materias)
+        
+        return res.status(200).json({
+            data: materias,
+            totalPages: Math.ceil(count / limit),
+            currentPage: page,
+            totalRows: count
+        });
+        
     } catch (error) {
         console.error("Error al obtener materias", error)
         return res.status(500).json({message: `Error al obtener materias en el servidor:`})

@@ -122,11 +122,22 @@ const getPeriodoActivo = async(req, res)=>{
 }
 const getPeriodos = async(req, res)=>{
     try {
-        const periodos= await Periodo.findAll()
-        if(!periodos){
-            return res.status(404).json({message: "No se encontro ningún registro"})
-        }
-        return res.status(200).json(periodos)
+        let { page = 1, limit=13 } = req.query;
+        console.log("este es el limite que recibo", limit)
+        page = parseInt(page)
+        limit = parseInt(limit)
+        const { count, rows: periodos } = await Periodo.findAndCountAll({
+            limit,
+            offset: (page - 1) * limit,
+        })
+        
+        return res.status(200).json({
+            data: periodos,
+            totalPages: Math.ceil(count / limit),
+            currentPage: page,
+            totalRows: count
+        });
+        
         
     } catch (error) {
         console.error("Error al obtener periodos", error)

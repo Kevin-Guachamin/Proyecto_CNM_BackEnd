@@ -158,16 +158,8 @@ const getAllEstudiantes = async (request, response) => {
             limit,
             offset: (page - 1) * limit
         })
-
-
-        if (!estudiantes) {
-            return response.status(200).json({ message: 'No se encontró ningún estudiante' });
-        }
-
-
-
         return response.status(200).json({
-            estudiantes: estudiantes,
+            data: estudiantes,
             totalPages: Math.ceil(count / limit),
             currentPage: page,
             totalRows: count

@@ -459,57 +459,66 @@ const getAsignacionesPorNivel = async (req, res) => {
 }
 const getAsignaciones = async (req, res) => {
   try {
-    console.log("Yo me ejecuto")
     const periodo = req.params.periodo
-    console.log("este es el periodo", periodo)
-    const asignaciones = await Asignacion.findAll({
-      where: {
-        ID_periodo_academico: periodo,
-
-      },
-      include: [
-
-        {
-          model: Materia,
-          where: {
-            tipo: { [Op.ne]: "individual" }
-          },
-          as: "materiaDetalle"
-        },
-        { model: Docente },
-        {
-          model: Periodo_Academico,
-          attributes: ["descripcion"]
-        }
-      ],
-      order: [
-        [
-          Sequelize.literal(`FIELD(materiaDetalle.nivel, 
-            '1ro BE', '2do BE', 
-            '1ro BM', '2do BM', '3ro BM', 
-            '1ro BS', '2do BS', '3ro BS', 
-            '1ro BCH', '2do BCH', '3ro BCH', 
-            'BCH', 'BM', 'BS', 'BS BCH')`),
-          'ASC'
-        ]
-      ]
-    })
-    console.log("tenemos las asignaciones", asignaciones)
-    const asignacionesFinal = asignaciones.map((asignacion) => {
-      const asignacionPlain = asignacion.get({ plain: true }); // Convertimos el resultado a un objeto plano
-      // Eliminamos las contraseñas de los docentes
-      if (asignacionPlain.Docente) {
-        delete asignacionPlain.Docente.password;
-      }
-      // Renombramos Materium a Materia
-      if (asignacionPlain.materiaDetalle) {
-        asignacionPlain.Materia = asignacionPlain.materiaDetalle;
-        delete asignacionPlain.materiaDetalle;
-      }
-      return asignacionPlain;
-    });
-    console.log("este es el resultado", asignacionesFinal)
-    return res.status(200).json(asignacionesFinal)
+    let { page = 1, limit=13 } = req.query;
+        console.log("este es el limite que recibo", limit)
+        page = parseInt(page)
+        limit = parseInt(limit)
+        const { count, rows: asignaciones } = await Asignacion.findAndCountAll({
+            limit,
+            offset: (page - 1) * limit,
+            where: {
+              ID_periodo_academico: periodo,
+      
+            },
+            include: [
+      
+              {
+                model: Materia,
+                where: {
+                  tipo: { [Op.ne]: "individual" }
+                },
+                as: "materiaDetalle"
+              },
+              { model: Docente },
+              {
+                model: Periodo_Academico,
+                attributes: ["descripcion"]
+              }
+            ],
+            order: [
+              [
+                Sequelize.literal(`FIELD(materiaDetalle.nivel, 
+                  '1ro BE', '2do BE', 
+                  '1ro BM', '2do BM', '3ro BM', 
+                  '1ro BS', '2do BS', '3ro BS', 
+                  '1ro BCH', '2do BCH', '3ro BCH', 
+                  'BCH', 'BM', 'BS', 'BS BCH')`),
+                'ASC'
+              ]
+            ]
+        })
+        
+        const asignacionesFinal = asignaciones.map((asignacion) => {
+          const asignacionPlain = asignacion.get({ plain: true }); // Convertimos el resultado a un objeto plano
+          // Eliminamos las contraseñas de los docentes
+          if (asignacionPlain.Docente) {
+            delete asignacionPlain.Docente.password;
+          }
+          // Renombramos Materium a Materia
+          if (asignacionPlain.materiaDetalle) {
+            asignacionPlain.Materia = asignacionPlain.materiaDetalle;
+            delete asignacionPlain.materiaDetalle;
+          }
+          return asignacionPlain;
+        });
+        return res.status(200).json({
+            data: asignacionesFinal,
+            totalPages: Math.ceil(count / limit),
+            currentPage: page,
+            totalRows: count
+        });
+   
   } catch (error) {
     console.error("Error al obtener asignaciones", error)
     return res.status(500).json({ message: `Error al obtener asignaciones en el servidor:` })

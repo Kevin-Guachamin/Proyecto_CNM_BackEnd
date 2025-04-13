@@ -125,9 +125,21 @@ const getDocente = async(req, res)=>{
 }
 const getDocentes = async(req, res)=>{
     try {
-        const Docentes= await Docente.findAll()
+        let { page = 1, limit=13 } = req.query;
+        console.log("este es el limite que recibo", limit)
+        page = parseInt(page)
+        limit = parseInt(limit)
+        const { count, rows: docentes } = await Docente.findAndCountAll({
+            limit,
+            offset: (page - 1) * limit,
+        })
         
-        return res.status(200).json(Docentes)
+        return res.status(200).json({
+            data: docentes,
+            totalPages: Math.ceil(count / limit),
+            currentPage: page,
+            totalRows: count
+        });
     } catch (error) {
         console.log("el error es aquí")
         console.error("Error al obtener docentes", error)
