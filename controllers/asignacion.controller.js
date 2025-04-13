@@ -481,6 +481,17 @@ const getAsignaciones = async (req, res) => {
           model: Periodo_Academico,
           attributes: ["descripcion"]
         }
+      ],
+      order: [
+        [
+          Sequelize.literal(`FIELD(materiaDetalle.nivel, 
+            '1ro BE', '2do BE', 
+            '1ro BM', '2do BM', '3ro BM', 
+            '1ro BS', '2do BS', '3ro BS', 
+            '1ro BCH', '2do BCH', '3ro BCH', 
+            'BCH', 'BM', 'BS', 'BS BCH')`),
+          'ASC'
+        ]
       ]
     })
     console.log("tenemos las asignaciones", asignaciones)
