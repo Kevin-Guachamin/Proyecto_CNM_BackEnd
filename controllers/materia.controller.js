@@ -1,6 +1,6 @@
 
 const Materia = require('../models/materia.model')
-
+const { Op, Sequelize } = require("sequelize");
 const createMateria = async (req, res) => {
     try {
         const materia = req.body
@@ -102,7 +102,19 @@ const getMateria = async(req, res)=>{
 }
 const getMaterias = async(req, res)=>{
     try {
-        const Materias= await Materia.findAll()
+        const Materias= await Materia.findAll({
+            order: [
+                    [
+                      Sequelize.literal(`FIELD(materia.nivel, 
+                        '1ro BE', '2do BE', 
+                        '1ro BM', '2do BM', '3ro BM', 
+                        '1ro BS', '2do BS', '3ro BS', 
+                        '1ro BCH', '2do BCH', '3ro BCH', 
+                        'BCH', 'BM', 'BS', 'BS BCH')`),
+                      'ASC'
+                    ]
+                  ]
+        })
         if(!Materias){
             return res.status(404).json({message: "No se encontro ningún registro"})
         }
