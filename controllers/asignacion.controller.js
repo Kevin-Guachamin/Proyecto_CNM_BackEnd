@@ -327,7 +327,7 @@ const deleteAsignacion = async (req, res) => {
     }
     await Asignacion.destroy({ where: { id } })
 
-    return status(200).json(asignacion)
+    return res.status(200).json(asignacion)
   } catch (error) {
     console.error("Error al eliminar la asignación", error)
     return res.status(500).json({ message: `Error al eliminar la asignación en el servidor:` })
@@ -459,7 +459,7 @@ const getAsignacionesPorNivel = async (req, res) => {
 }
 const getAsignaciones = async (req, res) => {
   try {
-    console.log("AQUI ESTA EL ERROR")
+    console.log("Yo me ejecuto")
     const periodo = req.params.periodo
     console.log("este es el periodo", periodo)
     const asignaciones = await Asignacion.findAll({
