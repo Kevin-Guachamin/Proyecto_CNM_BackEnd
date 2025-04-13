@@ -187,6 +187,25 @@ module.exports.getParcialesBEPorAsignacion = async (req, res) => {
   }
 };
 
+
+// Obtener calificaciones parciales por ID de inscripcion
+module.exports.getParcialBEPorInscripcion = async (request, response) => {
+  try {
+    const idInscripcion = request.params.id_inscripcion;
+
+    const parciales = await Calificaciones_parciales_be.findAll({
+      where: {ID_inscripcion: idInscripcion},
+      attributes: ['insumo1', 'insumo2', 'evaluacion', 'mejoramiento', 'quimestre', 'parcial']
+    });
+
+    return response.status(200).json(parciales);
+
+  } catch (error) {
+    console.error("Error en getParcialesBEPorInscripcion:", error);
+    return res.status(500).json({ message: "Error en el servidor" });
+  }
+}
+
 // Eliminar parcial
 module.exports.deleteParcialBE = async (req, res) => {
   try {
