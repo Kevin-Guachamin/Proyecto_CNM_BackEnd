@@ -11,6 +11,7 @@ module.exports = (app) => {
   app.post('/parciales/bulk', docenteProfesor,ParcialesController.createParcialBulk);
   app.get('/parciales/:id', ParcialesController.getParcial);
   app.get('/parciales/asignacion/:id_asignacion', ParcialesController.getParcialesPorAsignacion);
+  app.get('/parciales/inscripcion/:id_inscripcion', ParcialesController.getParcialPorInscripcion);
   app.put('/parciales/:id', docenteProfesor,ParcialesController.updateParcial);
   app.delete('/parciales/:id', docenteProfesor,ParcialesController.deleteParcial);
 
@@ -35,6 +36,7 @@ module.exports = (app) => {
   app.post('/parcialesbe/bulk', ParcialesControllerBE.createParcialBEBulk);
   app.get('/parcialesbe/:id', ParcialesControllerBE.getParcialBE);
   app.get('/parcialesbe/asignacion/:id_asignacion', ParcialesControllerBE.getParcialesBEPorAsignacion);
+  app.get('/parcialesbe/inscripcion/:id_inscripcion', ParcialesControllerBE.getParcialBEPorInscripcion);
   app.put('/parcialesbe/:id', ParcialesControllerBE.updateParcialBE);
   app.delete('/parcialesbe/:id', ParcialesControllerBE.deleteParcialBE);
 
