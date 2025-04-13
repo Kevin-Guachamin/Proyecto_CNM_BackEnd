@@ -142,7 +142,7 @@ const getPeriodosMatriculadosByEstudiante = async (request, response) => {
             where: {
                 ID_estudiante: idEstudiante 
             },
-            attributes: ['ID', 'ID_periodo_academico'] 
+            attributes: ['ID', 'nivel','ID_periodo_academico'] 
         });
 
         if(!periodosMatriculados || periodosMatriculados.length === 0) {
