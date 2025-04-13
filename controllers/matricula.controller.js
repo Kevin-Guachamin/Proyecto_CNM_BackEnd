@@ -142,17 +142,14 @@ const getPeriodosMatriculadosByEstudiante = async (request, response) => {
             where: {
                 ID_estudiante: idEstudiante 
             },
-            attributes: ['ID_periodo_academico'] 
+            attributes: ['ID', 'ID_periodo_academico'] 
         });
 
         if(!periodosMatriculados || periodosMatriculados.length === 0) {
             return response.status(404).json( {message: "No se encontraron periodos academicos matriculados"} );
         }
 
-        // Formatear para que solo se devuelvan los IDs de los periodos academicos
-        const idPeriodos = periodosMatriculados.map(periodo => periodo.ID_periodo_academico);
-
-        return response.status(200).json(idPeriodos);
+        return response.status(200).json(periodosMatriculados);
 
     } catch (error) {
         console.error("Error al obtener los periodos matriculados del estudiante", error)
