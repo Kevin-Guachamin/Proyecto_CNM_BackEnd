@@ -4,15 +4,19 @@ const Fechas_notas = require('../models/fechas_notas.model');
 const createFechasNotas = async (request, response) => {
     const fecha = request.body;
 
-    // Verificar que se hayan enviado datos
     if (!fecha || Object.keys(fecha).length === 0) {
         return response.status(400).json({
             message: 'No se proporcionaron datos para fecha'
         });
     }
 
+    if (new Date(fecha.fecha_inicio) > new Date(fecha.fecha_fin)) {
+        return response.status(400).json({
+            message: "La fecha de inicio no puede ser mayor que la fecha de fin"
+        });
+    }
+
     try {
-        // Se crea el registro (debe incluir fecha_inicio, fecha_fin y descripcion)
         const nuevaFecha = await Fechas_notas.create(fecha);
         const result = nuevaFecha.toJSON();
 
@@ -22,6 +26,7 @@ const createFechasNotas = async (request, response) => {
         });
     } catch (error) {
         console.log('Error al crear la fecha:', error);
+
         if (error.name === "SequelizeValidationError") {
             const errEncontrado = error.errors.find(err =>
                 err.validatorKey === "notEmpty" ||
@@ -34,18 +39,23 @@ const createFechasNotas = async (request, response) => {
                 return response.status(400).json({ message: errEncontrado.message });
             }
         }
-       
-        if (error.name === "SequelizeUniqueConstraintError") {
-            const errEncontrado = error.errors.find(err =>
-                err.validatorKey === "not_unique"
-            );
-            if (errEncontrado) {
-                return response.status(400).json({ message: `${errEncontrado.path} debe ser único` });
-            }
+
+        if (error instanceof TypeError) {
+            return response.status(400).json({ message: "Debe completar todos los campos" });
         }
+
+        if (error.name === "SequelizeUniqueConstraintError") {
+            const errEncontrado = error.errors.find(err => err.path === "descripcion");
+            if (errEncontrado) {
+                return response.status(400).json({ message: "Ya existe una fecha para esta descripción." });
+            }
+            return response.status(400).json({ message: "Ya existe un registro con ese valor único." });
+        }        
+
         return response.status(500).json({ message: "Error al crear fecha en el servidor" });
     }
 };
+
 
 // Read: Obtiene un registro de fecha por su ID
 const getFechasNotas = async (request, response) => {
@@ -79,7 +89,9 @@ const getFechasNotas = async (request, response) => {
                 return response.status(400).json({ message: errEncontrado.message });
             }
         }
-       
+        if (error instanceof TypeError) {
+            return response.status(400).json({ message: "Debe completar todos los campos" });
+        }
         if (error.name === "SequelizeUniqueConstraintError") {
             return response.status(400).json({ message: error.message });
         }
@@ -106,6 +118,12 @@ const updateFechasNotas = async (request, response) => {
     if (!ID || ID.trim() === "") {
         return response.status(400).json({
             message: 'El ID de la fecha es requerido'
+        });
+    }
+
+    if (new Date(fechaActualizar.fecha_inicio) > new Date(fechaActualizar.fecha_fin)) {
+        return response.status(400).json({
+            message: "La fecha de inicio no puede ser mayor que la fecha de fin"
         });
     }
 
@@ -152,7 +170,9 @@ const updateFechasNotas = async (request, response) => {
             const mensajes = error.errors.map(err => err.message);
             return response.status(400).json({ message: mensajes });
         }
-        
+        if (error instanceof TypeError) {
+            return response.status(400).json({ message: "Debe completar todos los campos" });
+        }
         return response.status(500).json({ message: 'Error al actualizar la fecha en el servidor' });
     }
 };
