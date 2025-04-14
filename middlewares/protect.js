@@ -265,3 +265,40 @@ module.exports.DocenteANDReprsentante = async (req, res, next) => {
   return res.status(401).json({ message: "No autorizado, token no encontrado" });
 };
 
+module.exports.DocenteVicerrectorANDSecretaria = async (req, res, next) => {
+  let token;
+
+  if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
+    try {
+      token = req.headers.authorization.split(" ")[1];
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      console.log("este es el rol", decoded.rol)
+      // Verificar que el rol sea válido
+      if (decoded.rol !== "docente") {
+        return res.status(403).json({ message: "No autorizado, se requiere ser docente" });
+      }
+
+      // Verificar que el subRol sea Vicerrector o Secretaria
+      if (decoded.subRol !== "Vicerrector" && decoded.subRol !== "Secretaria") {
+        return res.status(403).json({ message: "No autorizado, se requiere ser Vicerrector o Secretaria" });
+      }
+
+      // Buscar usuario
+      const user = await Docente.findOne({ where: { nroCedula: decoded.id }, attributes: { exclude: ["password"] }, raw: true });
+      if (!user) {
+        return res.status(400).json({ message: "Usuario no encontrado" });
+      }
+
+      req.user = user;
+      req.user.rol = decoded.rol;
+      req.user.subRol = decoded.subRol;
+
+      return next();
+    } catch (error) {
+      console.error("Error en el middleware representante:", error.message);
+      return res.status(401).json({ message: "Token inválido o expirado" });
+    }
+  }
+
+  return res.status(401).json({ message: "No autorizado, token no encontrado" });
+}
