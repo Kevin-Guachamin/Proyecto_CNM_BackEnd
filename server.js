@@ -68,7 +68,7 @@ allLogin(app)
 const allInscripcion=require('./routes/inscripcion.routes')
 allInscripcion(app)
 
-const AllFechasNotas=require('./routes/fechas_notas.routes')
+const AllFechasNotas=require('./routes/fechas.routes')
 AllFechasNotas(app)
 
 const AllMatriculas= require('./routes/matricula.route')

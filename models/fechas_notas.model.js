@@ -13,8 +13,8 @@ const Fechas_notas = sequelize.define("Fechas_notas",
             type: DataTypes.DATEONLY,  // Solo guarda la fecha sin hora
             allowNull: false,
             validate: {
-                notNull: { msg: "La fecha de nacimiento es obligatoria" },
-                notEmpty: { msg: "La fecha de nacimiento no puede estar vacía" },
+                notNull: { msg: "La fecha de inicio es obligatoria" },
+                notEmpty: { msg: "La fecha de inicio no puede estar vacía" },
             }
 
         },
@@ -22,8 +22,8 @@ const Fechas_notas = sequelize.define("Fechas_notas",
             type: DataTypes.DATEONLY,  // Solo guarda la fecha sin hora
             allowNull: false,
             validate: {
-                notNull: { msg: "La fecha de nacimiento es obligatoria" },
-                notEmpty: { msg: "La fecha de nacimiento no puede estar vacía" },
+                notNull: { msg: "La fecha fin es obligatoria" },
+                notEmpty: { msg: "La fecha fin no puede estar vacía" },
             }
         },
         descripcion: {
@@ -38,6 +38,7 @@ const Fechas_notas = sequelize.define("Fechas_notas",
                 "nota_final"
             ],
             allowNull: false,
+            unique: true,
             validate: {
                 notNull: { msg: "La descripción es obligatoria" },
                 notEmpty: { msg: "La descripción no puede estar vacía" },
