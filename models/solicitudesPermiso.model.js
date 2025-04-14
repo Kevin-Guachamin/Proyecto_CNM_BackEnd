@@ -1,6 +1,6 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/sequelize.config')
-const Docente=require('./docente.model')
+const Docente = require('./docente.model')
 
 const SolicitudesPermiso = sequelize.define("SolicitudesPermiso", {
     ID: {
@@ -9,40 +9,52 @@ const SolicitudesPermiso = sequelize.define("SolicitudesPermiso", {
         autoIncrement: true,
         primaryKey: true,
     },
+    descripcion: {
+        type: DataTypes.ENUM,
+        values: [
+            "parcial1_quim1",
+            "parcial2_quim1",
+            "quimestre1",
+            "parcial1_quim2",
+            "parcial2_quim2",
+            "quimestre2",
+            "nota_final"
+        ],
+        allowNull: false,
+        validate: {
+            notNull: { msg: "La descripción del permiso es obligatoria" },
+            notEmpty: { msg: "Debe seleccionar una descripción válida" },
+        }
+    },
     fecha_inicio: {
-        type: DataTypes.DATEONLY,  // Solo guarda la fecha sin hora
+        type: DataTypes.DATEONLY,
         allowNull: true,
         validate: {
             isDate: { msg: "Debe ingresar una fecha válida" }
         },
-        // Getter: Para cuando recuperas la fecha de la BD
         get() {
             const rawValue = this.getDataValue("fecha_inicio");
             if (rawValue) {
-                const date = new Date(rawValue + "T00:00:00"); // Asegura que la fecha esté en el inicio del día
+                const date = new Date(rawValue + "T00:00:00");
                 return date.toLocaleDateString("es-ES");
             }
             return null;
-        },
-
+        }
     },
     fecha_fin: {
-        type: DataTypes.DATEONLY,  // Solo guarda la fecha sin hora
+        type: DataTypes.DATEONLY,
         allowNull: true,
         validate: {
-           
             isDate: { msg: "Debe ingresar una fecha válida" }
         },
-        // Getter: Para cuando recuperas la fecha de la BD
         get() {
             const rawValue = this.getDataValue("fecha_fin");
             if (rawValue) {
-                const date = new Date(rawValue + "T00:00:00"); // Asegura que la fecha esté en el inicio del día
+                const date = new Date(rawValue + "T00:00:00");
                 return date.toLocaleDateString("es-ES");
             }
             return null;
-        },
-
+        }
     },
     motivo: {
         type: DataTypes.STRING,
@@ -50,11 +62,11 @@ const SolicitudesPermiso = sequelize.define("SolicitudesPermiso", {
         validate: {
             notNull: { msg: "El motivo es requerido" },
             notEmpty: { msg: "El motivo no puede ser vacío" },
-            len: { args: [2, 50], msg: "El motivo debe tener entre 4 y 50 caracteres" }
+            len: { args: [2, 50], msg: "Debe tener entre 4 y 50 caracteres" }
         }
     },
     estado: {
-        type: DataTypes.ENUM("Pendiente", "Aceptada","Rechazada"),
+        type: DataTypes.ENUM("Pendiente", "Aceptada", "Rechazada"),
         allowNull: false,
         defaultValue: "Pendiente",
     },
@@ -65,21 +77,23 @@ const SolicitudesPermiso = sequelize.define("SolicitudesPermiso", {
             notNull: { msg: "La fecha de solicitud es obligatoria" },
             notEmpty: { msg: "La fecha de solicitud no puede estar vacía" },
             isDate: { msg: "Debe ingresar una fecha válida" }
-        },
-        
+        }
     },
-},{
+}, {
     tableName: "SolicitudesPermisos"
-})
+});
+
+// Relación
 Docente.hasMany(SolicitudesPermiso, {
     foreignKey: 'nroCedula_docente',
     sourceKey: 'nroCedula'
-})
+});
 SolicitudesPermiso.belongsTo(Docente, {
     foreignKey: {
         name: 'nroCedula_docente',
-        allowNull: false  // Esto evita que se creen estudiantes sin docente
+        allowNull: false
     },
     targetKey: 'nroCedula'
 });
-module.exports=SolicitudesPermiso
+
+module.exports = SolicitudesPermiso;
