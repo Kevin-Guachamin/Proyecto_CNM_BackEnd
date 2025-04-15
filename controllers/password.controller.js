@@ -82,7 +82,7 @@ exports.requestPasswordReset = async (req, res) => {
     await user.save();
 
     // Link de recuperación
-    const resetLink = `${process.env.URL_FRONT_EDN}/reset-password?token=${token}`;
+    const resetLink = `${process.env.URL_FRONT_END}/reset-password?token=${token}`;
 
     // Aquí enviarías el correo real
 
