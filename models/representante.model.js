@@ -135,7 +135,17 @@ const Representante = sequelize.define('Representante', {
             notEmpty: { msg: "La contraseña no puede estar vacía" },
             len: { args: [8, 100], msg: "La contraseña debe tener al menos 8 caracteres" }
         }
-    }
+    },
+    // 👇 Campos para recuperación de contraseña
+    resetToken: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      resetTokenExpires: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
+
 },
     {
         tableName: 'representantes'

@@ -2,7 +2,7 @@
 const bcrypt = require("bcryptjs")
 const Docente = require('../models/docente.model')
 const crypto = require("crypto")
-const {enivarCorreo}=require("../utils/enivarCorreo")
+const {enivarContrasenia}=require("../utils/enivarCorreo")
 
 const createDocente = async (req, res) => {
     try {
@@ -18,7 +18,7 @@ const createDocente = async (req, res) => {
         docente.password = hashedPassword
         console.log("esta es la password", docente.password)
         const newDocente = await Docente.create(docente)
-        enivarCorreo(docente.email,provicional)
+        enivarContrasenia(docente.email,provicional)
         const {password: _, ...result}=newDocente.toJSON()
         return res.status(201).json(result)
     } catch (error) {

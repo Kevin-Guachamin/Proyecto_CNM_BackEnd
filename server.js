@@ -76,6 +76,10 @@ AllMatriculas(app)
 
 const AllSolicitudes=require('./routes/solicitud.routes')
 AllSolicitudes(app)
+
+const AllPassword=require('./routes/password.routes')
+AllPassword(app)
+
 reprogramarPeriodosPendientes()
 startServer();
 

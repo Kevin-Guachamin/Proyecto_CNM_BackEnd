@@ -279,7 +279,7 @@ module.exports.DocenteVicerrectorANDSecretaria = async (req, res, next) => {
       }
 
       // Verificar que el subRol sea Vicerrector o Secretaria
-      if (decoded.subRol !== "Vicerrector" && decoded.subRol !== "Secretaria") {
+      if (decoded.subRol !== "Vicerrector" && decoded.subRol !== "Secretaria" && decoded.subRol!== "Administrador") {
         return res.status(403).json({ message: "No autorizado, se requiere ser Vicerrector o Secretaria" });
       }
 

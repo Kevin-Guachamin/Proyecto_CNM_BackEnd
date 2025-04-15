@@ -1,7 +1,7 @@
 const path = require("path");
 const Representante = require('../models/representante.model');
 const crypto = require("crypto")
-const {enivarCorreo}=require("../utils/enivarCorreo")
+const {enivarContrasenia}=require("../utils/enivarCorreo")
 const bcrypt = require("bcryptjs")
 // Create REPRESENTANTE
 const crearRepresentante = async (request, response) => {
@@ -26,7 +26,7 @@ const crearRepresentante = async (request, response) => {
         usuario.croquis_PDF = croquisPath
 
         const nuevoRepresentante = await Representante.create(usuario);
-        enivarCorreo(nuevoRepresentante.email,provicional)
+        enivarContrasenia(nuevoRepresentante.email,provicional)
         const { password: _, ...result } = nuevoRepresentante.toJSON();
         
 
