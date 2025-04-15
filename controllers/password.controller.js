@@ -17,6 +17,7 @@ module.exports.validatePasswordChange = [
 ];
 module.exports.changePassword = async (req, res) => {
   const rol = req.user.rol
+  console.log("este es el rol",rol)
   try {
 
     const errors = validationResult(req);
@@ -24,10 +25,10 @@ module.exports.changePassword = async (req, res) => {
     let user
     const { currentPassword, newPassword } = req.body;
 
-    if (rol === "Docente") {
+    if (rol === "docente") {
       user = await Docente.findByPk(req.user.nroCedula);
 
-    } else if (rol === "Representante") {
+    } else if (rol === "representante") {
       user = await Representante.findByPk(req.user.nroCedula);
     }
     else {
