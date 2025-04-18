@@ -10,6 +10,6 @@ module.exports = (app) => {
     app.get('/estudiante/obtener',DocenteANDReprsentante, EstudianteController.getAllEstudiantes);
     app.delete('/estudiante/eliminar/:ID', docenteSecretaria,EstudianteController.deleteEstudiante);
     app.get('/api/representantes/:cedula/estudiantes',DocenteANDReprsentante ,EstudianteController.getRepresentanteEstudiante);
-    app.get('/estudiante/download/:folder/:filename',DocenteANDReprsentante,EstudianteController.getFile)
+    app.get('/estudiante/nivel/:nivel',docenteSecretaria,EstudianteController.getEstudiantesByNivel)
     
 }

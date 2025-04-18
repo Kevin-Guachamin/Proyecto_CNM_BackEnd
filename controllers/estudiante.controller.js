@@ -1,7 +1,9 @@
 // Controlador para ESTUDIANTE
 const path = require("path");
 const Estudiante = require('../models/estudiante.model');
-
+const { Model } = require("sequelize");
+const { Representante } = require("../middlewares/protect");
+const Representantes=require('../models/representante.model')
 
 const crearEstudiante = async (request, res) => {
     const usuario = request.body;
@@ -176,6 +178,58 @@ const getAllEstudiantes = async (request, response) => {
         return response.status(500).json({ message: 'Error al obtener los estudiantes en el servidor' });
     }
 }
+const getEstudiantesByNivel = async (request, response) => {
+    try {
+        const {nivel} =request.params
+        console.log("este es el nivel",nivel)
+        let { page, limit } = request.query;
+        page = parseInt(page)
+        limit = parseInt(limit)
+        if(page && limit){
+            const { count, rows: estudiantes } = await Estudiante.findAndCountAll({
+                limit,
+                offset: (page - 1) * limit,
+                where:{
+                    nivel: nivel
+                }
+            }
+
+
+        )
+        
+            return response.status(200).json({
+                data: estudiantes,
+                totalPages: Math.ceil(count / limit),
+                currentPage: page,
+                totalRows: count
+            });
+        }
+        const estudiantes= await Estudiante.findAll({
+            where: {
+                nivel: nivel
+            },
+            include:[
+                {
+                    model: Representantes,
+                    attributes: ["cedula_PDF","croquis_PDF"]
+
+                }
+            ]
+        })
+        if(estudiantes.length==0) return response.status(404).json({message:"No se encontro ningún estudiante"})
+        const result=estudiantes.map(estudiante=> estudiante.get({plain:true}))
+        console.log("este es el result",result)
+        return response.status(200).json(result)
+
+    } catch (error) {
+        console.log('Error al obtener todos los estudiantes:', error);
+        if (error.name === 'SequelizeValidationError') {
+            const mensajes = error.errors.map(err => err.message);
+            return response.status(400).json({ message: mensajes });
+        }
+        return response.status(500).json({ message: 'Error al obtener los estudiantes en el servidor' });
+    }
+}
 
 /**
  * Actualizar un estudiante
@@ -282,19 +336,7 @@ const deleteEstudiante = async (request, response) => {
     }
 }
 
-const getFile = async (req, res) => {
-    const { folder, filename } = req.params;
-    console.log("Folder:", folder); // Verifica el valor de folder
-    console.log("Filename:", filename); // Verifica el valor de filename
-    const filePath = path.join(__dirname, "..", 'uploads', folder, filename);
 
-    res.download(filePath, filename, (err) => {
-        if (err) {
-            console.error('Error al descargar el archivo:', err);
-            return res.status(500).json('No se pudo descargar el archivo.');
-        }
-    });
-}
 
 module.exports = {
     crearEstudiante,
@@ -303,6 +345,6 @@ module.exports = {
     updateEstudiante,
     deleteEstudiante,
     getRepresentanteEstudiante,
-    getFile,
-    getEstudianteByCedula
+    getEstudianteByCedula,
+    getEstudiantesByNivel
 };
