@@ -66,16 +66,13 @@ const updateSolicitud = async (req, res) => {
         const solicitud = req.body;
         const id = req.params.id;
 
-        const { fecha_inicio, fecha_fin } = solicitud;
+        // Validar solo si vienen ambas fechas en el body
+        if (solicitud.fecha_inicio && solicitud.fecha_fin) {
+            const { fecha_inicio, fecha_fin } = solicitud;
 
-        // Validación de campos requeridos
-        if (!fecha_inicio || !fecha_fin) {
-            return res.status(400).json({ message: 'Las fechas de inicio y fin son obligatorias.' });
-        }
-
-        // Validación del rango de fechas (comparación como strings YYYY-MM-DD)
-        if (fecha_inicio > fecha_fin) {
-            return res.status(400).json({ message: 'La fecha de inicio no puede ser posterior a la fecha de fin.' });
+            if (fecha_inicio > fecha_fin) {
+                return res.status(400).json({ message: 'La fecha de inicio no puede ser posterior a la fecha de fin.' });
+            }
         }
 
         const [updatedRows] = await Solicitudes.update(solicitud, { where: { ID: id } });
