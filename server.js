@@ -80,6 +80,9 @@ AllSolicitudes(app)
 const AllPassword=require('./routes/password.routes')
 AllPassword(app)
 
+const AllFiles=require('./routes/downlodadFile.routes')
+AllFiles(app)
+
 reprogramarPeriodosPendientes()
 startServer();
 

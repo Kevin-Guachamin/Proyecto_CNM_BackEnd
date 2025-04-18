@@ -1,4 +1,3 @@
-const path = require("path");
 const Representante = require('../models/representante.model');
 const crypto = require("crypto")
 const {enivarContrasenia}=require("../utils/enivarCorreo")
@@ -228,23 +227,13 @@ const deleteRepresentante = async (request, response) => {
         });
     }
 }
-const getFile = async (req, res) => {
-    const { folder, filename } = req.params;
-    const filePath = path.join(__dirname, "..",'uploads', folder, filename);
 
-    return res.download(filePath, filename, (err) => {
-        if (err) {
-            console.error('Error al descargar el archivo:', err);
-            return res.status(500).json({message: 'No se pudo descargar el archivo.'});
-        }
-    });
-}
+
 
 module.exports = {
     crearRepresentante,
     getRepresentante,
     getAllRepresentantes,
     updateRepresentante,
-    deleteRepresentante,
-    getFile
+    deleteRepresentante
 }
