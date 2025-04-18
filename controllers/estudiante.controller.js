@@ -76,7 +76,7 @@ const getRepresentanteEstudiante = async (request, response) => {
         const estudiantes = await Estudiante.findAll({
             where: { nroCedula_representante },
             attributes: [
-                'id',
+                'ID',
                 'nroCedula',
                 'primer_nombre',
                 'segundo_nombre',
