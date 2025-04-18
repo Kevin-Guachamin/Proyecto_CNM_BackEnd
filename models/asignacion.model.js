@@ -101,22 +101,39 @@ const Asignacion = sequelize.define("Asignacion", {
             notEmpty: { msg: "No se permiten valores vacíos" },
             notNull: { msg: "No se permiten valores nulos" },
             isInt: { msg: "Debe ser un número entero" },
-            
+
         }
     }
 },
     {
         tableName: "asignaciones"
     })
-Docente.belongsToMany(Materia, { through: Asignacion, foreignKey: {name: "nroCedula_docente", allowNull:false }})
-Materia.belongsToMany(Docente, { through: Asignacion, foreignKey: {name: "ID_materia", allowNull:false} })
-Asignacion.belongsTo(Periodo_Academico, { foreignKey: "ID_periodo_academico", targetKey: "ID" })
-Periodo_Academico.hasMany(Asignacion, { foreignKey: "ID_periodo_academico", sourceKey: "ID" })
+Docente.belongsToMany(Materia, { through: Asignacion, foreignKey: { name: "nroCedula_docente", allowNull: false } })
+Materia.belongsToMany(Docente, { through: Asignacion, foreignKey: { name: "ID_materia", allowNull: false } })
+
+
 
 // Permite incluir directamente datos de Docente y Materia desde Asignación
 Asignacion.belongsTo(Docente, { foreignKey: "nroCedula_docente", targetKey: "nroCedula" });
-Asignacion.belongsTo(Materia, {as:"materiaDetalle", foreignKey: "ID_materia", targetKey: "ID" });
+Asignacion.belongsTo(Materia, { as: "materiaDetalle", foreignKey: "ID_materia", targetKey: "ID" });
 //no borrar as materiaDetalle se necesita para el getAll de asignacion
 // Permite incluir directamente datos de Materia desde Asignación
+// Relación Asignacion -> Periodo_Academico (belongsTo)
+Asignacion.belongsTo(Periodo_Academico, { 
+    foreignKey: {
+      name: "ID_periodo_academico",
+      allowNull: false // Obligatorio tener un periodo académico
+    },
+    onDelete: 'RESTRICT' // Evita borrar periodos con asignaciones
+  });
+  
+  // Relación Periodo_Academico -> Asignacion (hasMany)
+  Periodo_Academico.hasMany(Asignacion, { 
+    foreignKey: {
+      name: "ID_periodo_academico",
+      allowNull: false
+    },
+    onDelete: 'RESTRICT'
+  });
 
 module.exports = Asignacion;

@@ -1,8 +1,6 @@
 const RepresentanteController = require('../controllers/representante.controller');
 const upload=require('../middlewares/uploadFiles')
-const {changePassword}=require('../controllers/change_password.controller')
-const {validatePasswordChange}=require('../controllers/change_password.controller')
-const {Representante,docenteSecretaria, DocenteANDReprsentante}=require('../middlewares/protect')
+const {docenteSecretaria, DocenteANDReprsentante}=require('../middlewares/protect')
 
 
 module.exports = (app) => {
@@ -12,5 +10,5 @@ module.exports = (app) => {
     app.get('/representante/obtener', DocenteANDReprsentante,RepresentanteController.getAllRepresentantes);
     app.delete('/representante/eliminar/:cedula', docenteSecretaria,RepresentanteController.deleteRepresentante);
     app.get('/representante/download/:folder/:filename',DocenteANDReprsentante,RepresentanteController.getFile)
-    app.post('/representante/password/',Representante,validatePasswordChange,changePassword)
+    
 }

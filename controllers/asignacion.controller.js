@@ -524,6 +524,64 @@ const getAsignaciones = async (req, res) => {
     return res.status(500).json({ message: `Error al obtener asignaciones en el servidor:` })
   }
 }
+const getAsignacionesPorPeriodo = async (req, res) => {
+  try {
+    const periodo = req.params.periodo;
+
+    const asignaciones = await Asignacion.findAll({
+      where: {
+        ID_periodo_academico: periodo,
+      },
+      include: [
+        {
+          model: Materia,
+          where: {
+            tipo: { [Op.ne]: "individual" }
+          },
+          as: "materiaDetalle"
+        },
+        { model: Docente },
+        {
+          model: Periodo_Academico,
+          attributes: ["descripcion"]
+        }
+      ],
+      order: [
+        [
+          Sequelize.literal(`FIELD(materiaDetalle.nivel, 
+            '1ro BE', '2do BE', 
+            '1ro BM', '2do BM', '3ro BM', 
+            '1ro BS', '2do BS', '3ro BS', 
+            '1ro BCH', '2do BCH', '3ro BCH', 
+            'BCH', 'BM', 'BS', 'BS BCH')`),
+          'ASC'
+        ]
+      ]
+    });
+
+    const asignacionesFinal = asignaciones.map((asignacion) => {
+      const asignacionPlain = asignacion.get({ plain: true });
+      if (asignacionPlain.Docente) {
+        delete asignacionPlain.Docente.password;
+      }
+      if (asignacionPlain.materiaDetalle) {
+        asignacionPlain.Materia = asignacionPlain.materiaDetalle;
+        delete asignacionPlain.materiaDetalle;
+      }
+      return asignacionPlain;
+    });
+
+    return res.status(200).json({
+      data: asignacionesFinal,
+      total: asignacionesFinal.length
+    });
+
+  } catch (error) {
+    console.error("Error al obtener asignaciones", error);
+    return res.status(500).json({ message: `Error al obtener asignaciones en el servidor:` });
+  }
+}
+
 const getAsignacionesPorAsignatura = async (req, res) => {
   try {
 
@@ -599,5 +657,6 @@ module.exports = {
   getAsignacionesPorDocente,
   getAsignacionesPorNivel,
   getAsignaciones,
+  getAsignacionesPorPeriodo,
   getAsignacionesPorAsignatura
 }

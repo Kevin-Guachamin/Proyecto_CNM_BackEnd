@@ -66,6 +66,15 @@ const updateSolicitud = async (req, res) => {
         const solicitud = req.body;
         const id = req.params.id;
 
+        // Validar solo si vienen ambas fechas en el body
+        if (solicitud.fecha_inicio && solicitud.fecha_fin) {
+            const { fecha_inicio, fecha_fin } = solicitud;
+
+            if (fecha_inicio > fecha_fin) {
+                return res.status(400).json({ message: 'La fecha de inicio no puede ser posterior a la fecha de fin.' });
+            }
+        }
+
         const [updatedRows] = await Solicitudes.update(solicitud, { where: { ID: id } });
 
         if (updatedRows === 0) {

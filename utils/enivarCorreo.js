@@ -1,7 +1,7 @@
 require('dotenv').config();
 const nodemailer=require("nodemailer")
 
-const enivarCorreo = async(email, contrasenaProvisional)=>{
+const enivarContrasenia = async(email, contrasenaProvisional)=>{
     const transporter = nodemailer.createTransport({
         host: "smtp.gmail.com",
         service: "gmail",
@@ -20,6 +20,27 @@ const enivarCorreo = async(email, contrasenaProvisional)=>{
 
     await transporter.sendMail(mailOptions);
 }
+const enviarRecoverLink= async(email,link)=>{
+    const transporter = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        service: "gmail",
+        auth: {
+            user: process.env.EMAIL,
+            pass: process.env.EMAIL_PASSWORD,
+        },
+    });
+        const mailOptions = {
+            from: process.env.EMAIL,
+            to: email,
+            subject: 'Recuperar contraseña',
+            text: `Hola, para recuprar tu contraseña por favor has click en el siguiente enlace: ${link}.\n\nEste link tiene una expiración de 15 minutos.`,
+        };
+    
+    
+        await transporter.sendMail(mailOptions);
+
+}
 module.exports={
-    enivarCorreo
+    enivarContrasenia,
+    enviarRecoverLink
 }
