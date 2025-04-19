@@ -3,7 +3,9 @@ const Matricula = require('../models/matricula.models');
 const Asignacion = require('../models/asignacion.model');
 const Inscripcion = require('../models/inscripcion.model');
 const Materia = require('../models/materia.model');
-const { sequelize } = require('../config/sequelize.config')
+const Docente = require('../models/docente.model')
+const { sequelize } = require('../config/sequelize.config');
+
 
 const tienenDiasSolapados = (dias1, dias2) => {
     return dias1.some(dia => dias2.includes(dia));
@@ -134,18 +136,18 @@ const createInscripcion = async (req, res) => {
             include:
                 [{
                     model: Asignacion,
-                    
+
                 }]
 
         })
-         
-         const asignaciones = inscripciones.map((inscripcion) => {
+
+        const asignaciones = inscripciones.map((inscripcion) => {
             const inscripcionPlain = inscripcion.get({ plain: true }); // Convertimos la inscripción a un objeto plano
-          
-            
-          
+
+
+
             return inscripcionPlain.Asignacion;
-          });
+        });
 
         const conflicto = asignaciones.some(asig => {
             const hayDiasSolapados = tienenDiasSolapados(asig.dias, asignacionActual.dias);
@@ -160,7 +162,7 @@ const createInscripcion = async (req, res) => {
         });
 
         if (conflicto) {
-            return res.status(400).json({message: "Inscripción no válida por cruze de horarios"})
+            return res.status(400).json({ message: "Inscripción no válida por cruze de horarios" })
         }
 
         // Crear inscripción
@@ -229,7 +231,7 @@ const updateInscripcion = async (req, res) => {
                 return res.status(400).json({ message: errEncontrado.message });
             }
         }
-        
+
         if (error.name === "SequelizeUniqueConstraintError") {
             return res.status(400).json({ message: error.message })
         }
@@ -275,11 +277,11 @@ const getInscripcionesByMatricula = async (req, res) => {
 
     try {
         const matricula = req.params.matricula
-        
+
         if (!matricula || matricula === "undefined" || matricula.trim() === "") {
-            
+
             return res.status(400).json({ message: "No se seleccionó estudiante" });
-          }
+        }
         console.log("este es el id", matricula)
         const inscripciones = await Inscripcion.findAll({
             where: {
@@ -292,6 +294,7 @@ const getInscripcionesByMatricula = async (req, res) => {
                         model: Materia,
                         as: "materiaDetalle",
 
+
                     }]
                 }]
 
@@ -300,23 +303,23 @@ const getInscripcionesByMatricula = async (req, res) => {
         // Aplanamos los datos de las inscripciones
         const inscripcionesFinal = inscripciones.map((inscripcion) => {
             const inscripcionPlain = inscripcion.get({ plain: true }); // Convertimos la inscripción a un objeto plano
-          
+
             // Aplanamos las asignaciones dentro de la inscripción
             if (inscripcionPlain.Asignacion) {
-              // Ya estamos trabajando con un objeto plano, no necesitamos llamar a get
-              const asignacionPlain = inscripcionPlain.Asignacion;
-              
-              // Renombramos "materiaDetalle" a "Materia" si existe
-              if (asignacionPlain.materiaDetalle) {
-                asignacionPlain.Materia = asignacionPlain.materiaDetalle;
-                delete asignacionPlain.materiaDetalle; // Eliminamos la propiedad materiaDetalle
-              }
-          
-              inscripcionPlain.Asignacion = asignacionPlain;
+                // Ya estamos trabajando con un objeto plano, no necesitamos llamar a get
+                const asignacionPlain = inscripcionPlain.Asignacion;
+
+                // Renombramos "materiaDetalle" a "Materia" si existe
+                if (asignacionPlain.materiaDetalle) {
+                    asignacionPlain.Materia = asignacionPlain.materiaDetalle;
+                    delete asignacionPlain.materiaDetalle; // Eliminamos la propiedad materiaDetalle
+                }
+
+                inscripcionPlain.Asignacion = asignacionPlain;
             }
-          
+
             return inscripcionPlain;
-          });
+        });
 
         console.log("estas son las inscripciones", inscripcionesFinal)
 
@@ -324,6 +327,39 @@ const getInscripcionesByMatricula = async (req, res) => {
     } catch (error) {
         console.error("Error al obtener la inscripción", error)
         return res.status(500).json({ message: `Error al obtener la inscripción en el servidor:` })
+    }
+}
+const getInscripcionDocente = async (req, res) => {
+    try {
+        const docente = req.params.docente
+        const inscripciones = await Inscripcion.findAll({
+            include: [
+                {
+                    model: Asignacion,
+                    include: [{
+                        model: Materia,
+                        as: "materiaDetalle",
+                    },
+                    
+                    ],
+                    where:{
+                        nroCedula_docente: docente
+                    }
+                },
+                {
+                    model: Matricula,
+                    include: [{
+                        model: Estudiante,
+                    }]
+                }
+            ]
+        })
+        const result = inscripciones.map(inscripcion=>{
+            return inscripcion.get({plain:true})
+        })
+        return res.status(200).json(result)
+    } catch (error) {
+
     }
 }
 
@@ -334,6 +370,7 @@ module.exports = {
     deleteInscripcion,
     getInscripcion,
     getEstudiantesPorAsignacion,
-    getInscripcionesByMatricula
+    getInscripcionesByMatricula,
+    getInscripcionDocente
 
 }

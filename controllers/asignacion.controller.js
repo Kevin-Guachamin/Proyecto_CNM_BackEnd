@@ -41,11 +41,14 @@ const createAsignacion = async (req, res) => {
       }
     });
 
+    console.log("estas son las asignaciones",asignacionesDocente)
     function tienenDiasSolapados(dias1, dias2) {
+      console.log("estos son los días",dias1, dias2)
       return dias1.some(dia => dias2.includes(dia));
     }
 
     function tienenHorariosSolapados(horaInicioA, horaFinA, horaInicioB, horaFinB) {
+      console.log("estas son las horas",horaInicioA, horaFinA, horaInicioB, horaFinB)
       return horaInicioA < horaFinB && horaFinA > horaInicioB;
     }
 
@@ -251,9 +254,10 @@ const updateAsginacion = async (req, res) => {
 }
 const getAsignacion = async (req, res) => {
   try {
-    const { id } = req.params;
+    const id = req.params;
+    console.log("esto viene en el body",req.body)
 
-    const asignacion = await Asignacion.findByPk(id, {
+    const asignacion = await Asignacion.findCreateFind(id, {
       include: [
         {
           model: Docente,

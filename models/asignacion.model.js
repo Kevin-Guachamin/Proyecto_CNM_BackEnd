@@ -87,6 +87,7 @@ const Asignacion = sequelize.define("Asignacion", {
     cupos: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        defaultValue: 1,
         validate: {
             notEmpty: { msg: "No se permiten valores vacíos" },
             notNull: { msg: "No se permiten valores nulos" },
@@ -97,6 +98,7 @@ const Asignacion = sequelize.define("Asignacion", {
     cuposDisponibles: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        defaultValue:1,
         validate: {
             notEmpty: { msg: "No se permiten valores vacíos" },
             notNull: { msg: "No se permiten valores nulos" },

@@ -105,12 +105,14 @@ const getMatriculaByEstudiante = async(req, res)=>{
     try {
         const estudiante= req.params.estudiante
         const periodo=req.params.periodo
+        console.log("estos son los parametros",estudiante, periodo)
         const matricula = await Matricula.findOne({where:{
             ID_estudiante: estudiante,
             ID_periodo_academico: periodo
         }})
+        if(!matricula) return res.status(404).json({message: "No se encontro la matricula del estudiante"})
         
-        
+        console.log("esto se va a enviar",matricula)
         return res.status(200).json(matricula)
     } catch (error) {
         console.error("Error al obtener la matrícula", error)

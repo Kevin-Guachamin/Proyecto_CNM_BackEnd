@@ -6,4 +6,5 @@ module.exports= (app)=>{
     app.get('/materia/obtener/:id',Docente,MateriaController.getMateria)
     app.get('/materia/obtener',Docente,MateriaController.getMaterias)
     app.delete('/materia/eliminar/:id',docenteAdministrador,MateriaController.deleteMateria)
+    app.get('/materia/individual',Docente,MateriaController.getMateriasIndividuales)
 }

@@ -247,6 +247,7 @@ module.exports.DocenteANDReprsentante = async (req, res, next) => {
       let user = await Representante.findOne({ where: { nroCedula: decoded.id }, attributes: { exclude: ["password"] }, raw: true });
       if (!user) {
         user = await Docente.findOne({ where: { nroCedula: decoded.id }, attributes: { exclude: ["password"] }, raw: true });
+        console.log("este es el usuario",user)
         if (!user) {
           return res.status(400).json({ message: "Usuario no encontrado" });
         }
@@ -254,7 +255,7 @@ module.exports.DocenteANDReprsentante = async (req, res, next) => {
 
       req.user = user;
       req.user.rol = decoded.rol;
-
+      console.log("llego aca")
       return next();
     } catch (error) {
       console.error("Error en el middleware representante:", error.message);
