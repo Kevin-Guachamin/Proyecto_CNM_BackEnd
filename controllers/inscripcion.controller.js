@@ -259,7 +259,7 @@ const getInscripcion = async (req, res) => {
 
 const deleteInscripcion = async (req, res) => {
     try {
-
+        console.log("si me ejecuto")
         const id = req.params.id
         const inscripcion = await Inscripcion.findByPk(id)
         if (!inscripcion) {
@@ -329,40 +329,144 @@ const getInscripcionesByMatricula = async (req, res) => {
         return res.status(500).json({ message: `Error al obtener la inscripción en el servidor:` })
     }
 }
-const getInscripcionDocente = async (req, res) => {
+const getInscripcionesIndividualesDocente = async (req, res) => {
     try {
+        console.log("estoy aca")
         const docente = req.params.docente
-        const inscripciones = await Inscripcion.findAll({
+        const periodo = req.params.periodo
+        let { page, limit } = req.query;
+        page = parseInt(page)
+        limit = parseInt(limit)
+        console.log("este es el periodfgggo", periodo)
+        const { count, rows: inscripciones }= await Inscripcion.findAndCountAll({
+            limit,
+            offset: (page - 1) * limit,
             include: [
                 {
                     model: Asignacion,
                     include: [{
                         model: Materia,
                         as: "materiaDetalle",
+                        where:{
+                            tipo: "individual"
+                        }
                     },
-                    
+                    {
+                        model: Docente,
+                        attributes: ["primer_nombre", "primer_apellido"]
+                    }
+
                     ],
-                    where:{
+                    where: {
                         nroCedula_docente: docente
                     }
                 },
                 {
                     model: Matricula,
+                    where: {
+                        ID_periodo_academico: periodo
+                    },
                     include: [{
                         model: Estudiante,
                     }]
                 }
             ]
         })
-        const result = inscripciones.map(inscripcion=>{
-            return inscripcion.get({plain:true})
-        })
-        return res.status(200).json(result)
+        const inscripcionesFinal = inscripciones.map((inscripcion) => {
+            const inscripcionPlain = inscripcion.get({ plain: true }); // Convertimos la inscripción a un objeto plano
+
+            // Aplanamos las asignaciones dentro de la inscripción
+            if (inscripcionPlain.Asignacion) {
+                // Ya estamos trabajando con un objeto plano, no necesitamos llamar a get
+                const asignacionPlain = inscripcionPlain.Asignacion;
+
+                // Renombramos "materiaDetalle" a "Materia" si existe
+                if (asignacionPlain.materiaDetalle) {
+                    asignacionPlain.Materia = asignacionPlain.materiaDetalle;
+                    delete asignacionPlain.materiaDetalle; // Eliminamos la propiedad materiaDetalle
+                }
+
+                inscripcionPlain.Asignacion = asignacionPlain;
+            }
+
+            return inscripcionPlain;
+        });
+        return res.status(200).json({
+                data: inscripcionesFinal,
+                totalPages: Math.ceil(count / limit),
+                currentPage: page,
+                totalRows: count
+            });
     } catch (error) {
 
     }
 }
+const getInscripcionesIndividualesByNivel = async (req, res) => {
+    try {
+        const nivel = req.params.nivel
+        const periodo = req.params.periodo
+        let { page, limit } = req.query;
+        page = parseInt(page)
+        limit = parseInt(limit)
+        console.log("este es el periodo", periodo)
+        const { count, rows: inscripciones }= await Inscripcion.findAndCountAll({
+            include: [
+                {
+                    model: Asignacion,
+                    include: [{
+                        model: Materia,
+                        as: "materiaDetalle",
+                        where: {
+                            nivel: nivel,
+                            tipo:"individual"
+                        }
+                    },
+                    {
+                        model: Docente,
+                        attributes: ["primer_nombre", "primer_apellido"]
+                    }
+                    ]
+                },
+                {
+                    model: Matricula,
+                    where: {
+                        ID_periodo_academico: periodo
+                    },
+                    include: [{
+                        model: Estudiante,
+                    }]
+                }
+            ]
+        })
+        const inscripcionesFinal = inscripciones.map((inscripcion) => {
+            const inscripcionPlain = inscripcion.get({ plain: true }); // Convertimos la inscripción a un objeto plano
 
+            // Aplanamos las asignaciones dentro de la inscripción
+            if (inscripcionPlain.Asignacion) {
+                // Ya estamos trabajando con un objeto plano, no necesitamos llamar a get
+                const asignacionPlain = inscripcionPlain.Asignacion;
+
+                // Renombramos "materiaDetalle" a "Materia" si existe
+                if (asignacionPlain.materiaDetalle) {
+                    asignacionPlain.Materia = asignacionPlain.materiaDetalle;
+                    delete asignacionPlain.materiaDetalle; // Eliminamos la propiedad materiaDetalle
+                }
+
+                inscripcionPlain.Asignacion = asignacionPlain;
+            }
+
+            return inscripcionPlain;
+        });
+        return res.status(200).json({
+            data: inscripcionesFinal,
+            totalPages: Math.ceil(count / limit),
+            currentPage: page,
+            totalRows: count
+        });
+    } catch (error) {
+
+    }
+}
 
 module.exports = {
     createInscripcion,
@@ -371,6 +475,7 @@ module.exports = {
     getInscripcion,
     getEstudiantesPorAsignacion,
     getInscripcionesByMatricula,
-    getInscripcionDocente
+    getInscripcionesIndividualesDocente,
+    getInscripcionesIndividualesByNivel
 
 }

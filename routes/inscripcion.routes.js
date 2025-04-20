@@ -1,3 +1,4 @@
+const { InvalidConnectionError } = require('sequelize');
 const InscripcionController = require('../controllers/inscripcion.controller');
 const {DocenteANDReprsentante, docenteSecretaria,Docente}=require('../middlewares/protect')
 
@@ -8,5 +9,6 @@ module.exports = function(app) {
     app.delete('/inscripcion/eliminar/:id',DocenteANDReprsentante ,InscripcionController.deleteInscripcion)
     app.get('/inscripcion/asignacion/:id_asignacion', DocenteANDReprsentante,InscripcionController.getEstudiantesPorAsignacion)
     app.get('/inscripcion/obtener/matricula/:matricula',DocenteANDReprsentante,InscripcionController.getInscripcionesByMatricula),
-    app.get('/inscripcion/obtener/docente/:docente',Docente,InscripcionController.getInscripcionDocente)
+    app.get('/inscripcion/obtener/docente/:docente/:periodo',Docente,InscripcionController.getInscripcionesIndividualesDocente)
+    app.get(`/inscripcion/obtener/nivel/:periodo/:nivel`,Docente,InscripcionController.getInscripcionesIndividualesByNivel)
 }
