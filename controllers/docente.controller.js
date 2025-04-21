@@ -62,6 +62,7 @@ const editDocente= async (req, res)=>{
         const nroCedula= req.params.cedula
         // Si se está actualizando la password, hashearla
         if (docente.password) {
+            const salt = await bcrypt.genSalt(10);
             docente.password = await bcrypt.hash(docente.password, salt);
         }
 

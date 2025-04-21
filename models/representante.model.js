@@ -3,10 +3,15 @@ const {sequelize} = require('../config/sequelize.config')
 const Estudiante = require('./estudiante.model')
 
 const Representante = sequelize.define('Representante', {
+    ID: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+    },
     nroCedula: {
         type: DataTypes.STRING,
         allowNull: false,
-        primaryKey: true,
         unique: {msg: "La identificación del representante ya existe"},
         validate: {
             notNull: { msg: "La identificación es requerida" },

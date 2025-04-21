@@ -1,7 +1,8 @@
 const Representante = require('../models/representante.model');
 const crypto = require("crypto")
 const {enivarContrasenia}=require("../utils/enivarCorreo")
-const bcrypt = require("bcryptjs")
+const bcrypt = require("bcryptjs");
+const { where } = require('sequelize');
 // Create REPRESENTANTE
 const crearRepresentante = async (request, response) => {
     const usuario = request.body;
@@ -137,19 +138,20 @@ const updateRepresentante = async (request, response) => {
         }
 
         // Verificar si el representante existe
-        const representanteExistente = await Representante.findByPk(nroCedula);
+        const representanteExistente = await Representante.findOne( {where:{nroCedula: nroCedula }});
         if (!representanteExistente) {
             return response.status(404).json({ message: 'Usuario no encontrado!' });
         }
 
         // Si se está actualizando la password, hashearla
         if (usuario.password) {
+            const salt = await bcrypt.genSalt(10);
             usuario.password = await bcrypt.hash(usuario.password, salt);
         }
 
         // Actualizar el representante
         const [updatedRows] = await Representante.update(usuario, {
-            where: { nroCedula }
+            where: { nroCedula: nroCedula }
         });
 
         if (updatedRows === 0) {
@@ -157,7 +159,7 @@ const updateRepresentante = async (request, response) => {
         }
 
         // Obtener y retornar el representante actualizado
-        const representanteActualizado = await Representante.findByPk(nroCedula);
+        const representanteActualizado = await Representante.findByPk(representanteExistente.ID);
         const { password: _, ...result } = representanteActualizado.toJSON();
 
         return response.status(200).json(result);
@@ -201,7 +203,7 @@ const deleteRepresentante = async (request, response) => {
     const nroCedula = request.params.cedula;
 
     try {
-        const representante = await Representante.findByPk(nroCedula);
+        const representante = await Representante.findOne({where: {nroCedula: nroCedula}});
 
         if (!representante)
             return response.status(404).json({ message: 'Usuario no encontrado' });
