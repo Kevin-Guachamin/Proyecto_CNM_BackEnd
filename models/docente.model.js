@@ -8,7 +8,7 @@ const Docente = sequelize.define('Docente', {
         type: DataTypes.STRING,
         allowNull: false,
         primaryKey: true,
-        unique: {msg: "El"},
+        unique: {msg: "El nro de cédula debe ser único"},
         validate: {
             notNull: { msg: "El número de cédula es requerido" },
             notEmpty: { msg: "El número de cédula no puede estar vacío" },
