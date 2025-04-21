@@ -69,7 +69,7 @@ const editDocente = async (req, res) => {
             const salt = await bcrypt.genSalt(10);
             docente.password = await bcrypt.hash(docente.password, salt);
         }
-
+        
         const [updatedRows] = await Docente.update(docente, { where: { nroCedula } })
         if (updatedRows === 0) {
             return res.status(404).json({ message: "No se puedo actualizar el docente" })

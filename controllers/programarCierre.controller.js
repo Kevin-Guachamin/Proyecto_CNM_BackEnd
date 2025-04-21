@@ -3,7 +3,10 @@ const schedule = require('node-schedule');
 const Periodo = require('../models/periodo_academico.model')
 const { sequelize } = require('../config/sequelize.config')
 const { Op } = require("sequelize");
-
+function convertirFecha(fechaStr) {
+  const [dia, mes, anio] = fechaStr.split("/").map(Number);
+  return new Date(anio, mes - 1, dia); // mes - 1 porque en JS enero es 0
+}
 async function cerrarPeriodo(periodoId) {
   try {
     const periodo = await Periodo.findByPk(periodoId);
@@ -176,9 +179,12 @@ async function reprogramarPeriodosPendientes() {
       }
     }
   });
-
+  const periodosPlain = periodos.map(periodo=> {
+    return periodo.get({plain:true})
+  })
+  console.log("estos son los periodos",periodosPlain)
   for (const periodo of periodos) {
-    programarCierrePeriodo(periodo.id, periodo.fecha_fin);
+    programarCierrePeriodo(periodo.ID, convertirFecha(periodo.fecha_fin) );
   }
 }
 
