@@ -142,7 +142,7 @@ const updateRepresentante = async (request, response) => {
         if (!representanteExistente) {
             return response.status(404).json({ message: 'Usuario no encontrado!' });
         }
-
+        
         // Si se está actualizando la password, hashearla
         if (usuario.password) {
             const salt = await bcrypt.genSalt(10);
@@ -160,6 +160,14 @@ const updateRepresentante = async (request, response) => {
 
         // Obtener y retornar el representante actualizado
         const representanteActualizado = await Representante.findByPk(representanteExistente.ID);
+        if(usuario.email!==representanteExistente.email){
+            const provicional = crypto.randomBytes(8).toString('hex').slice(0, 8);
+            usuario.password = provicional
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(usuario.password, salt);
+            usuario.password=hashedPassword
+            enivarContrasenia(usuario.email,provicional)
+        }
         const { password: _, ...result } = representanteActualizado.toJSON();
 
         return response.status(200).json(result);
