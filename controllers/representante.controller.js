@@ -148,6 +148,14 @@ const updateRepresentante = async (request, response) => {
             const salt = await bcrypt.genSalt(10);
             usuario.password = await bcrypt.hash(usuario.password, salt);
         }
+        if(usuario.email!==representanteExistente.email){
+            const provicional = crypto.randomBytes(8).toString('hex').slice(0, 8);
+            usuario.password = provicional
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(usuario.password, salt);
+            usuario.password=hashedPassword
+            enivarContrasenia(usuario.email,provicional)
+        }
 
         // Actualizar el representante
         const [updatedRows] = await Representante.update(usuario, {
@@ -160,14 +168,7 @@ const updateRepresentante = async (request, response) => {
 
         // Obtener y retornar el representante actualizado
         const representanteActualizado = await Representante.findByPk(representanteExistente.ID);
-        if(usuario.email!==representanteExistente.email){
-            const provicional = crypto.randomBytes(8).toString('hex').slice(0, 8);
-            usuario.password = provicional
-            const salt = await bcrypt.genSalt(10);
-            const hashedPassword = await bcrypt.hash(usuario.password, salt);
-            usuario.password=hashedPassword
-            enivarContrasenia(usuario.email,provicional)
-        }
+        
         const { password: _, ...result } = representanteActualizado.toJSON();
 
         return response.status(200).json(result);

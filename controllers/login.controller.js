@@ -36,6 +36,7 @@ module.exports.login = async (req, res) => {
 
         // Si el usuario no existe en ninguna de las tablas
         if (!user) {
+            console.log("caigo aca")
             return res.status(401).json({ message: 'nroCedula o password incorrectos' });
         }
 
@@ -48,6 +49,7 @@ module.exports.login = async (req, res) => {
         }
 
         if (!isMatch) {
+            console.log("caigo por aca")
             return res.status(401).json({ message: 'nroCedula o password incorrectos' });
         }
 

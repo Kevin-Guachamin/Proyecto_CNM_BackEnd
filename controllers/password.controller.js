@@ -18,6 +18,7 @@ module.exports.validatePasswordChange = [
 module.exports.changePassword = async (req, res) => {
   const rol = req.user.rol
   console.log("este es el rol",rol)
+  console.log("este es el rol",rol)
   try {
 
     const errors = validationResult(req);
@@ -29,7 +30,7 @@ module.exports.changePassword = async (req, res) => {
       user = await Docente.findByPk(req.user.nroCedula);
 
     } else if (rol === "representante") {
-      user = await Representante.findByPk(req.user.nroCedula);
+      user = await Representante.findByPk(req.user.ID);
     }
     else {
       return res.status(400).json({ message: "Tipo de usuario no válido" });
