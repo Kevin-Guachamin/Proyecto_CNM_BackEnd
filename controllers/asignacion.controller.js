@@ -252,12 +252,12 @@ const updateAsginacion = async (req, res) => {
     
   }
 }
+
 const getAsignacion = async (req, res) => {
   try {
-    const id = req.params;
-    console.log("esto viene en el body",req.body)
+    const { id } = req.params;
 
-    const asignacion = await Asignacion.findCreateFind(id, {
+    const asignacion = await Asignacion.findByPk(id, {
       include: [
         {
           model: Docente,
