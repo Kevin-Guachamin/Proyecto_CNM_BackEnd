@@ -333,8 +333,10 @@ const getInscripcionesIndividualesDocente = async (req, res) => {
     try {
         console.log("estoy aca")
         const docente = req.params.docente
+        console.log("este es docente",docente)
         const periodo = req.params.periodo
         let { page, limit } = req.query;
+        console.log("esto es todo",docente,periodo,page, limit)
         page = parseInt(page)
         limit = parseInt(limit)
         console.log("este es el periodfgggo", periodo)
@@ -372,6 +374,7 @@ const getInscripcionesIndividualesDocente = async (req, res) => {
                 }
             ]
         })
+        console.log("estas son las inscripciones",inscripciones)
         const inscripcionesFinal = inscripciones.map((inscripcion) => {
             const inscripcionPlain = inscripcion.get({ plain: true }); // Convertimos la inscripción a un objeto plano
 
@@ -398,7 +401,8 @@ const getInscripcionesIndividualesDocente = async (req, res) => {
                 totalRows: count
             });
     } catch (error) {
-
+        console.error("Error al obtener las inscripciones", error)
+        return res.status(500).json({ message: `Error al obtener las inscripciones en el servidor:` })
     }
 }
 const getInscripcionesIndividualesByNivel = async (req, res) => {
@@ -438,6 +442,7 @@ const getInscripcionesIndividualesByNivel = async (req, res) => {
                 }
             ]
         })
+        
         const inscripcionesFinal = inscripciones.map((inscripcion) => {
             const inscripcionPlain = inscripcion.get({ plain: true }); // Convertimos la inscripción a un objeto plano
 
@@ -464,9 +469,12 @@ const getInscripcionesIndividualesByNivel = async (req, res) => {
             totalRows: count
         });
     } catch (error) {
-
+        console.error("Error al obtener las inscripciones", error)
+        return res.status(500).json({ message: `Error al obtener las inscripciones en el servidor:` })
     }
 }
+
+
 
 module.exports = {
     createInscripcion,

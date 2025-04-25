@@ -20,7 +20,7 @@ const mapearNivelEstudianteAMateria = (nivelEstudiante) => {
     "1ro Bachillerato": ["1ro BCH", "BCH", "BS BCH"],
     "2do Bachillerato": ["2do BCH", "BCH", "BS BCH"],
     "3ro Bachillerato": ["3ro BCH", "BCH", "BS BCH"],
-    
+
   };
 
   // Si el nivel del estudiante existe en el mapeo, devolvemos los niveles de materia correspondientes
@@ -41,14 +41,14 @@ const createAsignacion = async (req, res) => {
       }
     });
 
-    console.log("estas son las asignaciones",asignacionesDocente)
+
     function tienenDiasSolapados(dias1, dias2) {
-      console.log("estos son los días",dias1, dias2)
+      console.log("estos son los días", dias1, dias2)
       return dias1.some(dia => dias2.includes(dia));
     }
 
     function tienenHorariosSolapados(horaInicioA, horaFinA, horaInicioB, horaFinB) {
-      console.log("estas son las horas",horaInicioA, horaFinA, horaInicioB, horaFinB)
+      console.log("estas son las horas", horaInicioA, horaFinA, horaInicioB, horaFinB)
       return horaInicioA < horaFinB && horaFinA > horaInicioB;
     }
 
@@ -144,7 +144,7 @@ const createAsignacion = async (req, res) => {
         return res.status(400).json({ message: errEncontrado.message });
       }
     }
-   
+
 
 
     return res.status(500).json({ message: `Error al crear asignación en el servidor:` })
@@ -249,7 +249,7 @@ const updateAsginacion = async (req, res) => {
     }
 
     return res.status(500).json({ message: `Error al editar asignación en el servidor:` })
-    
+
   }
 }
 
@@ -265,7 +265,7 @@ const getAsignacion = async (req, res) => {
         },
         {
           model: Materia,
-          attributes: ["nombre","nivel"],
+          attributes: ["nombre", "nivel"],
           as: "materiaDetalle"
         },
         {
@@ -454,7 +454,7 @@ const getAsignacionesPorNivel = async (req, res) => {
       }
       return asignacionPlain;
     });
-    
+
     return res.json(asignacionesFinal);
   } catch (error) {
     console.error("Error al obtener asignaciones por nivel:", error);
@@ -464,65 +464,65 @@ const getAsignacionesPorNivel = async (req, res) => {
 const getAsignaciones = async (req, res) => {
   try {
     const periodo = req.params.periodo
-    let { page = 1, limit=13 } = req.query;
-        console.log("este es el limite que recibo", limit)
-        page = parseInt(page)
-        limit = parseInt(limit)
-        const { count, rows: asignaciones } = await Asignacion.findAndCountAll({
-            limit,
-            offset: (page - 1) * limit,
-            where: {
-              ID_periodo_academico: periodo,
-      
-            },
-            include: [
-      
-              {
-                model: Materia,
-                where: {
-                  tipo: { [Op.ne]: "individual" }
-                },
-                as: "materiaDetalle"
-              },
-              { model: Docente },
-              {
-                model: Periodo_Academico,
-                attributes: ["descripcion"]
-              }
-            ],
-            order: [
-              [
-                Sequelize.literal(`FIELD(materiaDetalle.nivel, 
+    let { page = 1, limit = 13 } = req.query;
+    console.log("este es el limite que recibo", limit)
+    page = parseInt(page)
+    limit = parseInt(limit)
+    const { count, rows: asignaciones } = await Asignacion.findAndCountAll({
+      limit,
+      offset: (page - 1) * limit,
+      where: {
+        ID_periodo_academico: periodo,
+
+      },
+      include: [
+
+        {
+          model: Materia,
+          where: {
+            tipo: { [Op.ne]: "individual" }
+          },
+          as: "materiaDetalle"
+        },
+        { model: Docente },
+        {
+          model: Periodo_Academico,
+          attributes: ["descripcion"]
+        }
+      ],
+      order: [
+        [
+          Sequelize.literal(`FIELD(materiaDetalle.nivel, 
                   '1ro BE', '2do BE', 
                   '1ro BM', '2do BM', '3ro BM', 
                   '1ro BS', '2do BS', '3ro BS', 
                   '1ro BCH', '2do BCH', '3ro BCH', 
                   'BCH', 'BM', 'BS', 'BS BCH')`),
-                'ASC'
-              ]
-            ]
-        })
-        
-        const asignacionesFinal = asignaciones.map((asignacion) => {
-          const asignacionPlain = asignacion.get({ plain: true }); // Convertimos el resultado a un objeto plano
-          // Eliminamos las contraseñas de los docentes
-          if (asignacionPlain.Docente) {
-            delete asignacionPlain.Docente.password;
-          }
-          // Renombramos Materium a Materia
-          if (asignacionPlain.materiaDetalle) {
-            asignacionPlain.Materia = asignacionPlain.materiaDetalle;
-            delete asignacionPlain.materiaDetalle;
-          }
-          return asignacionPlain;
-        });
-        return res.status(200).json({
-            data: asignacionesFinal,
-            totalPages: Math.ceil(count / limit),
-            currentPage: page,
-            totalRows: count
-        });
-   
+          'ASC'
+        ]
+      ]
+    })
+
+    const asignacionesFinal = asignaciones.map((asignacion) => {
+      const asignacionPlain = asignacion.get({ plain: true }); // Convertimos el resultado a un objeto plano
+      // Eliminamos las contraseñas de los docentes
+      if (asignacionPlain.Docente) {
+        delete asignacionPlain.Docente.password;
+      }
+      // Renombramos Materium a Materia
+      if (asignacionPlain.materiaDetalle) {
+        asignacionPlain.Materia = asignacionPlain.materiaDetalle;
+        delete asignacionPlain.materiaDetalle;
+      }
+      return asignacionPlain;
+    });
+    return res.status(200).json({
+      data: asignacionesFinal,
+      totalPages: Math.ceil(count / limit),
+      currentPage: page,
+      totalRows: count
+    });
+
   } catch (error) {
     console.error("Error al obtener asignaciones", error)
     return res.status(500).json({ message: `Error al obtener asignaciones en el servidor:` })
@@ -591,17 +591,17 @@ const getAsignacionesPorAsignatura = async (req, res) => {
 
     const ID = req.params.periodo
     const asignatura = req.params.materia
-    const nivelEstudiante=req.params.nivel
-    const jornada=req.params.jornada
+    const nivelEstudiante = req.params.nivel
+    const jornada = req.params.jornada
     let inicio
     let fin
-    if(jornada==="Matutina"){
-      inicio="07:00:00"
-      fin="12:15:00"
+    if (jornada === "Matutina") {
+      inicio = "07:00:00"
+      fin = "12:15:00"
     }
-    if(jornada==="Vespertina"){
-      inicio="14:30:00"
-      fin="19:00:00"
+    if (jornada === "Vespertina") {
+      inicio = "14:30:00"
+      fin = "19:00:00"
     }
 
     const nivelesMateria = mapearNivelEstudianteAMateria(nivelEstudiante);
@@ -609,8 +609,8 @@ const getAsignacionesPorAsignatura = async (req, res) => {
     const asignaciones = await Asignacion.findAll({
       where: {
         ID_periodo_academico: ID,
-        horaInicio: {[Op.gte]:inicio },
-        horaFin: {[Op.lte]:fin}
+        horaInicio: { [Op.gte]: inicio },
+        horaFin: { [Op.lte]: fin }
       },
       include: [
         {
@@ -644,14 +644,91 @@ const getAsignacionesPorAsignatura = async (req, res) => {
       }
       return asignacionPlain;
     });
-    
+
     return res.json(asignacionesFinal);
   } catch (error) {
     console.error("Error al obtener asignaciones por nivel:", error);
     return res.status(500).json({ message: "Error al obtener asignaciones en el servidor" });
   }
 }
+const getAsignacionesSinMatriculaPorDocente = async (req, res) => {
 
+  try {
+    const docente = req.params.docente
+    const periodo=req.params.periodo
+    const asignaciones = await Asignacion.findAll({
+      where: {
+        nroCedula_docente: docente,
+        '$Matriculas.id$': {
+          [Op.is]: null, // <- filtramos donde no hay relación
+        },
+        ID_periodo_academico:periodo
+      },
+      include:
+        [{
+          model: Matricula,
+          through: { attributes: [] },
+          required: false, // <- muy importante: permite LEFT JOIN
+        },
+        {
+          model: Materia,
+          as:"materiaDetalle",
+          where:{
+            tipo:"individual"
+          }
+        }
+      ]
+
+    })
+    // Aplanamos los datos de las inscripciones
+    const asignacionesFinal = asignaciones.map((asignacion) => {
+      return asignacion.get({ plain: true }); // Convertimos la inscripción a un objeto plano
+    });
+    return res.status(200).json(asignacionesFinal)
+  } catch (error) {
+    console.error("Error al obtener las asignaciones", error)
+    return res.status(500).json({ message: `Error al obtener las asignaciones en el servidor:` })
+  }
+}
+const getAsignacionesSinMatricula = async (req, res) => {
+
+  try {
+    const periodo = req.params.perido
+
+    const asignaciones = await Asignacion.findAll({
+      where: {
+        '$Matriculas.id$': {
+          [Op.is]: null, // <- filtramos donde no hay relación
+        },
+        ID_periodo_academico: periodo
+      },
+      include:
+        [{
+          model: Matricula,
+          through: { attributes: [] },
+          required: false, // <- muy importante: permite LEFT JOIN
+        },
+        {
+          model: Materia,
+          as:"materiaDetalle"
+        },
+        {
+          model: Docente,
+          attributes:["primer_nombre","primer_apellido"]
+        }
+      ]
+
+    })
+    // Aplanamos los datos de las inscripciones
+    const asignacionesFinal = asignaciones.map((asignacion) => {
+      return asignacion.get({ plain: true }); // Convertimos la inscripción a un objeto plano
+    });
+    return res.status(200).json(asignacionesFinal)
+  } catch (error) {
+    console.error("Error al obtener las asignaciones", error)
+    return res.status(500).json({ message: `Error al obtener las asignaciones en el servidor:` })
+  }
+}
 
 module.exports = {
   createAsignacion,
@@ -662,5 +739,7 @@ module.exports = {
   getAsignacionesPorNivel,
   getAsignaciones,
   getAsignacionesPorPeriodo,
-  getAsignacionesPorAsignatura
+  getAsignacionesPorAsignatura,
+  getAsignacionesSinMatriculaPorDocente,
+  getAsignacionesSinMatricula
 }

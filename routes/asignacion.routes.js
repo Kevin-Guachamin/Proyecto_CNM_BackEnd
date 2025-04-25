@@ -10,4 +10,6 @@ module.exports = (app) => {
     app.get('/asignacion/obtener/periodo/:periodo',DocenteVicerrectorANDSecretaria ,AsignacionController.getAsignaciones);
     app.get('/asignacion/obtener/periodo_academico/:periodo',DocenteVicerrectorANDSecretaria ,AsignacionController.getAsignacionesPorPeriodo);
     app.get('/asignacion/obtener/materias/:periodo/:nivel/:materia/:jornada', DocenteANDReprsentante,AsignacionController.getAsignacionesPorAsignatura);
+    app.get('/asignacion/obtener/docente/:docente/:periodo',Docente,AsignacionController.getAsignacionesSinMatriculaPorDocente),
+    app.get('/asignacion/obtener/sinMatricula/:periodo',docenteVicerrector,AsignacionController.getAsignacionesSinMatricula)
 }
