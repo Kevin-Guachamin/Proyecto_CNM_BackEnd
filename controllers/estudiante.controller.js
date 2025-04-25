@@ -230,6 +230,9 @@ const getEstudiantesByNivel = async (request, response) => {
         return response.status(500).json({ message: 'Error al obtener los estudiantes en el servidor' });
     }
 }
+// const getEstudiantesByNombre = async(req,res)=>{
+
+// }
 
 /**
  * Actualizar un estudiante
