@@ -84,7 +84,7 @@ const createAsignacion = async (req, res) => {
       ID_periodo_academico: asignacion.ID_periodo_academico,
       nroCedula_docente: asignacion.nroCedula_docente,
       ID_materia: asignacion.ID_materia,
-      cuposDisponibles: asignacion.cuposDisponibles
+      
     })
     const result = await Asignacion.findByPk(result1.ID, {
       include: [
@@ -693,14 +693,14 @@ const getAsignacionesSinMatriculaPorDocente = async (req, res) => {
 const getAsignacionesSinMatricula = async (req, res) => {
 
   try {
-    const periodo = req.params.perido
+    
 
     const asignaciones = await Asignacion.findAll({
       where: {
         '$Matriculas.id$': {
           [Op.is]: null, // <- filtramos donde no hay relación
         },
-        ID_periodo_academico: periodo
+        
       },
       include:
         [{

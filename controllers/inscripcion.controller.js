@@ -14,61 +14,7 @@ const tienenDiasSolapados = (dias1, dias2) => {
 const tienenHorariosSolapados = (horaInicioA, horaFinA, horaInicioB, horaFinB) => {
     return horaInicioA < horaFinB && horaFinA > horaInicioB;
 }
-const getEstudiantesPorAsignacion = async (req, res) => {
-    const { id_asignacion } = req.params;
 
-    try {
-        const inscripciones = await Inscripcion.findAll({
-            where: { ID_asignacion: id_asignacion },
-            include: [{
-                model: Matricula,
-                attributes: ['nivel'],
-                include: [{
-                    model: Estudiante,
-                    // Ajusta el nombre del PK real de tu modelo Estudiante (puede ser 'ID', 'id', etc.)
-                    attributes: ['ID', 'primer_nombre', 'segundo_nombre', 'primer_apellido', 'segundo_apellido']
-                }]
-            }]
-        });
-
-        const estudiantes = inscripciones
-            .map((insc) => {
-                const est = insc.Matricula?.Estudiante;
-                if (!est) return null;
-
-                const nivel = insc.Matricula?.nivel || "";
-                const nombreCompleto = [
-                    est.primer_apellido,
-                    est.segundo_apellido ?? '',
-                    est.primer_nombre,
-                    est.segundo_nombre ?? ''
-                ].join(' ');
-
-                return {
-                    // ID de la inscripción (clave para calificaciones)
-                    idInscripcion: insc.ID,
-                    // ID del estudiante (por si lo necesitas también)
-                    idEstudiante: est.ID,
-                    nombreCompleto,
-                    nivel
-                };
-            })
-            .filter(Boolean)
-            .sort((a, b) => a.nombreCompleto.localeCompare(b.nombreCompleto))
-            .map((est, index) => ({
-                nro: index + 1,
-                idInscripcion: est.idInscripcion,
-                idEstudiante: est.idEstudiante,
-                nombre: est.nombreCompleto,
-                nivel: est.nivel
-            }));
-
-        return res.status(200).json(estudiantes);
-    } catch (error) {
-        console.error("Error al obtener estudiantes por asignación", error);
-        return res.status(500).json({ message: "Error en el servidor" });
-    }
-};
 
 const createInscripcion = async (req, res) => {
     const t = await sequelize.transaction();
@@ -106,7 +52,7 @@ const createInscripcion = async (req, res) => {
             return res.status(404).json({ message: 'Asignación no encontrada' });
         }
 
-        if (asignacionActual.cuposDisponibles <= 0) {
+        if (asignacionActual.cupos <= 0) {
             await t.rollback();
             return res.status(400).json({ message: 'No hay cupos disponibles en esta asignación' });
         }
@@ -169,7 +115,7 @@ const createInscripcion = async (req, res) => {
         const nuevaInscripcion = await Inscripcion.create(inscripcion, { transaction: t });
 
         // Restar cupo
-        asignacionActual.cuposDisponibles -= 1;
+        asignacionActual.cupos -= 1;
         await asignacionActual.save({ transaction: t });
 
         await t.commit();
@@ -329,6 +275,61 @@ const getInscripcionesByMatricula = async (req, res) => {
         return res.status(500).json({ message: `Error al obtener la inscripción en el servidor:` })
     }
 }
+const getEstudiantesPorAsignacion = async (req, res) => {
+    const { id_asignacion } = req.params;
+
+    try {
+        const inscripciones = await Inscripcion.findAll({
+            where: { ID_asignacion: id_asignacion },
+            include: [{
+                model: Matricula,
+                attributes: ['nivel'],
+                include: [{
+                    model: Estudiante,
+                    // Ajusta el nombre del PK real de tu modelo Estudiante (puede ser 'ID', 'id', etc.)
+                    attributes: ['ID', 'primer_nombre', 'segundo_nombre', 'primer_apellido', 'segundo_apellido']
+                }]
+            }]
+        });
+
+        const estudiantes = inscripciones
+            .map((insc) => {
+                const est = insc.Matricula?.Estudiante;
+                if (!est) return null;
+
+                const nivel = insc.Matricula?.nivel || "";
+                const nombreCompleto = [
+                    est.primer_apellido,
+                    est.segundo_apellido ?? '',
+                    est.primer_nombre,
+                    est.segundo_nombre ?? ''
+                ].join(' ');
+
+                return {
+                    // ID de la inscripción (clave para calificaciones)
+                    idInscripcion: insc.ID,
+                    // ID del estudiante (por si lo necesitas también)
+                    idEstudiante: est.ID,
+                    nombreCompleto,
+                    nivel
+                };
+            })
+            .filter(Boolean)
+            .sort((a, b) => a.nombreCompleto.localeCompare(b.nombreCompleto))
+            .map((est, index) => ({
+                nro: index + 1,
+                idInscripcion: est.idInscripcion,
+                idEstudiante: est.idEstudiante,
+                nombre: est.nombreCompleto,
+                nivel: est.nivel
+            }));
+
+        return res.status(200).json(estudiantes);
+    } catch (error) {
+        console.error("Error al obtener estudiantes por asignación", error);
+        return res.status(500).json({ message: "Error en el servidor" });
+    }
+};
 const getInscripcionesIndividualesDocente = async (req, res) => {
     try {
         console.log("estoy aca")

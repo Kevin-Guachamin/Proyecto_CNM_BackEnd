@@ -95,17 +95,7 @@ const Asignacion = sequelize.define("Asignacion", {
             min: { args: 1, msg: "La cantidad mínima de cupos debe ser 1" }, // Valor mínimo
         }
     },
-    cuposDisponibles: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        defaultValue:1,
-        validate: {
-            notEmpty: { msg: "No se permiten valores vacíos" },
-            notNull: { msg: "No se permiten valores nulos" },
-            isInt: { msg: "Debe ser un número entero" },
-
-        }
-    }
+    
 },
     {
         tableName: "asignaciones"
