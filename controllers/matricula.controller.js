@@ -110,7 +110,7 @@ const getMatriculaByEstudiante = async(req, res)=>{
             ID_estudiante: estudiante,
             ID_periodo_academico: periodo
         }})
-        if(!matricula) return res.status(404).json({message: "No se encontro la matricula del estudiante"})
+        
         
         console.log("esto se va a enviar",matricula)
         return res.status(200).json(matricula)

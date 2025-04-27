@@ -37,6 +37,6 @@ Asignacion.belongsToMany(Matricula, { through: Inscripcion, foreignKey: { name: 
 
 // ➕ Relaciones directas para permitir include desde Inscripcion
 Inscripcion.belongsTo(Matricula, { foreignKey: {name: 'ID_matricula', allowNull:false} });
-Inscripcion.belongsTo(Asignacion, { foreignKey:{name:  'ID_asignacion', allowNull:false} ,Ondelete: "CASCADE"}, );
+Inscripcion.belongsTo(Asignacion, { foreignKey:{name:  'ID_asignacion', allowNull:false} ,onDelete: "CASCADE"}, );
 
 module.exports = Inscripcion;

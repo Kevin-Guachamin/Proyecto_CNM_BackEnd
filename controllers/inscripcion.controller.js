@@ -204,21 +204,48 @@ const getInscripcion = async (req, res) => {
 }
 
 const deleteInscripcion = async (req, res) => {
+    const t = await sequelize.transaction();
     try {
-        console.log("si me ejecuto")
-        const id = req.params.id
-        const inscripcion = await Inscripcion.findByPk(id)
-        if (!inscripcion) {
-            return res.status(404).json({ message: "Inscripción no encontrada" })
-        }
-        await Inscripcion.destroy({ where: { id } })
+        const id = req.params.id;
 
-        return res.status(200).json(inscripcion)
+        // Buscar la inscripción con su asignación relacionada, con bloqueo
+        const inscripcion = await Inscripcion.findByPk(id, {
+            include: {
+                model: Asignacion,
+                as: 'Asignacion'
+            },
+            transaction: t,
+            lock: t.LOCK.UPDATE
+        });
+
+        if (!inscripcion) {
+            await t.rollback();
+            return res.status(404).json({ message: 'Inscripción no encontrada' });
+        }
+
+        // Sumar 1 cupo a la asignación relacionada
+        if (inscripcion.Asignacion) {
+            inscripcion.Asignacion.cupos += 1;
+            await inscripcion.Asignacion.save({ transaction: t });
+        }
+
+        // Eliminar la inscripción
+        await Inscripcion.destroy({
+            where: { id },
+            transaction: t
+        });
+
+        await t.commit();
+        const inscripcionEliminada = inscripcion.get({ plain: true });
+        return res.status(200).json(inscripcionEliminada);
+
     } catch (error) {
-        console.error("Error al eliminar la inscripción", error)
-        return res.status(500).json({ message: `Error al eliminar la inscripción en el servidor:` })
+        await t.rollback();
+        console.error("Error al eliminar la inscripción:", error);
+        return res.status(500).json({ message: "Error en el servidor al eliminar la inscripción" });
     }
-}
+};
+
 const getInscripcionesByMatricula = async (req, res) => {
 
     try {

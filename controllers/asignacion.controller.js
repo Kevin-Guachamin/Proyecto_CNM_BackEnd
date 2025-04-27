@@ -84,7 +84,7 @@ const createAsignacion = async (req, res) => {
       ID_periodo_academico: asignacion.ID_periodo_academico,
       nroCedula_docente: asignacion.nroCedula_docente,
       ID_materia: asignacion.ID_materia,
-      
+
     })
     const result = await Asignacion.findByPk(result1.ID, {
       include: [
@@ -655,14 +655,15 @@ const getAsignacionesSinMatriculaPorDocente = async (req, res) => {
 
   try {
     const docente = req.params.docente
-    const periodo=req.params.periodo
+    const periodo = req.params.periodo
+    console.log("estos son el preiodo y el docente",docente,periodo)
     const asignaciones = await Asignacion.findAll({
       where: {
         nroCedula_docente: docente,
         '$Matriculas.id$': {
           [Op.is]: null, // <- filtramos donde no hay relación
         },
-        ID_periodo_academico:periodo
+        ID_periodo_academico: periodo
       },
       include:
         [{
@@ -672,18 +673,28 @@ const getAsignacionesSinMatriculaPorDocente = async (req, res) => {
         },
         {
           model: Materia,
-          as:"materiaDetalle",
-          where:{
-            tipo:"individual"
+          as: "materiaDetalle",
+          where: {
+            tipo: "individual"
           }
         }
-      ]
+        ]
 
     })
+    console.log("estas son las asignaciones",asignaciones)
     // Aplanamos los datos de las inscripciones
     const asignacionesFinal = asignaciones.map((asignacion) => {
-      return asignacion.get({ plain: true }); // Convertimos la inscripción a un objeto plano
+      const asignacionPlain = asignacion.get({ plain: true }); // Convertimos el resultado a un objeto plano
+      // Eliminamos las contraseñas de los docentes
+     
+      // Renombramos Materium a Materia
+      if (asignacionPlain.materiaDetalle) {
+        asignacionPlain.Materia = asignacionPlain.materiaDetalle;
+        delete asignacionPlain.materiaDetalle;
+      }
+      return asignacionPlain;
     });
+
     return res.status(200).json(asignacionesFinal)
   } catch (error) {
     console.error("Error al obtener las asignaciones", error)
@@ -693,14 +704,16 @@ const getAsignacionesSinMatriculaPorDocente = async (req, res) => {
 const getAsignacionesSinMatricula = async (req, res) => {
 
   try {
-    
 
-    const asignaciones = await Asignacion.findAll({
+    
+    
+    const  asignaciones  = await Asignacion.findAll({
+     
       where: {
         '$Matriculas.id$': {
           [Op.is]: null, // <- filtramos donde no hay relación
         },
-        
+
       },
       include:
         [{
@@ -710,20 +723,32 @@ const getAsignacionesSinMatricula = async (req, res) => {
         },
         {
           model: Materia,
-          as:"materiaDetalle"
+          as: "materiaDetalle"
         },
         {
           model: Docente,
-          attributes:["primer_nombre","primer_apellido"]
+          attributes: ["primer_nombre", "primer_apellido"]
         }
-      ]
+        ]
 
     })
     // Aplanamos los datos de las inscripciones
     const asignacionesFinal = asignaciones.map((asignacion) => {
-      return asignacion.get({ plain: true }); // Convertimos la inscripción a un objeto plano
+      const asignacionPlain = asignacion.get({ plain: true }); // Convertimos el resultado a un objeto plano
+      // Eliminamos las contraseñas de los docentes
+     
+      // Renombramos Materium a Materia
+      if (asignacionPlain.materiaDetalle) {
+        asignacionPlain.Materia = asignacionPlain.materiaDetalle;
+        delete asignacionPlain.materiaDetalle;
+      }
+      return asignacionPlain;
     });
-    return res.status(200).json(asignacionesFinal)
+    return res.status(200).json(
+       asignacionesFinal
+    );
+
+
   } catch (error) {
     console.error("Error al obtener las asignaciones", error)
     return res.status(500).json({ message: `Error al obtener las asignaciones en el servidor:` })
