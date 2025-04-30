@@ -100,66 +100,85 @@ const getMateria = async(req, res)=>{
         return res.status(500).json({message: `Error al obtener materia en el servidor:`})
     }
 }
-const getMaterias = async(req, res)=>{
+const getMaterias = async (req, res) => {
     try {
-
-        let { page, limit } = req.query;
-        console.log("estos son page y limit", page, limit)
-        if(page && limit){
-            console.log("supongo estoy aca")
-            page = parseInt(page)
-            limit = parseInt(limit)
-            const { count, rows: materias } = await Materia.findAndCountAll({
-                limit,
-                offset: (page - 1) * limit,
-                where:{
-                    tipo:"grupal"
-                },
-                order: [
-                    [
-                      Sequelize.literal(`FIELD(materia.nivel, 
-                        '1ro BE', '2do BE', 
-                        '1ro BM', '2do BM', '3ro BM', 
-                        '1ro BS', '2do BS', '3ro BS', 
-                        '1ro BCH', '2do BCH', '3ro BCH', 
-                        'BCH', 'BM', 'BS', 'BS BCH')`),
-                      'ASC'
-                    ]
-                  ]
-            })
-            console.log("esto se envia",materias)
-            
-            return res.status(200).json({
-                data: materias,
-                totalPages: Math.ceil(count / limit),
-                currentPage: page,
-                totalRows: count
-            });
+      let { page, limit } = req.query;
+      const search = req.query.search || '';
+  
+      console.log("estos son page y limit", page, limit);
+  
+      if (page && limit) {
+        console.log("supongo estoy aca");
+        page = parseInt(page);
+        limit = parseInt(limit);
+  
+        const whereConditions = {
+          tipo: "grupal",
+        };
+  
+        if (search.trim() !== '') {
+          whereConditions[Op.and] = [
+            Sequelize.where(
+              Sequelize.fn("LOWER", Sequelize.col("nombre")),
+              {
+                [Op.like]: `%${search.toLowerCase()}%`
+              }
+            ),
+          ];
         }
-        const materias  = await Materia.findAll({
-            where:{
-                tipo:"grupal"
-            },
-            order: [
-                [
-                  Sequelize.literal(`FIELD(materia.nivel, 
-                    '1ro BE', '2do BE', 
-                    '1ro BM', '2do BM', '3ro BM', 
-                    '1ro BS', '2do BS', '3ro BS', 
-                    '1ro BCH', '2do BCH', '3ro BCH', 
-                    'BCH', 'BM', 'BS', 'BS BCH')`),
-                  'ASC'
-                ]
-              ]
-        })
-      return res.status(200).json(materias)
-        
-        
+  
+        const { count, rows: materias } = await Materia.findAndCountAll({
+          limit,
+          offset: (page - 1) * limit,
+          where: whereConditions,
+          order: [
+            [
+              Sequelize.literal(`FIELD(materia.nivel, 
+                '1ro BE', '2do BE', 
+                '1ro BM', '2do BM', '3ro BM', 
+                '1ro BS', '2do BS', '3ro BS', 
+                '1ro BCH', '2do BCH', '3ro BCH', 
+                'BCH', 'BM', 'BS', 'BS BCH')`),
+              'ASC'
+            ]
+          ]
+        });
+  
+        console.log("esto se envia", materias);
+  
+        return res.status(200).json({
+          data: materias,
+          totalPages: Math.ceil(count / limit),
+          currentPage: page,
+          totalRows: count
+        });
+      }
+  
+      const materias = await Materia.findAll({
+        where: {
+          tipo: "grupal"
+        },
+        order: [
+          [
+            Sequelize.literal(`FIELD(materia.nivel, 
+              '1ro BE', '2do BE', 
+              '1ro BM', '2do BM', '3ro BM', 
+              '1ro BS', '2do BS', '3ro BS', 
+              '1ro BCH', '2do BCH', '3ro BCH', 
+              'BCH', 'BM', 'BS', 'BS BCH')`),
+            'ASC'
+          ]
+        ]
+      });
+  
+      return res.status(200).json(materias);
+  
     } catch (error) {
-        console.error("Error al obtener materias", error)
-        return res.status(500).json({message: `Error al obtener materias en el servidor:`})
+      console.error("Error al obtener materias", error);
+      return res.status(500).json({ message: `Error al obtener materias en el servidor:` });
     }
-}
+  };
+  
 const getMateriasIndividuales =async(req, res)=>{
     try {
         let { page , limit} = req.query;

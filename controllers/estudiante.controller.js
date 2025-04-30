@@ -1,9 +1,7 @@
 // Controlador para ESTUDIANTE
 const path = require("path");
 const Estudiante = require('../models/estudiante.model');
-const { Model } = require("sequelize");
-const { Representante } = require("../middlewares/protect");
-const Representantes=require('../models/representante.model')
+const Representantes = require('../models/representante.model')
 
 const crearEstudiante = async (request, res) => {
     const usuario = request.body;
@@ -18,7 +16,7 @@ const crearEstudiante = async (request, res) => {
 
 
         // Verificar que el estudiante no exista
-        const estudianteEncontrado = await Estudiante.findOne( {where: { nroCedula: usuario.nroCedula }} );
+        const estudianteEncontrado = await Estudiante.findOne({ where: { nroCedula: usuario.nroCedula } });
         console.log("este es el estudiante encontrado", estudianteEncontrado)
         if (estudianteEncontrado) {
             return res.status(409).json({ message: 'El estudiante ya existe' });
@@ -29,7 +27,7 @@ const crearEstudiante = async (request, res) => {
         usuario.matricula_IER_PDF = matriculaIERPath
         const anioActual = parseInt(new Date().getFullYear());
         usuario.anioMatricula = anioActual
-        usuario.nivel="1ro Básico Elemental"
+        usuario.nivel = "1ro Básico Elemental"
         console.log("esta es la objeto", usuario)
 
         const result = await Estudiante.create(usuario)
@@ -46,16 +44,16 @@ const crearEstudiante = async (request, res) => {
                 err.validatorKey === "isNumeric" ||
                 err.validatorKey === "len" ||
                 err.validatorKey === "is" ||
-                err.validatorKey ==="isOnlyLetters" ||
-                err.validatorKey ==="isIn" ||
-                err.validatorKey ==="is_null"
+                err.validatorKey === "isOnlyLetters" ||
+                err.validatorKey === "isIn" ||
+                err.validatorKey === "is_null"
             );
 
             if (errEncontrado) {
                 return res.status(400).json({ message: errEncontrado.message });
             }
         }
-       
+
         if (error.name === "SequelizeUniqueConstraintError") {
             return res.status(400).json({ message: error.message })
         }
@@ -84,7 +82,7 @@ const getRepresentanteEstudiante = async (request, response) => {
                 'segundo_nombre',
                 'primer_apellido',
                 'segundo_apellido',
-                'jornada', 
+                'jornada',
                 'especialidad',
                 'nivel',
                 'fecha_nacimiento',
@@ -117,7 +115,7 @@ const getEstudiante = async (request, response) => {
 
     try {
         const estudiante = await Estudiante.findByPk(ID);
-       
+
 
 
         return response.status(200).json(estudiante);
@@ -135,8 +133,8 @@ const getEstudianteByCedula = async (request, response) => {
     const cedula = request.params.cedula;
 
     try {
-        const estudiante = await Estudiante.findOne({where: {nroCedula: cedula}});
-        
+        const estudiante = await Estudiante.findOne({ where: { nroCedula: cedula } });
+
         return response.status(200).json(estudiante);
 
     } catch (error) {
@@ -154,16 +152,72 @@ const getEstudianteByCedula = async (request, response) => {
  */
 const getAllEstudiantes = async (request, response) => {
     try {
+        let { page = 1, limit = 10, search = '' } = request.query;
 
-        let { page = 1, limit = 10 } = request.query;
-        page = parseInt(page)
-        limit = parseInt(limit)
+        page = parseInt(page);
+        limit = parseInt(limit);
+
+        let whereConditions = {};
+
+        if (search.trim() !== '') {
+            const terms = search.trim().toLowerCase().split(/\s+/);
+
+            if (terms.length === 2) {
+                const [term1, term2] = terms;
+
+                whereConditions = {
+                    [Op.or]: [
+                        {
+                            [Op.and]: [
+                                Sequelize.where(
+                                    Sequelize.fn("LOWER", Sequelize.col("primer_nombre")),
+                                    { [Op.like]: `%${term1}%` }
+                                ),
+                                Sequelize.where(
+                                    Sequelize.fn("LOWER", Sequelize.col("apellido")),
+                                    { [Op.like]: `%${term2}%` }
+                                )
+                            ]
+                        },
+                        {
+                            [Op.and]: [
+                                Sequelize.where(
+                                    Sequelize.fn("LOWER", Sequelize.col("primer_nombre")),
+                                    { [Op.like]: `%${term2}%` }
+                                ),
+                                Sequelize.where(
+                                    Sequelize.fn("LOWER", Sequelize.col("apellido")),
+                                    { [Op.like]: `%${term1}%` }
+                                )
+                            ]
+                        }
+                    ]
+                };
+            } else {
+                // Una sola palabra, buscar en nombre o apellido
+                whereConditions = {
+                    [Op.or]: [
+                        Sequelize.where(
+                            Sequelize.fn("LOWER", Sequelize.col("primer_nombre")),
+                            { [Op.like]: `%${terms[0]}%` }
+                        ),
+                        Sequelize.where(
+                            Sequelize.fn("LOWER", Sequelize.col("apellido")),
+                            { [Op.like]: `%${terms[0]}%` }
+                        )
+                    ]
+                };
+            }
+        }
+
         const { count, rows: estudiantes } = await Estudiante.findAndCountAll({
             limit,
-            offset: (page - 1) * limit
-        })
+            offset: (page - 1) * limit,
+            where: whereConditions
+        });
+
         return response.status(200).json({
-            data: estudiantes,
+            estudiantes,
             totalPages: Math.ceil(count / limit),
             currentPage: page,
             totalRows: count
@@ -171,32 +225,29 @@ const getAllEstudiantes = async (request, response) => {
 
     } catch (error) {
         console.log('Error al obtener todos los estudiantes:', error);
-        if (error.name === 'SequelizeValidationError') {
-            const mensajes = error.errors.map(err => err.message);
-            return response.status(400).json({ message: mensajes });
-        }
         return response.status(500).json({ message: 'Error al obtener los estudiantes en el servidor' });
     }
-}
+};
+
 const getEstudiantesByNivel = async (request, response) => {
     try {
-        const {nivel} =request.params
-        console.log("este es el nivel",nivel)
+        const { nivel } = request.params
+        console.log("este es el nivel", nivel)
         let { page, limit } = request.query;
         page = parseInt(page)
         limit = parseInt(limit)
-        if(page && limit){
+        if (page && limit) {
             const { count, rows: estudiantes } = await Estudiante.findAndCountAll({
                 limit,
                 offset: (page - 1) * limit,
-                where:{
+                where: {
                     nivel: nivel
                 }
             }
 
 
-        )
-        
+            )
+
             return response.status(200).json({
                 data: estudiantes,
                 totalPages: Math.ceil(count / limit),
@@ -204,21 +255,21 @@ const getEstudiantesByNivel = async (request, response) => {
                 totalRows: count
             });
         }
-        const estudiantes= await Estudiante.findAll({
+        const estudiantes = await Estudiante.findAll({
             where: {
                 nivel: nivel
             },
-            include:[
+            include: [
                 {
                     model: Representantes,
-                    attributes: ["cedula_PDF","croquis_PDF"]
+                    attributes: ["cedula_PDF", "croquis_PDF"]
 
                 }
             ]
         })
-        if(estudiantes.length==0) return response.status(404).json({message:"No se encontro ningún estudiante"})
-        const result=estudiantes.map(estudiante=> estudiante.get({plain:true}))
-        console.log("este es el result",result)
+        if (estudiantes.length == 0) return response.status(404).json({ message: "No se encontro ningún estudiante" })
+        const result = estudiantes.map(estudiante => estudiante.get({ plain: true }))
+        console.log("este es el result", result)
         return response.status(200).json(result)
 
     } catch (error) {
@@ -277,29 +328,29 @@ const updateEstudiante = async (request, response) => {
                 err.validatorKey === "isNumeric" ||
                 err.validatorKey === "len" ||
                 err.validatorKey === "is" ||
-                err.validatorKey ==="isOnlyLetters" ||
-                err.validatorKey ==="isIn" ||
-                err.validatorKey ==="is_null"
+                err.validatorKey === "isOnlyLetters" ||
+                err.validatorKey === "isIn" ||
+                err.validatorKey === "is_null"
             );
 
             if (errEncontrado) {
                 return response.status(400).json({ message: errEncontrado.message });
             }
         }
-      
+
         if (error.name === "SequelizeUniqueConstraintError") {
             const errEncontrado = error.errors.find(err =>
-              err.validatorKey === "not_unique" 
-              
+                err.validatorKey === "not_unique"
+
             );
             if (errEncontrado) {
-              return res.status(400).json({ message: `${errEncontrado.path} debe ser único` });
+                return res.status(400).json({ message: `${errEncontrado.path} debe ser único` });
             }
-      
-          }
-          console.log("ESTE ES EL ERROR", error.name)
+
+        }
+        console.log("ESTE ES EL ERROR", error.name)
         return response.status(500).json({ message: `Error al editar estudiante en el servidor:` })
-        
+
     }
 }
 
@@ -309,7 +360,7 @@ const updateEstudiante = async (request, response) => {
 const deleteEstudiante = async (request, response) => {
     const ID = request.params.ID;
 
-    
+
 
     try {
         const estudiante = await Estudiante.findByPk(ID);
@@ -320,7 +371,8 @@ const deleteEstudiante = async (request, response) => {
         const rowsDeleted = await Estudiante.destroy({ where: { ID } });
 
         if (rowsDeleted > 0) {
-            return response.status(200).json({estudiante
+            return response.status(200).json({
+                estudiante
             });
         } else {
             return response.status(400).json({

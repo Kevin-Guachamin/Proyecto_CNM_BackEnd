@@ -2,7 +2,7 @@ const Representante = require('../models/representante.model');
 const crypto = require("crypto")
 const {enivarContrasenia}=require("../utils/enivarCorreo")
 const bcrypt = require("bcryptjs");
-const { where } = require('sequelize');
+
 // Create REPRESENTANTE
 const crearRepresentante = async (request, response) => {
     const usuario = request.body;
@@ -74,7 +74,7 @@ const getRepresentante = async (request, response) => {
             where: { nroCedula }
         });
         if (!representante)
-            return response.status(404).json({ message: 'Usuario no encontrado' });
+            return response.status(404).json({ message: 'Representante no encontrado' });
 
         const { password: _, ...result } = representante.toJSON(); // Omite la contrasena
         return response.status(200).json(result);
@@ -93,16 +93,71 @@ const getRepresentante = async (request, response) => {
 // Read todos los representantes
 const getAllRepresentantes = async (request, response) => {
     try {
-        let { page = 1, limit = 1 } = request.query;
-        page = parseInt(page)
-        limit = parseInt(limit)
+        let { page = 1, limit = 10, search = '' } = request.query;
+
+        page = parseInt(page);
+        limit = parseInt(limit);
+
+        let whereConditions = {};
+
+        if (search.trim() !== '') {
+            const terms = search.trim().toLowerCase().split(/\s+/);
+
+            if (terms.length === 2) {
+                const [term1, term2] = terms;
+                whereConditions = {
+                    [Op.or]: [
+                        {
+                            [Op.and]: [
+                                Sequelize.where(
+                                    Sequelize.fn("LOWER", Sequelize.col("nombre")),
+                                    { [Op.like]: `%${term1}%` }
+                                ),
+                                Sequelize.where(
+                                    Sequelize.fn("LOWER", Sequelize.col("apellido")),
+                                    { [Op.like]: `%${term2}%` }
+                                )
+                            ]
+                        },
+                        {
+                            [Op.and]: [
+                                Sequelize.where(
+                                    Sequelize.fn("LOWER", Sequelize.col("nombre")),
+                                    { [Op.like]: `%${term2}%` }
+                                ),
+                                Sequelize.where(
+                                    Sequelize.fn("LOWER", Sequelize.col("apellido")),
+                                    { [Op.like]: `%${term1}%` }
+                                )
+                            ]
+                        }
+                    ]
+                };
+            } else {
+                // Una sola palabra, buscar en ambos campos
+                whereConditions = {
+                    [Op.or]: [
+                        Sequelize.where(
+                            Sequelize.fn("LOWER", Sequelize.col("nombre")),
+                            { [Op.like]: `%${terms[0]}%` }
+                        ),
+                        Sequelize.where(
+                            Sequelize.fn("LOWER", Sequelize.col("apellido")),
+                            { [Op.like]: `%${terms[0]}%` }
+                        )
+                    ]
+                };
+            }
+        }
+
         const { count, rows: representantes } = await Representante.findAndCountAll({
             limit,
-            offset: (page - 1) * limit
-        })
+            offset: (page - 1) * limit,
+            where: whereConditions
+        });
 
-        const result = representantes.map(representante => {
-            const { password: _, ...rest } = representante.toJSON();
+        const result = representantes.map(rep => {
+            const { password: _, ...rest } = rep.toJSON();
             return rest;
         });
 
@@ -114,15 +169,10 @@ const getAllRepresentantes = async (request, response) => {
         });
 
     } catch (error) {
-        console.log('Error al obtener todos los representantes', error);
-        if (error.name === 'SequelizeValidationError') {
-            const mensajes = error.errors.map(err => err.message);
-            return response.status(400).json({ message: mensajes });
-        }
-
+        console.log('Error al obtener los representantes:', error);
         return response.status(500).json({ message: 'Error al obtener los representantes en el servidor' });
     }
-}
+};
 
 // Update REPRESENTANTE
 const updateRepresentante = async (request, response) => {
@@ -140,7 +190,7 @@ const updateRepresentante = async (request, response) => {
         // Verificar si el representante existe
         const representanteExistente = await Representante.findOne( {where:{nroCedula: nroCedula }});
         if (!representanteExistente) {
-            return response.status(404).json({ message: 'Usuario no encontrado!' });
+            return response.status(404).json({ message: 'Representante no encontrado' });
         }
         
         // Si se está actualizando la password, hashearla
@@ -215,7 +265,7 @@ const deleteRepresentante = async (request, response) => {
         const representante = await Representante.findOne({where: {nroCedula: nroCedula}});
 
         if (!representante)
-            return response.status(404).json({ message: 'Usuario no encontrado' });
+            return response.status(404).json({ message: 'Representante no encontrado' });
 
         const rowsDeleted = await Representante.destroy({ where: { nroCedula } });
 

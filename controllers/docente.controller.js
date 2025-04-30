@@ -127,7 +127,7 @@ const getDocente = async (req, res) => {
         const nroCedula = req.params.cedula
         const docente = await Docente.findByPk(nroCedula)
         if (!docente) {
-            return res.status(404).json({ message: "Usuario no encontrado" })
+            return res.status(404).json({ message: "Docente no encontrado" })
         }
 
         const { password: _, ...result } = docente.toJSON()
@@ -171,7 +171,7 @@ const eliminarDocente = async (req, res) => {
         const nroCedula = req.params.cedula
         const docente = await Docente.findByPk(nroCedula)
         if (!docente) {
-            return res.status(404).json({ message: "Usuario no encontrado" })
+            return res.status(404).json({ message: "Docente no encontrado" })
         }
         await Docente.destroy({ where: { nroCedula } })
         const { password: _, ...result } = docente.toJSON()

@@ -465,63 +465,84 @@ const getAsignaciones = async (req, res) => {
   try {
     const periodo = req.params.periodo
     let { page = 1, limit = 13 } = req.query;
-    console.log("este es el limite que recibo", limit)
-    page = parseInt(page)
-    limit = parseInt(limit)
-    const { count, rows: asignaciones } = await Asignacion.findAndCountAll({
-      limit,
-      offset: (page - 1) * limit,
-      where: {
-        ID_periodo_academico: periodo,
+    const search =req.query.search || "";
+   
 
-      },
-      include: [
+    if(page && limit){
+      page = parseInt(page)
+      limit = parseInt(limit)
+      const whereConditions={
+        ID_periodo_academico: periodo
+      }
+      const whereInclude={
+        tipo: { [Op.ne]: "individual" }
+      }
+      if (search.trim() !== '') {
+        whereInclude[Op.and] = [
+          Sequelize.where(
+            Sequelize.fn("LOWER", Sequelize.col("nombre")),
+            {
+              [Op.like]: `%${search.toLowerCase()}%`
+            }
+          )
+        ];
+      }
 
-        {
-          model: Materia,
-          where: {
-            tipo: { [Op.ne]: "individual" }
+      const { count, rows: asignaciones } = await Asignacion.findAndCountAll({
+        limit,
+        offset: (page - 1) * limit,
+        where: whereConditions,
+        include: [
+  
+          {
+            model: Materia,
+            where: {
+              whereInclude
+  
+            },
+            as: "materiaDetalle"
           },
-          as: "materiaDetalle"
-        },
-        { model: Docente },
-        {
-          model: Periodo_Academico,
-          attributes: ["descripcion"]
-        }
-      ],
-      order: [
-        [
-          Sequelize.literal(`FIELD(materiaDetalle.nivel, 
-                  '1ro BE', '2do BE', 
-                  '1ro BM', '2do BM', '3ro BM', 
-                  '1ro BS', '2do BS', '3ro BS', 
-                  '1ro BCH', '2do BCH', '3ro BCH', 
-                  'BCH', 'BM', 'BS', 'BS BCH')`),
-          'ASC'
+          { model: Docente },
+          {
+            model: Periodo_Academico,
+            attributes: ["descripcion"]
+          }
+        ],
+        order: [
+          [
+            Sequelize.literal(`FIELD(materiaDetalle.nivel, 
+                    '1ro BE', '2do BE', 
+                    '1ro BM', '2do BM', '3ro BM', 
+                    '1ro BS', '2do BS', '3ro BS', 
+                    '1ro BCH', '2do BCH', '3ro BCH', 
+                    'BCH', 'BM', 'BS', 'BS BCH')`),
+            'ASC'
+          ]
         ]
-      ]
-    })
-
-    const asignacionesFinal = asignaciones.map((asignacion) => {
-      const asignacionPlain = asignacion.get({ plain: true }); // Convertimos el resultado a un objeto plano
-      // Eliminamos las contraseñas de los docentes
-      if (asignacionPlain.Docente) {
-        delete asignacionPlain.Docente.password;
-      }
-      // Renombramos Materium a Materia
-      if (asignacionPlain.materiaDetalle) {
-        asignacionPlain.Materia = asignacionPlain.materiaDetalle;
-        delete asignacionPlain.materiaDetalle;
-      }
-      return asignacionPlain;
-    });
-    return res.status(200).json({
-      data: asignacionesFinal,
-      totalPages: Math.ceil(count / limit),
-      currentPage: page,
-      totalRows: count
-    });
+      })
+  
+      const asignacionesFinal = asignaciones.map((asignacion) => {
+        const asignacionPlain = asignacion.get({ plain: true }); // Convertimos el resultado a un objeto plano
+        // Eliminamos las contraseñas de los docentes
+        if (asignacionPlain.Docente) {
+          delete asignacionPlain.Docente.password;
+        }
+        // Renombramos Materium a Materia
+        if (asignacionPlain.materiaDetalle) {
+          asignacionPlain.Materia = asignacionPlain.materiaDetalle;
+          delete asignacionPlain.materiaDetalle;
+        }
+        return asignacionPlain;
+      });
+      return res.status(200).json({
+        data: asignacionesFinal,
+        totalPages: Math.ceil(count / limit),
+        currentPage: page,
+        totalRows: count
+      });
+    }
+    
+    return res.status(400).json({message: "No se ha definido limit ni page"})
 
   } catch (error) {
     console.error("Error al obtener asignaciones", error)
