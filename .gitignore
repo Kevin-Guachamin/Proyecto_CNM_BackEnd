@@ -1,3 +1,4 @@
 .env
 uploads
 utils/generarHash.js
+node_modules/
