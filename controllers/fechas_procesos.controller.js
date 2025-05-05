@@ -1,3 +1,4 @@
+const { Op } = require('sequelize')
 const Fechas_procesos = require('../models/fechas_procesos.model');
 
 // Crear nueva fecha de proceso
@@ -147,11 +148,58 @@ const fechaActual = (req, res) => {
     }
 };
 
+// Obtener la fecha mas proxima para un proceso
+const getFechaProximaActualizacion = async (req, res) => {
+	try {
+		const proceso = await Fechas_procesos.findOne({
+			where: {
+				// Se asume que el proceso se llama 'Actualizacion de datos' en la BD
+				// Si es que se va a llamar de otra forma, cambiar la consulta
+				proceso: 'Actualizacion de datos',
+				fecha_inicio: {
+					[Op.gte]: new Date(), // procesos que inician hoy o despues
+				},
+			},
+			order: [['fecha_inicio', 'ASC']], // el mas proximo primero
+		});
+
+		if (!proceso) {
+			return res.status(404).json({ message: 'No hay procesos de actualizacion proximos'});
+		}
+
+		const ID = proceso.ID;
+		const procesoString = proceso.proceso;
+
+		// Fechas del proceso formateadas
+		const fechaInicioProceso = new Date(proceso.fecha_inicio).toLocaleDateString('es-ES', {
+			year: 'numeric',
+			month: '2-digit',
+			day: '2-digit'
+		});
+		const fechaFinProceso = new Date(proceso.fecha_fin).toLocaleDateString('es-ES', {
+			year: 'numeric',
+			month: '2-digit',
+			day: '2-digit'
+		});
+
+		return res.status(200).json({
+			ID,
+			procesoString,
+			fechaInicioProceso,
+			fechaFinProceso
+		});
+	} catch (error) {
+		console.log('Error al obtener el proceso', erro);
+		return res.status(500).json({ message: 'Error al obtener la fecha de actualizacion mas proxima en el servidor'});
+	}	
+};
+
 module.exports = {
     createFechasProcesos,
     getFechasProcesos,
     getAllFechasProcesos,
     updateFechasProcesos,
     deleteFechasProcesos,
-    fechaActual
+    fechaActual,
+    getFechaProximaActualizacion
 };
