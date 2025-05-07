@@ -17,3 +17,6 @@ utils/generarHash.js
 # Archivos de undo persistente
 *.un~
 .*.un~
+
+node_modules/
+
