@@ -148,6 +148,22 @@ const fechaActual = (req, res) => {
     }
 };
 
+// Obtener fecha actual ISO del servidor
+const getFechaActualIso =  (req, res) => {
+    try {
+        const fecha = new Date().toISOString().split('T')[0];;
+        
+        return res.status(200).json({
+            message: 'Fecha actual obtenida exitosamente.',
+            fechaActual: fecha
+        });
+    } catch (error) {
+        console.log('Error al obtener la fecha actual:', error);
+        return res.status(500).json({ message: 'Error al obtener la fecha actual del servidor.' });
+    }
+};
+
+
 // Obtener la fecha mas proxima para un proceso
 const getFechaProximaActualizacion = async (req, res) => {
 	try {
@@ -171,18 +187,10 @@ const getFechaProximaActualizacion = async (req, res) => {
 		const procesoString = proceso.proceso;
 
 		// Fechas del proceso formateadas
-		const fechaInicioProceso = new Date(proceso.fecha_inicio).toLocaleDateString('es-ES', {
-			year: 'numeric',
-			month: '2-digit',
-			day: '2-digit'
-		});
-		const fechaFinProceso = new Date(proceso.fecha_fin).toLocaleDateString('es-ES', {
-			year: 'numeric',
-			month: '2-digit',
-			day: '2-digit'
-		});
+		const fechaInicioProceso = new Date(proceso.fecha_inicio).toISOString().split('T')[0]; 
+        const fechaFinProceso = new Date(proceso.fecha_fin).toISOString().split('T')[0];
 
-		return res.status(200).json({
+        return res.status(200).json({
 			ID,
 			procesoString,
 			fechaInicioProceso,
@@ -201,5 +209,6 @@ module.exports = {
     updateFechasProcesos,
     deleteFechasProcesos,
     fechaActual,
+    getFechaActualIso,
     getFechaProximaActualizacion
 };
