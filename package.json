@@ -25,5 +25,8 @@
     "nodemailer": "^6.10.0",
     "nodemon": "^3.1.9",
     "sequelize": "^6.37.5"
+  },
+  "devDependencies": {
+    "depcheck": "^1.4.7"
   }
 }
