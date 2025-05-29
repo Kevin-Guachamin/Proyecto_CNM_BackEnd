@@ -4,9 +4,9 @@ const {docenteSecretaria, DocenteANDReprsentante}=require('../middlewares/protec
 
 
 module.exports = (app) => {
-    app.post('/representante/crear',docenteSecretaria,upload.uploadRepresentantesFields ,RepresentanteController.crearRepresentante);
-    app.put('/representante/editar/:cedula',DocenteANDReprsentante,upload.uploadRepresentantesFields, RepresentanteController.updateRepresentante);
-    app.get('/representante/obtener/:cedula',DocenteANDReprsentante, RepresentanteController.getRepresentante);
-    app.get('/representante/obtener', DocenteANDReprsentante,RepresentanteController.getAllRepresentantes);
-    app.delete('/representante/eliminar/:cedula', docenteSecretaria,RepresentanteController.deleteRepresentante);
+    app.post('/api/representante/crear',docenteSecretaria,upload.uploadRepresentantesFields ,RepresentanteController.crearRepresentante);
+    app.put('/api/representante/editar/:cedula',DocenteANDReprsentante,upload.uploadRepresentantesFields, RepresentanteController.updateRepresentante);
+    app.get('/api/representante/obtener/:cedula',DocenteANDReprsentante, RepresentanteController.getRepresentante);
+    app.get('/api/representante/obtener', DocenteANDReprsentante,RepresentanteController.getAllRepresentantes);
+    app.delete('/api/representante/eliminar/:cedula', docenteSecretaria,RepresentanteController.deleteRepresentante);
 }

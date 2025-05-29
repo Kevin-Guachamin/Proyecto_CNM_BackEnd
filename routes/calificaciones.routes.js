@@ -7,44 +7,44 @@ const {docenteProfesor} = require('../middlewares/protect');
 
 module.exports = (app) => {
   // Rutas para Parciales
-  app.post('/parciales', docenteProfesor,ParcialesController.createParcial);
-  app.post('/parciales/bulk', docenteProfesor,ParcialesController.createParcialBulk);
-  app.get('/parciales/:id', ParcialesController.getParcial);
-  app.get('/parciales/asignacion/:id_asignacion', ParcialesController.getParcialesPorAsignacion);
-  app.get('/parciales/inscripcion/:id_inscripcion', ParcialesController.getParcialPorInscripcion);
-  app.put('/parciales/:id', docenteProfesor,ParcialesController.updateParcial);
-  app.delete('/parciales/:id', docenteProfesor,ParcialesController.deleteParcial);
+  app.post('/api/parciales', docenteProfesor,ParcialesController.createParcial);
+  app.post('/api/parciales/bulk', docenteProfesor,ParcialesController.createParcialBulk);
+  app.get('/api/parciales/:id', ParcialesController.getParcial);
+  app.get('/api/parciales/asignacion/:id_asignacion', ParcialesController.getParcialesPorAsignacion);
+  app.get('/api/parciales/inscripcion/:id_inscripcion', ParcialesController.getParcialPorInscripcion);
+  app.put('/api/parciales/:id', docenteProfesor,ParcialesController.updateParcial);
+  app.delete('/api/parciales/:id', docenteProfesor,ParcialesController.deleteParcial);
 
   // Rutas para Quimestrales
-  app.post('/quimestrales', docenteProfesor,QuimestresController.createQuimestral);
-  app.post('/quimestrales/bulk', docenteProfesor,QuimestresController.createQuimestralBulk);
-  app.get('/quimestrales/:id', QuimestresController.getQuimestral);
-  app.get('/quimestrales/asignacion/:id_asignacion', QuimestresController.getQuimestralesPorAsignacion);
-  app.put('/quimestrales/:id', docenteProfesor,QuimestresController.updateQuimestral);
-  app.delete('/quimestrales/:id', docenteProfesor,QuimestresController.deleteQuimestral); 
+  app.post('/api/quimestrales', docenteProfesor,QuimestresController.createQuimestral);
+  app.post('/api/quimestrales/bulk', docenteProfesor,QuimestresController.createQuimestralBulk);
+  app.get('/api/quimestrales/:id', QuimestresController.getQuimestral);
+  app.get('/api/quimestrales/asignacion/:id_asignacion', QuimestresController.getQuimestralesPorAsignacion);
+  app.put('/api/quimestrales/:id', docenteProfesor,QuimestresController.updateQuimestral);
+  app.delete('/api/quimestrales/:id', docenteProfesor,QuimestresController.deleteQuimestral); 
   
   // Ruta para el Reporte Final Anual
-  app.post('/finales', docenteProfesor,FinalController.createFinal);
-  app.post('/finales/bulk', docenteProfesor,FinalController.createFinalBulk);
-  app.get('/finales/:id', FinalController.getFinal);
-  app.get('/finales/asignacion/:id_asignacion', FinalController.getFinalesPorAsignacion);
-  app.put('/finales/:id', docenteProfesor,FinalController.updateFinal);
-  app.delete('/finales/:id', docenteProfesor,FinalController.deleteFinal);
+  app.post('/api/finales', docenteProfesor,FinalController.createFinal);
+  app.post('/api/finales/bulk', docenteProfesor,FinalController.createFinalBulk);
+  app.get('/api/finales/:id', FinalController.getFinal);
+  app.get('/api/finales/asignacion/:id_asignacion', FinalController.getFinalesPorAsignacion);
+  app.put('/api/finales/:id', docenteProfesor,FinalController.updateFinal);
+  app.delete('/api/finales/:id', docenteProfesor,FinalController.deleteFinal);
 
   // Rutas para Parciales BE
-  app.post('/parcialesbe', ParcialesControllerBE.createParcialBE);
-  app.post('/parcialesbe/bulk', ParcialesControllerBE.createParcialBEBulk);
-  app.get('/parcialesbe/:id', ParcialesControllerBE.getParcialBE);
-  app.get('/parcialesbe/asignacion/:id_asignacion', ParcialesControllerBE.getParcialesBEPorAsignacion);
-  app.get('/parcialesbe/inscripcion/:id_inscripcion', ParcialesControllerBE.getParcialBEPorInscripcion);
-  app.put('/parcialesbe/:id', ParcialesControllerBE.updateParcialBE);
-  app.delete('/parcialesbe/:id', ParcialesControllerBE.deleteParcialBE);
+  app.post('/api/parcialesbe', ParcialesControllerBE.createParcialBE);
+  app.post('/api/parcialesbe/bulk', ParcialesControllerBE.createParcialBEBulk);
+  app.get('/api/parcialesbe/:id', ParcialesControllerBE.getParcialBE);
+  app.get('/api/parcialesbe/asignacion/:id_asignacion', ParcialesControllerBE.getParcialesBEPorAsignacion);
+  app.get('/api/parcialesbe/inscripcion/:id_inscripcion', ParcialesControllerBE.getParcialBEPorInscripcion);
+  app.put('/api/parcialesbe/:id', ParcialesControllerBE.updateParcialBE);
+  app.delete('/api/parcialesbe/:id', ParcialesControllerBE.deleteParcialBE);
 
   // Rutas para Quimestrales BE
-  app.post('/quimestralesbe', QuimestresControllerBE.createQuimestralBE);
-  app.post('/quimestralesbe/bulk', QuimestresControllerBE.createQuimestralBulkBE);
-  app.get('/quimestralesbe/:id', QuimestresControllerBE.getQuimestralBE);
-  app.get('/quimestralesbe/asignacion/:id_asignacion', QuimestresControllerBE.getQuimestralesPorAsignacionBE);
-  app.put('/quimestralesbe/:id', QuimestresControllerBE.updateQuimestralBE);
-  app.delete('/quimestralesbe/:id', QuimestresControllerBE.deleteQuimestralBE);
+  app.post('/api/quimestralesbe', QuimestresControllerBE.createQuimestralBE);
+  app.post('/api/quimestralesbe/bulk', QuimestresControllerBE.createQuimestralBulkBE);
+  app.get('/api/quimestralesbe/:id', QuimestresControllerBE.getQuimestralBE);
+  app.get('/api/quimestralesbe/asignacion/:id_asignacion', QuimestresControllerBE.getQuimestralesPorAsignacionBE);
+  app.put('/api/quimestralesbe/:id', QuimestresControllerBE.updateQuimestralBE);
+  app.delete('/api/quimestralesbe/:id', QuimestresControllerBE.deleteQuimestralBE);
 };

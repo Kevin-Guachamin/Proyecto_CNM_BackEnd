@@ -3,12 +3,12 @@ const InscripcionController = require('../controllers/inscripcion.controller');
 const {DocenteANDReprsentante, docenteSecretaria,Docente}=require('../middlewares/protect')
 
 module.exports = function(app) {
-    app.post('/inscripcion/crear', DocenteANDReprsentante,InscripcionController.createInscripcion)
-    app.put('/inscripcion/editar/:id',docenteSecretaria ,InscripcionController.updateInscripcion)
-    app.get('/inscripcion/obtener/:id', DocenteANDReprsentante,InscripcionController.getInscripcion)
-    app.delete('/inscripcion/eliminar/:id',DocenteANDReprsentante ,InscripcionController.deleteInscripcion)
-    app.get('/inscripcion/asignacion/:id_asignacion', DocenteANDReprsentante,InscripcionController.getEstudiantesPorAsignacion)
-    app.get('/inscripcion/obtener/matricula/:matricula',DocenteANDReprsentante,InscripcionController.getInscripcionesByMatricula),
-    app.get('/inscripcion/obtener/docente/:docente/:periodo',Docente,InscripcionController.getInscripcionesIndividualesDocente)
-    app.get(`/inscripcion/obtener/nivel/:periodo/:nivel`,Docente,InscripcionController.getInscripcionesIndividualesByNivel)
+    app.post('/api/inscripcion/crear', DocenteANDReprsentante,InscripcionController.createInscripcion)
+    app.put('/api/inscripcion/editar/:id',docenteSecretaria ,InscripcionController.updateInscripcion)
+    app.get('/api/inscripcion/obtener/:id', DocenteANDReprsentante,InscripcionController.getInscripcion)
+    app.delete('/api/inscripcion/eliminar/:id',DocenteANDReprsentante ,InscripcionController.deleteInscripcion)
+    app.get('/api/inscripcion/asignacion/:id_asignacion', DocenteANDReprsentante,InscripcionController.getEstudiantesPorAsignacion)
+    app.get('/api/inscripcion/obtener/matricula/:matricula',DocenteANDReprsentante,InscripcionController.getInscripcionesByMatricula),
+    app.get('/api/inscripcion/obtener/docente/:docente/:periodo',Docente,InscripcionController.getInscripcionesIndividualesDocente)
+    app.get(`/api/inscripcion/obtener/nivel/:periodo/:nivel`,Docente,InscripcionController.getInscripcionesIndividualesByNivel)
 }

@@ -3,6 +3,6 @@ const {DocenteANDReprsentante,docenteSecretaria}=require('../middlewares/protect
 
 
 module.exports = (app) => {
-    app.get('/download/:folder/:filename',DocenteANDReprsentante,DownlodadController.getFile)
-    app.post('/download-zip',docenteSecretaria,DownlodadController.getFilesAsZip)
+    app.get('/api/download/:folder/:filename',DocenteANDReprsentante,DownlodadController.getFile)
+    app.post('/api/download-zip',docenteSecretaria,DownlodadController.getFilesAsZip)
 }
