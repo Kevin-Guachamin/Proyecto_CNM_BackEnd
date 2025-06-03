@@ -8,7 +8,8 @@ const hostName = 'localhost'
 // Conectar a la base de datos específica y sincronizar modelos
 const sequelize = new Sequelize(db_name, username, password, {
     host: hostName,
-    dialect: 'mysql'
+    dialect: 'mysql',
+    port: process.env.DB_PORT || 3306,
 });
 const conexion =async()=>{
     try {
