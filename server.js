@@ -31,7 +31,7 @@ const startServer = async () => {
         console.log(mensaje);
 
         // Una vez sincronizada, inicia el servidor
-        app.listen(port, () => {
+        app.listen(port, "0.0.0.0",() => {
             console.log("Server listening at port", port);
         });
     } catch (error) {
