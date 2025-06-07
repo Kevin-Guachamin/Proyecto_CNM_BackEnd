@@ -37,7 +37,7 @@ module.exports.login = async (req, res) => {
         // Si el usuario no existe en ninguna de las tablas
         if (!user) {
             console.log("caigo aca")
-            return res.status(401).json({ message: 'Cédula o contraseña incorrectos' });
+            return res.status(401).json({ message: 'Cédula  incorrectos' });
         }
 
         // Verificar la password
@@ -50,7 +50,7 @@ module.exports.login = async (req, res) => {
 
         if (!isMatch) {
             console.log("caigo por aca")
-            return res.status(401).json({ message: 'Cédula o contraseña incorrectos' });
+            return res.status(401).json({ message: 'contraseña incorrectos' });
         }
 
         // Excluir la password de la respuesta
