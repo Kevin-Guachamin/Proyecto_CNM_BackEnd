@@ -31,7 +31,7 @@ const startServer = async () => {
         console.log(mensaje);
 
         // Una vez sincronizada, inicia el servidor
-        const [results] = await sequelize.query("SHOW TABLES");
+        const [results] = await sequelize.sequelize.query("SHOW TABLES");
         console.log("Tablas disponibles:", results);
         app.listen(port, "0.0.0.0", () => {
             console.log("Server listening at port", port);
