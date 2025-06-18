@@ -9,20 +9,19 @@ const Representante = sequelize.define('Representante', {
         autoIncrement: true,
         primaryKey: true,
     },
-    nroCedula: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: {msg: "La identificación del representante ya existe"},
-        validate: {
-            notNull: { msg: "La identificación es requerida" },
-            notEmpty: { msg: "La identifiación no puede estar vacío" },
-            is: {
-                args: /^[A-Z0-9]{7,10}$/i,
-                msg: "La identificación debe tener entre 7 y 10 caracteres alfanuméricos"
-              }
-        
+   nroCedula: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: { msg: "La identificación del estudiante ya existe" },
+    validate: {
+        notNull: { msg: "La identificación es requerida" },
+        notEmpty: { msg: "La identificación no puede estar vacía" },
+        is: {
+            args: /^[0-9]{7,10}$/,
+            msg: "La identificación debe tener entre 7 y 10 dígitos numéricos"
         }
-    },
+    }
+},
     primer_nombre: {
         type: DataTypes.STRING,
         allowNull: false,

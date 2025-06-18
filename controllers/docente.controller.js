@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs")
 const Docente = require('../models/docente.model')
 const crypto = require("crypto")
 const { enivarContrasenia } = require("../utils/enivarCorreo")
+const { Op, Sequelize } = require('sequelize'); // Asegúrate de tenerlo al inicio
 
 const createDocente = async (req, res) => {
     try {
@@ -139,31 +140,82 @@ const getDocente = async (req, res) => {
 }
 const getDocentes = async (req, res) => {
     try {
-        let { page, limit } = req.query;
-        if (page && limit) {
-            page = parseInt(page)
-            limit = parseInt(limit)
-            const { count, rows: docentes } = await Docente.findAndCountAll({
-                limit,
-                offset: (page - 1) * limit,
-            })
+        let { page = 1, limit = 10, search = '' } = req.query;
 
-            return res.status(200).json({
-                data: docentes,
-                totalPages: Math.ceil(count / limit),
-                currentPage: page,
-                totalRows: count
-            });
+        page = parseInt(page);
+        limit = parseInt(limit);
+
+        let whereConditions = {};
+
+        if (search.trim() !== '') {
+            const terms = search.trim().toLowerCase().split(/\s+/);
+
+            if (terms.length === 2) {
+                const [term1, term2] = terms;
+
+                whereConditions = {
+                    [Op.or]: [
+                        {
+                            [Op.and]: [
+                                Sequelize.where(
+                                    Sequelize.fn("LOWER", Sequelize.col("primer_nombre")),
+                                    { [Op.like]: `%${term1}%` }
+                                ),
+                                Sequelize.where(
+                                    Sequelize.fn("LOWER", Sequelize.col("apellido")),
+                                    { [Op.like]: `%${term2}%` }
+                                )
+                            ]
+                        },
+                        {
+                            [Op.and]: [
+                                Sequelize.where(
+                                    Sequelize.fn("LOWER", Sequelize.col("primer_nombre")),
+                                    { [Op.like]: `%${term2}%` }
+                                ),
+                                Sequelize.where(
+                                    Sequelize.fn("LOWER", Sequelize.col("apellido")),
+                                    { [Op.like]: `%${term1}%` }
+                                )
+                            ]
+                        }
+                    ]
+                };
+            } else {
+                // Solo un término, buscar en ambos campos
+                whereConditions = {
+                    [Op.or]: [
+                        Sequelize.where(
+                            Sequelize.fn("LOWER", Sequelize.col("primer_nombre")),
+                            { [Op.like]: `%${terms[0]}%` }
+                        ),
+                        Sequelize.where(
+                            Sequelize.fn("LOWER", Sequelize.col("apellido")),
+                            { [Op.like]: `%${terms[0]}%` }
+                        )
+                    ]
+                };
+            }
         }
-        const docentes = await Docente.findAll()
-        return res.status(200).json(docentes)
+
+        const { count, rows: docentes } = await Docente.findAndCountAll({
+            limit,
+            offset: (page - 1) * limit,
+            where: whereConditions
+        });
+
+        return res.status(200).json({
+            data: docentes,
+            totalPages: Math.ceil(count / limit),
+            currentPage: page,
+            totalRows: count
+        });
 
     } catch (error) {
-        console.log("el error es aquí")
-        console.error("Error al obtener docentes", error)
-        return res.status(500).json({ message: `Error al obtener docentes en el servidor:` })
+        console.error("Error al obtener docentes", error);
+        return res.status(500).json({ message: `Error al obtener docentes en el servidor:` });
     }
-}
+};
 
 const eliminarDocente = async (req, res) => {
     try {

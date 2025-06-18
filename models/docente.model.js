@@ -4,20 +4,20 @@ const {sequelize} = require('../config/sequelize.config')
 
 
 const Docente = sequelize.define('Docente', {
-    nroCedula: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        primaryKey: true,
-        unique: {msg: "El nro de cédula debe ser único"},
-        validate: {
-            notNull: { msg: "El número de cédula es requerido" },
-            notEmpty: { msg: "El número de cédula no puede estar vacío" },
-            is: {
-                args: /^[A-Z0-9]{7,10}$/i,
-                msg: "La identificación debe tener entre 7 y 10 caracteres alfanuméricos"
-              }
+   nroCedula: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    primaryKey:true,
+    unique: { msg: "La identificación del estudiante ya existe" },
+    validate: {
+        notNull: { msg: "La identificación es requerida" },
+        notEmpty: { msg: "La identificación no puede estar vacía" },
+        is: {
+            args: /^[0-9]{7,10}$/,
+            msg: "La identificación debe tener entre 7 y 10 dígitos numéricos"
         }
-    },
+    }
+},
     primer_nombre: {
         type: DataTypes.STRING,
         allowNull: false,

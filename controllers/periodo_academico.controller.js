@@ -1,5 +1,6 @@
 const Periodo = require('../models/periodo_academico.model');
 const {programarCierrePeriodo} = require('./programarCierre.controller')
+const { Op, Sequelize } = require("sequelize");
 
 const createPeriodo = async (req, res) => {
     try {
@@ -10,6 +11,9 @@ const createPeriodo = async (req, res) => {
             return res.status(409).json({ message: "Error la periodo ya existe" })
         }
         console.log("este es el periodo a crear", periodo_academico)
+        if(periodo_academico.fecha_fin<=periodo_academico.fecha_inicio){
+            return res.status(400).json({message: "La fecha fin debe ser mayor que la fecha de inicio"})
+        }
         const result = await Periodo.create(periodo_academico)
        programarCierrePeriodo(result.ID,result.fecha_fin)
         
@@ -49,6 +53,10 @@ const updatePeriodo= async (req, res)=>{
     try {
         const periodo = req.body
         const id= req.params.id
+        console.log("este es el periodo a editar", periodo)
+        if(periodo.fecha_fin<=periodo.fecha_inicio){
+            return res.status(400).json({message: "La fecha fin debe ser mayor que la fecha de inicio"})
+        }
         const [updatedRows] = await Periodo.update(periodo,{where: {id}})
         if(updatedRows===0){
             return res.status(404).json({message: "Periodo no encontrada"})
@@ -120,30 +128,42 @@ const getPeriodoActivo = async(req, res)=>{
        return  res.status(500).json({message: `Error al obtener periodo en el servidor`})
     }
 }
-const getPeriodos = async(req, res)=>{
+const getPeriodos = async (req, res) => {
     try {
-        let { page = 1, limit=13 } = req.query;
-        console.log("este es el limite que recibo", limit)
-        page = parseInt(page)
-        limit = parseInt(limit)
+        let { page = 1, limit = 13, search = '' } = req.query;
+
+        page = parseInt(page);
+        limit = parseInt(limit);
+
+        let whereConditions = {};
+
+        if (search.trim() !== '') {
+            const term = search.trim().toLowerCase();
+
+            whereConditions = Sequelize.where(
+                Sequelize.fn("LOWER", Sequelize.col("descripcion")),
+                { [Op.like]: `%${term}%` }
+            );
+        }
+
         const { count, rows: periodos } = await Periodo.findAndCountAll({
             limit,
             offset: (page - 1) * limit,
-        })
-        
+            where: whereConditions
+        });
+
         return res.status(200).json({
             data: periodos,
             totalPages: Math.ceil(count / limit),
             currentPage: page,
             totalRows: count
         });
-        
-        
+
     } catch (error) {
-        console.error("Error al obtener periodos", error)
-        return res.status(500).json({message: `Error al obtener periodos en el servidor:`})
+        console.error("Error al obtener periodos", error);
+        return res.status(500).json({ message: `Error al obtener periodos en el servidor:` });
     }
-}
+};
 
 
 const deletePeriodo = async(req, res)=>{

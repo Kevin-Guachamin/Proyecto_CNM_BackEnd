@@ -2,7 +2,7 @@
 const path = require("path");
 const Estudiante = require('../models/estudiante.model');
 const Representantes = require('../models/representante.model')
-
+const { Op, Sequelize } = require("sequelize");
 const crearEstudiante = async (request, res) => {
     const usuario = request.body;
     console.log("llego este usuario", usuario)
@@ -174,7 +174,7 @@ const getAllEstudiantes = async (request, response) => {
                                     { [Op.like]: `%${term1}%` }
                                 ),
                                 Sequelize.where(
-                                    Sequelize.fn("LOWER", Sequelize.col("apellido")),
+                                    Sequelize.fn("LOWER", Sequelize.col("primer_apellido")),
                                     { [Op.like]: `%${term2}%` }
                                 )
                             ]
@@ -186,7 +186,7 @@ const getAllEstudiantes = async (request, response) => {
                                     { [Op.like]: `%${term2}%` }
                                 ),
                                 Sequelize.where(
-                                    Sequelize.fn("LOWER", Sequelize.col("apellido")),
+                                    Sequelize.fn("LOWER", Sequelize.col("primer_apellido")),
                                     { [Op.like]: `%${term1}%` }
                                 )
                             ]
@@ -202,7 +202,7 @@ const getAllEstudiantes = async (request, response) => {
                             { [Op.like]: `%${terms[0]}%` }
                         ),
                         Sequelize.where(
-                            Sequelize.fn("LOWER", Sequelize.col("apellido")),
+                            Sequelize.fn("LOWER", Sequelize.col("primer_apellido")),
                             { [Op.like]: `%${terms[0]}%` }
                         )
                     ]

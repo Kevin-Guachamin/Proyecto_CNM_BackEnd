@@ -474,9 +474,7 @@ const getAsignaciones = async (req, res) => {
       const whereConditions={
         ID_periodo_academico: periodo
       }
-      const whereInclude={
-        tipo: { [Op.ne]: "individual" }
-      }
+    
       if (search.trim() !== '') {
         whereInclude[Op.and] = [
           Sequelize.where(
@@ -497,7 +495,7 @@ const getAsignaciones = async (req, res) => {
           {
             model: Materia,
             where: {
-              whereInclude
+              tipo: { [Op.ne]: "individual" }
   
             },
             as: "materiaDetalle"
