@@ -163,43 +163,46 @@ const getFechaActualIso =  (req, res) => {
     }
 };
 
-
 // Obtener la fecha mas proxima para un proceso
 const getFechaProximaActualizacion = async (req, res) => {
 	try {
+		const hoy = new Date();
+
 		const proceso = await Fechas_procesos.findOne({
 			where: {
-				// Se asume que el proceso se llama 'Actualizacion de datos' en la BD
-				// Si es que se va a llamar de otra forma, cambiar la consulta
-				proceso: 'Actualizacion de datos',
-				fecha_inicio: {
-					[Op.gte]: new Date(), // procesos que inician hoy o despues
-				},
+				proceso: 'Actualizacion de datos'
 			},
-			order: [['fecha_inicio', 'ASC']], // el mas proximo primero
+			order: [['fecha_inicio', 'ASC']],
 		});
 
 		if (!proceso) {
-			return res.status(404).json({ message: 'No hay procesos de actualizacion proximos'});
+			return res.status(200).json({
+				procesoActivo: false,
+				mensaje: 'No hay proceso de actualización definido en la base de datos.',
+				fechaInicioProceso: null,
+				fechaFinProceso: null
+			});
 		}
 
-		const ID = proceso.ID;
-		const procesoString = proceso.proceso;
+		const fechaInicio = new Date(proceso.fecha_inicio);
+		const fechaFin = new Date(proceso.fecha_fin);
 
-		// Fechas del proceso formateadas
-		const fechaInicioProceso = new Date(proceso.fecha_inicio).toISOString().split('T')[0]; 
-        const fechaFinProceso = new Date(proceso.fecha_fin).toISOString().split('T')[0];
+		const activo = hoy >= fechaInicio && hoy <= fechaFin;
 
-        return res.status(200).json({
-			ID,
-			procesoString,
-			fechaInicioProceso,
-			fechaFinProceso
+		return res.status(200).json({
+			procesoActivo: activo,
+			ID: proceso.ID,
+			proceso: proceso.proceso,
+			fechaInicioProceso: fechaInicio.toISOString().split('T')[0],
+			fechaFinProceso: fechaFin.toISOString().split('T')[0],
+			mensaje: activo 
+				? 'El proceso de actualización está activo.'
+				: 'El proceso de actualización no está activo actualmente.'
 		});
 	} catch (error) {
-		console.log('Error al obtener el proceso', erro);
-		return res.status(500).json({ message: 'Error al obtener la fecha de actualizacion mas proxima en el servidor'});
-	}	
+		console.log('Error al verificar el proceso de actualización:', error);
+		return res.status(500).json({ message: 'Error en el servidor al verificar el proceso de actualización.' });
+	}
 };
 
 module.exports = {
