@@ -81,10 +81,10 @@ const createAsignacion = async (req, res) => {
       horaFin: asignacion.horaFin,
       dias: asignacion.dias,
       cupos: parseInt(asignacion.cupos, 10),
+      cuposDisponibles: parseInt(asignacion.cupos, 10), // Inicialmente, cupos disponibles = cupos totales
       ID_periodo_academico: asignacion.ID_periodo_academico,
       nroCedula_docente: asignacion.nroCedula_docente,
       ID_materia: asignacion.ID_materia,
-
     })
     const result = await Asignacion.findByPk(result1.ID, {
       include: [
@@ -118,7 +118,6 @@ const createAsignacion = async (req, res) => {
 
   } catch (error) {
     console.error("Error al crear la asignación", error)
-    console.log("ESTE ES EL ERROR", error.name)
     if (error.name === "SequelizeUniqueConstraintError") {
       const errEncontrado = error.errors.find(err =>
         err.validatorKey === "not_unique"
@@ -130,8 +129,6 @@ const createAsignacion = async (req, res) => {
 
     }
     if (error.name === "SequelizeValidationError") {
-      console.log("Estos son los errores", error);
-
       const errEncontrado = error.errors.find(err =>
         err.validatorKey === "notEmpty" ||
         err.validatorKey === "is_null" ||
@@ -151,7 +148,7 @@ const createAsignacion = async (req, res) => {
 
   }
 }
-const updateAsginacion = async (req, res) => {
+const updateAsignacion = async (req, res) => {
   try {
     const asignacion = req.body
     const asignacionesDocente = await Asignacion.findAll({
@@ -194,6 +191,21 @@ const updateAsginacion = async (req, res) => {
 
     console.log("esto es lo que viene", asignacion)
     const id = req.params.id
+    
+    // Si se están cambiando los cupos, ajustar cuposDisponibles proporcionalmente
+    if (asignacion.cupos) {
+      const asignacionActual = await Asignacion.findByPk(id);
+      if (asignacionActual) {
+        const cuposActuales = asignacionActual.cupos;
+        const cuposDisponiblesActuales = asignacionActual.cuposDisponibles;
+        const nuevoCupos = parseInt(asignacion.cupos, 10);
+        
+        // Calcular la proporción y aplicarla
+        const proporcion = cuposDisponiblesActuales / cuposActuales;
+        asignacion.cuposDisponibles = Math.floor(nuevoCupos * proporcion);
+      }
+    }
+    
     const [updatedRows] = await Asignacion.update(asignacion, { where: { id } })
     if (updatedRows === 0) {
       return res.status(404).json({ message: "Asignación no encontrada" })
@@ -625,6 +637,20 @@ const getAsignacionesPorAsignatura = async (req, res) => {
 
     const nivelesMateria = mapearNivelEstudianteAMateria(nivelEstudiante);
 
+    // Configurar condiciones de búsqueda para Materia
+    let whereMateria = {
+      nivel: {
+        [Op.in]: [nivelesMateria]
+      }
+    };
+
+    // Solo agregar filtro de nombre si asignatura no está vacía
+    if (asignatura && asignatura.trim() !== '' && asignatura !== 'all') {
+      whereMateria[Op.and] = [
+        Sequelize.where(Sequelize.fn("LOWER", Sequelize.col("nombre")), "LIKE", `%${asignatura.toLowerCase()}%`)
+      ];
+    }
+
     const asignaciones = await Asignacion.findAll({
       where: {
         ID_periodo_academico: ID,
@@ -634,14 +660,7 @@ const getAsignacionesPorAsignatura = async (req, res) => {
       include: [
         {
           model: Materia,
-          where: {
-            [Op.and]: [
-              Sequelize.where(Sequelize.fn("LOWER", Sequelize.col("nombre")), "LIKE", `%${asignatura.toLowerCase()}%`),
-            ],
-            nivel: {
-              [Op.in]: [nivelesMateria]  // Cambiado para usar IN con un arreglo
-            }
-          },
+          where: whereMateria,
           as: "materiaDetalle"
         },
         {
@@ -776,7 +795,7 @@ const getAsignacionesSinMatricula = async (req, res) => {
 
 module.exports = {
   createAsignacion,
-  updateAsginacion,
+  updateAsignacion,
   getAsignacion,
   deleteAsignacion,
   getAsignacionesPorDocente,

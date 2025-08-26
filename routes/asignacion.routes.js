@@ -2,7 +2,7 @@ const AsignacionController = require('../controllers/asignacion.controller');
 const {Docente,DocenteANDReprsentante,docenteVicerrector,DocenteVicerrectorANDSecretaria}=require('../middlewares/protect')
 module.exports = (app) => {
     app.post('/api/asignacion/crear',Docente, AsignacionController.createAsignacion);
-    app.put('/api/asignacion/editar/:id',Docente ,AsignacionController.updateAsginacion);
+    app.put('/api/asignacion/editar/:id',Docente ,AsignacionController.updateAsignacion);
     app.get('/api/asignacion/obtener/:id',DocenteANDReprsentante ,AsignacionController.getAsignacion);
     app.delete('/api/asignacion/eliminar/:id',Docente ,AsignacionController.deleteAsignacion);
     app.get('/api/asignacion/docente/:id_docente', DocenteANDReprsentante,AsignacionController.getAsignacionesPorDocente);

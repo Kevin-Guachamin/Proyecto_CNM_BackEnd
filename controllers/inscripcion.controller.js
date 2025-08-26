@@ -263,12 +263,16 @@ const getInscripcionesByMatricula = async (req, res) => {
             include:
                 [{
                     model: Asignacion,
-                    include: [{
-                        model: Materia,
-                        as: "materiaDetalle",
-
-
-                    }]
+                    include: [
+                        {
+                            model: Materia,
+                            as: "materiaDetalle",
+                        },
+                        {
+                            model: Docente,
+                            attributes: ['nroCedula', 'primer_nombre', 'primer_apellido']
+                        }
+                    ]
                 }]
 
         })
