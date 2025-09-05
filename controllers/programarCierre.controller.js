@@ -177,10 +177,11 @@ async function reprogramarPeriodosPendientes() {
     where: {
       estado: 'Activo',
       fecha_fin: {
-        [Op.gt]: new Date()
+        [Op.lt]: new Date()
       }
     }
   });
+  console.log("Periodos activos",periodos)
   const periodosPlain = periodos.map(periodo=> {
     return periodo.get({plain:true})
   })
@@ -213,7 +214,7 @@ async function eliminarArchivosDelPeriodo(periodoId) {
     const [archivosEstudiantes] = await sequelize.query(`
       SELECT e.ID, e.cedula_PDF, e.matricula_IER_PDF
       FROM estudiantes e
-      JOIN matricula m ON m.ID_estudiante = e.ID
+      JOIN matriculas m ON m.ID_estudiante = e.ID
       WHERE m.ID_periodo_academico = ?
     `, {
       replacements: [periodoId],
@@ -226,7 +227,7 @@ async function eliminarArchivosDelPeriodo(periodoId) {
       WHERE r.cedula IN (
         SELECT DISTINCT e.nroCedula_representante
         FROM estudiantes e
-        JOIN matricula m ON m.ID_estudiante = e.ID
+        JOIN matriculas m ON m.ID_estudiante = e.ID
         WHERE m.ID_periodo_academico = ?
       )
     `, {
