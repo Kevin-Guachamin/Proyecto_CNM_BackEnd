@@ -32,19 +32,19 @@ module.exports = (app) => {
   app.delete('/api/finales/:id', docenteProfesor,FinalController.deleteFinal);
 
   // Rutas para Parciales BE
-  app.post('/api/parcialesbe', ParcialesControllerBE.createParcialBE);
-  app.post('/api/parcialesbe/bulk', ParcialesControllerBE.createParcialBEBulk);
+  app.post('/api/parcialesbe',docenteProfesor, ParcialesControllerBE.createParcialBE);
+  app.post('/api/parcialesbe/bulk',docenteProfesor, ParcialesControllerBE.createParcialBEBulk);
   app.get('/api/parcialesbe/:id', ParcialesControllerBE.getParcialBE);
   app.get('/api/parcialesbe/asignacion/:id_asignacion', ParcialesControllerBE.getParcialesBEPorAsignacion);
   app.get('/api/parcialesbe/inscripcion/:id_inscripcion', ParcialesControllerBE.getParcialBEPorInscripcion);
-  app.put('/api/parcialesbe/:id', ParcialesControllerBE.updateParcialBE);
-  app.delete('/api/parcialesbe/:id', ParcialesControllerBE.deleteParcialBE);
+  app.put('/api/parcialesbe/:id',docenteProfesor, ParcialesControllerBE.updateParcialBE);
+  app.delete('/api/parcialesbe/:id',docenteProfesor, ParcialesControllerBE.deleteParcialBE);
 
   // Rutas para Quimestrales BE
-  app.post('/api/quimestralesbe', QuimestresControllerBE.createQuimestralBE);
-  app.post('/api/quimestralesbe/bulk', QuimestresControllerBE.createQuimestralBulkBE);
+  app.post('/api/quimestralesbe', docenteProfesor,QuimestresControllerBE.createQuimestralBE);
+  app.post('/api/quimestralesbe/bulk', docenteProfesor,QuimestresControllerBE.createQuimestralBulkBE);
   app.get('/api/quimestralesbe/:id', QuimestresControllerBE.getQuimestralBE);
   app.get('/api/quimestralesbe/asignacion/:id_asignacion', QuimestresControllerBE.getQuimestralesPorAsignacionBE);
-  app.put('/api/quimestralesbe/:id', QuimestresControllerBE.updateQuimestralBE);
-  app.delete('/api/quimestralesbe/:id', QuimestresControllerBE.deleteQuimestralBE);
+  app.put('/api/quimestralesbe/:id', docenteProfesor,QuimestresControllerBE.updateQuimestralBE);
+  app.delete('/api/quimestralesbe/:id', docenteProfesor,QuimestresControllerBE.deleteQuimestralBE);
 };

@@ -129,7 +129,7 @@ module.exports.docenteProfesor = async (req, res, next) => {
       console.log("Decoded token:", decoded);
 
       // Verificar que el rol sea docente y el subRol sea Profesor
-      if (decoded.rol !== "docente" || decoded.subRol !== "Profesor" && decoded.subRol !== "Administrador") {
+      if (decoded.rol !== "docente" || decoded.subRol ==="Secretaria") {
         return res.status(403).json({ message: "No autorizado, se requiere ser docente con subrol Profesor" });
       }
 
