@@ -2,7 +2,7 @@
 const bcrypt = require("bcryptjs")
 const Docente = require('../models/docente.model')
 const crypto = require("crypto")
-const { enivarContrasenia } = require("../utils/enivarCorreo")
+const { enviarContrasenia } = require("../utils/enivarCorreo")
 const { Op, Sequelize } = require('sequelize'); // Asegúrate de tenerlo al inicio
 
 const createDocente = async (req, res) => {
@@ -19,7 +19,7 @@ const createDocente = async (req, res) => {
         docente.password = hashedPassword
         console.log("esta es la password", docente.password)
         const newDocente = await Docente.create(docente)
-        enivarContrasenia(docente.email, provicional)
+        await enviarContrasenia(docente.email, provicional)
         const { password: _, ...result } = newDocente.toJSON()
         return res.status(201).json(result)
     } catch (error) {
@@ -76,7 +76,7 @@ const editDocente = async (req, res) => {
             const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(docente.password, salt);
             docente.password = hashedPassword
-            enivarContrasenia(docente.email, provicional)
+            await enviarContrasenia(docente.email, provicional)
         }
         
         const [updatedRows] = await Docente.update(docente, { where: { nroCedula } })

@@ -197,82 +197,18 @@ function programarCierrePeriodo(periodoId, fechaFin) {
   if (fecha <= new Date()) {
     console.log(`⚠️ La fecha ya pasó, cerrando inmediatamente`);
     cerrarPeriodo(periodoId);
-    eliminarArchivosDelPeriodo(periodoId);
+    
     return;
   }
 
   schedule.scheduleJob(fecha, async () => {
     await cerrarPeriodo(periodoId);
-    await eliminarArchivosDelPeriodo(periodoId);
+    
   });
 
   console.log(`📅 Tarea programada para cerrar periodo ID ${periodoId} el ${fecha}`);
 }
-async function eliminarArchivosDelPeriodo(periodoId) {
-  try {
-    // 1. Obtener rutas de PDF de estudiantes
-    const [archivosEstudiantes] = await sequelize.query(`
-      SELECT e.ID, e.cedula_PDF, e.matricula_IER_PDF
-      FROM estudiantes e
-      JOIN matriculas m ON m.ID_estudiante = e.ID
-      WHERE m.ID_periodo_academico = ?
-    `, {
-      replacements: [periodoId],
-    });
 
-    // 2. Obtener rutas de PDF de representantes (por nroCedula_representante)
-    const [archivosRepresentantes] = await sequelize.query(`
-      SELECT r.cedula AS cedula_rep, r.cedula_PDF, r.croquis_PDF
-      FROM representantes r
-      WHERE r.cedula IN (
-        SELECT DISTINCT e.nroCedula_representante
-        FROM estudiantes e
-        JOIN matriculas m ON m.ID_estudiante = e.ID
-        WHERE m.ID_periodo_academico = ?
-      )
-    `, {
-      replacements: [periodoId],
-    });
-
-    // Función para eliminar archivo y limpiar campo en BD
-    const eliminarYLimpiar = async (rutaRelativa, tabla, campo, campoClave, valorClave) => {
-      if (!rutaRelativa) return;
-      const fullPath = path.resolve('uploads/pdfs', rutaRelativa); // Ajusta esta ruta si es diferente
-      try {
-        await fs.unlink(fullPath);
-        console.log(`🗑️ Archivo eliminado: ${fullPath}`);
-      } catch (err) {
-        if (err.code === 'ENOENT') {
-          console.warn(`⚠️ Archivo no encontrado: ${fullPath}`);
-        } else {
-          console.error(`❌ Error eliminando ${fullPath}:`, err.message);
-        }
-      }
-
-      // Limpiar la ruta en la base de datos
-      await sequelize.query(
-        `UPDATE ${tabla} SET ${campo} = '' WHERE ${campoClave} = ?`,
-        { replacements: [valorClave] }
-      );
-    };
-
-    // 3. Eliminar archivos y limpiar rutas en estudiantes
-    for (const est of archivosEstudiantes) {
-      await eliminarYLimpiar(est.cedula_PDF, 'estudiantes', 'cedula_PDF', 'ID', est.ID);
-      await eliminarYLimpiar(est.matricula_IER_PDF, 'estudiantes', 'matricula_IER_PDF', 'ID', est.ID);
-    }
-
-    // 4. Eliminar archivos y limpiar rutas en representantes
-    for (const rep of archivosRepresentantes) {
-      await eliminarYLimpiar(rep.cedula_PDF, 'representantes', 'cedula_PDF', 'cedula', rep.cedula_rep);
-      await eliminarYLimpiar(rep.croquis_PDF, 'representantes', 'croquis_PDF', 'cedula', rep.cedula_rep);
-    }
-
-    console.log('✅ Archivos del periodo eliminados y rutas limpiadas');
-  } catch (error) {
-    console.error('❌ Error durante el proceso de eliminación:', error.message);
-  }
-}
 
 
 module.exports = {

@@ -27,7 +27,7 @@ const crearEstudiante = async (request, res) => {
         usuario.matricula_IER_PDF = matriculaIERPath
         const anioActual = parseInt(new Date().getFullYear());
         usuario.anioMatricula = anioActual
-        usuario.nivel = "1ro Básico Elemental"
+        
         console.log("esta es la objeto", usuario)
 
         const result = await Estudiante.create(usuario)
