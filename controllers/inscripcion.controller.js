@@ -3,8 +3,10 @@ const Matricula = require('../models/matricula.models');
 const Asignacion = require('../models/asignacion.model');
 const Inscripcion = require('../models/inscripcion.model');
 const Materia = require('../models/materia.model');
-const Docente = require('../models/docente.model')
+const Docente = require('../models/docente.model');
+const Fechas_procesos = require('../models/fechas_procesos.model');
 const { sequelize } = require('../config/sequelize.config');
+const { Op } = require('sequelize');
 
 
 const tienenDiasSolapados = (dias1, dias2) => {
@@ -19,6 +21,35 @@ const tienenHorariosSolapados = (horaInicioA, horaFinA, horaInicioB, horaFinB) =
 const createInscripcion = async (req, res) => {
     const t = await sequelize.transaction();
     try {
+        // Verificar si el período de matrícula está activo
+        const hoy = new Date();
+        const procesoMatricula = await Fechas_procesos.findOne({
+            where: {
+                proceso: {
+                    [Op.iLike]: '%matricula%'
+                }
+            },
+            order: [['fecha_inicio', 'ASC']],
+            transaction: t
+        });
+
+        if (!procesoMatricula) {
+            await t.rollback();
+            return res.status(400).json({ 
+                message: 'No hay período de matrícula definido. Contacte con la administración.' 
+            });
+        }
+
+        const fechaInicio = new Date(procesoMatricula.fecha_inicio);
+        const fechaFin = new Date(procesoMatricula.fecha_fin);
+        const periodoActivo = hoy >= fechaInicio && hoy <= fechaFin;
+
+        if (!periodoActivo) {
+            await t.rollback();
+            return res.status(400).json({ 
+                message: `El período de matrícula no está activo. Período válido: ${fechaInicio.toLocaleDateString('es-ES')} - ${fechaFin.toLocaleDateString('es-ES')}` 
+            });
+        }
 
         const inscripcion = req.body;
         console.log("esto se recibió del front", inscripcion)

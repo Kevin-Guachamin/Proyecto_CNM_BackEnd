@@ -205,6 +205,54 @@ const getFechaProximaActualizacion = async (req, res) => {
 	}
 };
 
+// Verificar si el período de matrícula está activo
+const verificarPeriodoMatricula = async (req, res) => {
+	try {
+		const hoy = new Date();
+
+		const proceso = await Fechas_procesos.findOne({
+			where: {
+				[Op.or]: [
+					{ proceso: 'Matricula' },
+					{ proceso: 'matricula' },
+					{ proceso: 'MATRICULA' },
+					{ proceso: 'Período de matrícula' },
+					{ proceso: 'Periodo de matricula' }
+				]
+			},
+			order: [['fecha_inicio', 'DESC']],  // DESC para obtener el más reciente
+		});
+
+		if (!proceso) {
+			return res.status(200).json({
+				periodoActivo: false,
+				mensaje: 'No hay período de matrícula definido en la base de datos.',
+				fechaInicioPeriodo: null,
+				fechaFinPeriodo: null
+			});
+		}
+
+		const fechaInicio = new Date(proceso.fecha_inicio);
+		const fechaFin = new Date(proceso.fecha_fin);
+
+		const activo = hoy >= fechaInicio && hoy <= fechaFin;
+
+		return res.status(200).json({
+			periodoActivo: activo,
+			ID: proceso.ID,
+			proceso: proceso.proceso,
+			fechaInicioPeriodo: fechaInicio.toISOString().split('T')[0],
+			fechaFinPeriodo: fechaFin.toISOString().split('T')[0],
+			mensaje: activo 
+				? 'El período de matrícula está activo.'
+				: 'El período de matrícula no está activo actualmente.'
+		});
+	} catch (error) {
+		console.log('Error al verificar el período de matrícula:', error);
+		return res.status(500).json({ message: 'Error en el servidor al verificar el período de matrícula.' });
+	}
+};
+
 module.exports = {
     createFechasProcesos,
     getFechasProcesos,
@@ -213,5 +261,6 @@ module.exports = {
     deleteFechasProcesos,
     fechaActual,
     getFechaActualIso,
-    getFechaProximaActualizacion
+    getFechaProximaActualizacion,
+    verificarPeriodoMatricula
 };

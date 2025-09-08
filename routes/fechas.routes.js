@@ -17,6 +17,7 @@ module.exports = (app) => {
     app.get('/api/fechas_procesos/obtener/:id', FechasProcesosController.getFechasProcesos);
     app.get('/api/fechas_procesos/obtener_todo', FechasProcesosController.getAllFechasProcesos);
     app.get('/api/fechas_procesos/actualizacion', FechasProcesosController.getFechaProximaActualizacion);
+    app.get('/api/fechas_procesos/matricula', FechasProcesosController.verificarPeriodoMatricula);
     app.get('/api/fechas_procesos/fecha_actual', FechasProcesosController.getFechaActualIso);
     app.delete('/api/fechas_procesos/eliminar/:id', docenteSecretaria,FechasProcesosController.deleteFechasProcesos);
 }
