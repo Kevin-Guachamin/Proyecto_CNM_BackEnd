@@ -181,13 +181,13 @@ async function reprogramarPeriodosPendientes() {
       }
     }
   });
-  console.log("Periodos activos",periodos)
-  const periodosPlain = periodos.map(periodo=> {
-    return periodo.get({plain:true})
+  console.log("Periodos activos", periodos)
+  const periodosPlain = periodos.map(periodo => {
+    return periodo.get({ plain: true })
   })
-  console.log("estos son los periodos",periodosPlain)
+  console.log("estos son los periodos", periodosPlain)
   for (const periodo of periodos) {
-    programarCierrePeriodo(periodo.ID, convertirFecha(periodo.fecha_fin) );
+    programarCierrePeriodo(periodo.ID, convertirFecha(periodo.fecha_fin));
   }
 }
 
@@ -197,13 +197,13 @@ function programarCierrePeriodo(periodoId, fechaFin) {
   if (fecha <= new Date()) {
     console.log(`⚠️ La fecha ya pasó, cerrando inmediatamente`);
     cerrarPeriodo(periodoId);
-    
+
     return;
   }
 
   schedule.scheduleJob(fecha, async () => {
     await cerrarPeriodo(periodoId);
-    
+
   });
 
   console.log(`📅 Tarea programada para cerrar periodo ID ${periodoId} el ${fecha}`);

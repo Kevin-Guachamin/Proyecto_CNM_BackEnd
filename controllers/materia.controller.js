@@ -133,7 +133,7 @@ const getMaterias = async (req, res) => {
           where: whereConditions,
           order: [
             [
-              Sequelize.literal(`FIELD(materia.nivel, 
+              Sequelize.literal(`FIELD(nivel, 
                 '1ro BE', '2do BE', 
                 '1ro BM', '2do BM', '3ro BM', 
                 '1ro BS', '2do BS', '3ro BS', 
@@ -160,7 +160,7 @@ const getMaterias = async (req, res) => {
         },
         order: [
           [
-            Sequelize.literal(`FIELD(materia.nivel, 
+            Sequelize.literal(`FIELD(nivel, 
               '1ro BE', '2do BE', 
               '1ro BM', '2do BM', '3ro BM', 
               '1ro BS', '2do BS', '3ro BS', 
@@ -193,7 +193,7 @@ const getMateriasIndividuales =async(req, res)=>{
                 },
                 order: [
                     [
-                      Sequelize.literal(`FIELD(materia.nivel, 
+                      Sequelize.literal(`FIELD(nivel, 
                         '1ro BE', '2do BE', 
                         '1ro BM', '2do BM', '3ro BM', 
                         '1ro BS', '2do BS', '3ro BS', 
@@ -218,7 +218,7 @@ const getMateriasIndividuales =async(req, res)=>{
             },
             order: [
                 [
-                  Sequelize.literal(`FIELD(materia.nivel, 
+                  Sequelize.literal(`FIELD(nivel, 
                     '1ro BE', '2do BE', 
                     '1ro BM', '2do BM', '3ro BM', 
                     '1ro BS', '2do BS', '3ro BS', 
