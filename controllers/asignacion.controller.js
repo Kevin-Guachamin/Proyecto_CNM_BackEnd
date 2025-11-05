@@ -61,7 +61,7 @@ const createAsignacion = async (req, res) => {
         asig.horaInicio,
         asig.horaFin
       );
-
+      console.log("imprime esto")
       return hayDiasSolapados && hayHorarioSolapado;
     });
 
@@ -150,13 +150,15 @@ const createAsignacion = async (req, res) => {
 }
 const updateAsignacion = async (req, res) => {
   try {
+    
     const asignacion = req.body
+    console.log("esto llega",asignacion)
     const asignacionesDocente = await Asignacion.findAll({
       where: {
         nroCedula_docente: asignacion.nroCedula_docente,
         ID_periodo_academico: asignacion.ID_periodo_academico,
         ID: {
-          [Op.not]: asignacion.ID  // 👈 Excluye la asignación actual
+          [Op.not]: req.params.id  // 👈 Excluye la asignación actual
         }
       }
     });
@@ -179,10 +181,11 @@ const updateAsignacion = async (req, res) => {
         asig.horaInicio,
         asig.horaFin
       );
-
+      console.log("ffffff")
+      console.log("horas",hayHorarioSolapado)
       return hayDiasSolapados && hayHorarioSolapado;
     });
-
+    console.log("que paso")
     if (conflicto) {
       return res.status(400).json({
         message: "El docente ya tiene una asignación con cruce de horario en los días seleccionados para este período."
