@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const {sequelize} = require('../config/sequelize.config')
+const { sequelize } = require('../config/sequelize.config')
 const Estudiante = require('./estudiante.model')
 
 const Representante = sequelize.define('Representante', {
@@ -9,19 +9,19 @@ const Representante = sequelize.define('Representante', {
         autoIncrement: true,
         primaryKey: true,
     },
-   nroCedula: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    unique: { msg: "La identificación del estudiante ya existe" },
-    validate: {
-        notNull: { msg: "La identificación es requerida" },
-        notEmpty: { msg: "La identificación no puede estar vacía" },
-        is: {
-            args: /^[0-9]{7,10}$/,
-            msg: "La identificación debe tener entre 7 y 10 dígitos numéricos"
+    nroCedula: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: { msg: "La identificación del estudiante ya existe" },
+        validate: {
+            notNull: { msg: "La identificación es requerida" },
+            notEmpty: { msg: "La identificación no puede estar vacía" },
+            is: {
+                args: /^[0-9]{7,10}$/,
+                msg: "La identificación debe tener entre 7 y 10 dígitos numéricos"
+            }
         }
-    }
-},
+    },
     primer_nombre: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -30,10 +30,12 @@ const Representante = sequelize.define('Representante', {
             notEmpty: { msg: "El primer nombre no puede estar vacío" },
             len: { args: [2, 50], msg: "El primer nombre debe tener entre 2 y 50 caracteres" },
             isOnlyLetters(value) {
-                if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(value)) {
-                    throw new Error("El primer nombre solo puede contener letras y espacios");
+                // Agregamos el símbolo / dentro del conjunto permitido
+                if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s\/]+$/.test(value)) {
+                    throw new Error("El primer nombre solo puede contener letras, espacios y el símbolo /");
                 }
             }
+
         }
     },
     segundo_nombre: {
@@ -44,10 +46,12 @@ const Representante = sequelize.define('Representante', {
             notEmpty: { msg: "El segundo nombre no puede estar vacío" },
             len: { args: [2, 50], msg: "El segundo nombre debe tener entre 2 y 50 caracteres" },
             isOnlyLetters(value) {
-                if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(value)) {
-                    throw new Error("El primer nombre solo puede contener letras y espacios");
+                // Agregamos el símbolo / dentro del conjunto permitido
+                if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s\/]+$/.test(value)) {
+                    throw new Error("El primer nombre solo puede contener letras, espacios y el símbolo /");
                 }
             }
+
         }
     },
     primer_apellido: {
@@ -58,10 +62,12 @@ const Representante = sequelize.define('Representante', {
             notEmpty: { msg: "El primer apellido no puede estar vacío" },
             len: { args: [2, 50], msg: "El primer apellido debe tener entre 2 y 50 caracteres" },
             isOnlyLetters(value) {
-                if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(value)) {
-                    throw new Error("El primer nombre solo puede contener letras y espacios");
+                // Agregamos el símbolo / dentro del conjunto permitido
+                if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s\/]+$/.test(value)) {
+                    throw new Error("El primer nombre solo puede contener letras, espacios y el símbolo /");
                 }
             }
+
         }
     },
     segundo_apellido: {
@@ -72,10 +78,12 @@ const Representante = sequelize.define('Representante', {
             notEmpty: { msg: "El segundo apellido no puede estar vacío" },
             len: { args: [2, 50], msg: "El segundo apellido debe tener entre 2 y 50 caracteres" },
             isOnlyLetters(value) {
-                if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(value)) {
-                    throw new Error("El primer nombre solo puede contener letras y espacios");
+                // Agregamos el símbolo / dentro del conjunto permitido
+                if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s\/]+$/.test(value)) {
+                    throw new Error("El primer nombre solo puede contener letras, espacios y el símbolo /");
                 }
             }
+
         }
     },
     celular: {
@@ -100,14 +108,14 @@ const Representante = sequelize.define('Representante', {
     },
     cedula_PDF: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
         validate: {
             is: /\.(pdf)$/i, // Asegura que el archivo sea PDF
         }
     },
     croquis_PDF: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
         validate: {
             is: /\.(pdf)$/i, // Asegura que el archivo sea PDF
         }
@@ -144,11 +152,11 @@ const Representante = sequelize.define('Representante', {
     resetToken: {
         type: DataTypes.STRING,
         allowNull: true,
-      },
-      resetTokenExpires: {
+    },
+    resetTokenExpires: {
         type: DataTypes.DATE,
         allowNull: true,
-      },
+    },
 
 },
     {

@@ -12,12 +12,9 @@ const { Op } = require('sequelize');
 const tienenDiasSolapados = (dias1, dias2) => {
     return dias1.some(dia => dias2.includes(dia));
 }
-
 const tienenHorariosSolapados = (horaInicioA, horaFinA, horaInicioB, horaFinB) => {
     return horaInicioA < horaFinB && horaFinA > horaInicioB;
 }
-
-
 const createInscripcion = async (req, res) => {
     const t = await sequelize.transaction();
     try {
@@ -120,9 +117,6 @@ const createInscripcion = async (req, res) => {
 
         const asignaciones = inscripciones.map((inscripcion) => {
             const inscripcionPlain = inscripcion.get({ plain: true }); // Convertimos la inscripción a un objeto plano
-
-
-
             return inscripcionPlain.Asignacion;
         });
 

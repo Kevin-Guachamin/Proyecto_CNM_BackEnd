@@ -5,31 +5,24 @@ const generateToken = require('../utils/generarToken');
 
 module.exports.login = async (req, res) => {
     const { nroCedula, password } = req.body;
-
     try {
         let user = null;
         let rol = null;
         let type = null;
-        let subRol = null; // <--- DECLARAR AQUI
-
+        let subRol = null; 
         // Buscar en la tabla de Representantes
         user = await Representante.findOne({ where: { nroCedula } });
         if (user) {
             rol = 'representante'; 
             type = 'representante';
         }
-
         // Si no se encontró, buscar en la tabla de Docentes
         if (!user) {
             user = await Docente.findOne({ where: { nroCedula } });
             if (user) {
-                // Guardas el rol interno (profesor, coordinador, etc.)
                 subRol = user.rol;  
-                // Asignas la categoría general
                 rol = 'docente';
                 type = 'docente';
-
-                // Agregas la propiedad subRol al objeto user
                 user.dataValues.subRol = subRol;
             }
         }
@@ -37,7 +30,7 @@ module.exports.login = async (req, res) => {
         // Si el usuario no existe en ninguna de las tablas
         if (!user) {
             console.log("caigo aca")
-            return res.status(401).json({ message: 'Cédula  incorrectos' });
+            return res.status(404).json({ message: 'Cédula  incorrecta' });
         }
 
         // Verificar la password
@@ -52,7 +45,7 @@ module.exports.login = async (req, res) => {
 
         if (!isMatch) {
             console.log("caigo por aca")
-            return res.status(401).json({ message: 'contraseña incorrectos' });
+            return res.status(401).json({ message: 'contraseña incorrecta' });
         }
 
         // Excluir la password de la respuesta
