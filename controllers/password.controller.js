@@ -43,6 +43,8 @@ module.exports.changePassword = async (req, res) => {
     // Hashear y guardar nueva contraseña
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(newPassword, salt);
+    // 👇 NUEVO: bajar el flag de primera vez / provisional
+    user.debe_cambiar_password = false;
     await user.save();
 
     return res.json({ message: "Contraseña actualizada con éxito" });
@@ -129,10 +131,8 @@ exports.resetPassword = async (req, res) => {
       return res.status(400).json({ message: 'Token inválido o expirado' });
     }
 
-
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(newPassword, salt);
-
 
     user.resetToken = null;
     user.resetTokenExpires = null;

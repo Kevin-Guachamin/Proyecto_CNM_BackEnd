@@ -16,7 +16,9 @@ const createDocente = async (req, res) => {
         docente.password = provicional
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(docente.password, salt);
-        docente.password = hashedPassword
+        docente.password = hashedPassword;
+        // 👇 OBLIGAR A CAMBIAR CONTRASEÑA EN EL PRIMER LOGIN
+        docente.debe_cambiar_password = true;
         console.log("esta es la password", docente.password)
         const newDocente = await Docente.create(docente)
         await enviarContrasenia(docente.email, provicional)

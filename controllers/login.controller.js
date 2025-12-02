@@ -51,12 +51,16 @@ module.exports.login = async (req, res) => {
         // Excluir la password de la respuesta
         const { password: pwd, ...userWithoutpassword } = user.toJSON();
 
+        // 👇 Tomamos el flag del modelo (viene de docentes o representantes)
+        const debeCambiarPassword = user.debe_cambiar_password;
+        
         // Devolver la info que necesites
         return res.status(200).json({
             ...userWithoutpassword,
             rol,      // "docente" o "representante"
             subRol,   // "profesor", "coordinador", etc.
             type,
+            debeCambiarPassword,
             token: generateToken({ id: user.nroCedula, rol, type, subRol })
         });
 
