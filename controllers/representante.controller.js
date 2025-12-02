@@ -22,9 +22,10 @@ const crearRepresentante = async (request, response) => {
         const croquisPath = request.files.croquis ? request.files.croquis[0].path : null;
         console.log("Estos son los paths: ",copiaCedulaPath, croquisPath)
 
-        usuario.cedula_PDF = copiaCedulaPath
-        usuario.croquis_PDF = croquisPath
-
+        usuario.cedula_PDF = copiaCedulaPath;
+        usuario.croquis_PDF = croquisPath;
+        // 👇 OBLIGAR A CAMBIAR CONTRASEÑA EN EL PRIMER LOGIN
+        usuario.debe_cambiar_password = true;
         const nuevoRepresentante = await Representante.create(usuario);
         await enviarContrasenia(nuevoRepresentante.email,provicional)
         const { password: _, ...result } = nuevoRepresentante.toJSON();

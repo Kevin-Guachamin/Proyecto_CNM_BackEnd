@@ -148,6 +148,11 @@ const Representante = sequelize.define('Representante', {
             len: { args: [8, 100], msg: "La contraseña debe tener al menos 8 caracteres" }
         }
     },
+    debe_cambiar_password: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: true,
+    },
     // 👇 Campos para recuperación de contraseña
     resetToken: {
         type: DataTypes.STRING,
