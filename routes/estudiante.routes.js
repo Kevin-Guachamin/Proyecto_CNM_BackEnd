@@ -11,5 +11,5 @@ module.exports = (app) => {
     app.delete('/api/estudiante/eliminar/:ID', docenteSecretaria,EstudianteController.deleteEstudiante);
     app.get('/api/api/representantes/:cedula/estudiantes',DocenteANDReprsentante ,EstudianteController.getRepresentanteEstudiante);
     app.get('/api/estudiante/nivel/:nivel',docenteSecretaria,EstudianteController.getEstudiantesByNivel)
-    
+    app.get('/api/estudiante/verificar-matricula-ier/:id', DocenteANDReprsentante, EstudianteController.verificarMatriculaIER);
 }

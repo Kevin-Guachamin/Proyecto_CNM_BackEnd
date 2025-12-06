@@ -391,7 +391,46 @@ const deleteEstudiante = async (request, response) => {
     }
 }
 
+/**
+ * Verificar si un estudiante tiene la matrícula IER actualizada (PDF cargado)
+ * Esto es requerido antes de poder realizar la matriculación
+ */
+const verificarMatriculaIER = async (request, response) => {
+    const ID = request.params.id;
 
+    try {
+        const estudiante = await Estudiante.findByPk(ID);
+        
+        if (!estudiante) {
+            return response.status(404).json({ 
+                message: 'Estudiante no encontrado',
+                datosActualizados: false
+            });
+        }
+
+        // Verificar si tiene el PDF de matrícula IER cargado
+        const tieneMatriculaIER = estudiante.matricula_IER_PDF && estudiante.matricula_IER_PDF.trim() !== '';
+
+        if (tieneMatriculaIER) {
+            return response.status(200).json({
+                datosActualizados: true,
+                message: 'El estudiante tiene los documentos actualizados'
+            });
+        } else {
+            return response.status(200).json({
+                datosActualizados: false,
+                message: 'El estudiante debe actualizar su documentación (Matrícula IER) antes de matricularse'
+            });
+        }
+
+    } catch (error) {
+        console.log('Error al verificar matrícula IER del estudiante:', error);
+        return response.status(500).json({
+            message: 'Error al verificar la documentación del estudiante en el servidor',
+            datosActualizados: false
+        });
+    }
+}
 
 module.exports = {
     crearEstudiante,
@@ -401,5 +440,6 @@ module.exports = {
     deleteEstudiante,
     getRepresentanteEstudiante,
     getEstudianteByCedula,
-    getEstudiantesByNivel
+    getEstudiantesByNivel,
+    verificarMatriculaIER
 };
