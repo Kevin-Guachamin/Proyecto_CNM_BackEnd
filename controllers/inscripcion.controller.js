@@ -20,25 +20,29 @@ const createInscripcion = async (req, res) => {
     try {
         // Verificar si el período de matrícula está activo
         const hoy = new Date();
+
         const procesoMatricula = await Fechas_procesos.findOne({
             where: {
-                proceso: {
-                    [Op.iLike]: '%matricula%'
-                }
+                proceso: { [Op.like]: '%matricula%' },
+                fecha_inicio: { [Op.lte]: hoy },  // fecha_inicio <= hoy
+                fecha_fin:   { [Op.gte]: hoy }    // fecha_fin >= hoy
             },
-            order: [['fecha_inicio', 'ASC']],
+            // Si hubiera más de un período activo, tomamos el más reciente
+            order: [['fecha_inicio', 'DESC']],
             transaction: t
         });
 
         if (!procesoMatricula) {
             await t.rollback();
             return res.status(400).json({ 
-                message: 'No hay período de matrícula definido. Contacte con la administración.' 
+                message: 'No hay un período de matrícula ACTIVO. Contacte con la administración.' 
             });
         }
 
         const fechaInicio = new Date(procesoMatricula.fecha_inicio);
         const fechaFin = new Date(procesoMatricula.fecha_fin);
+
+        // (Esta validación ya es casi redundante, pero la dejamos por seguridad)
         const periodoActivo = hoy >= fechaInicio && hoy <= fechaFin;
 
         if (!periodoActivo) {
@@ -50,6 +54,7 @@ const createInscripcion = async (req, res) => {
 
         const inscripcion = req.body;
         console.log("esto se recibió del front", inscripcion)
+
         // Verificar si ya está inscrito en esta asignación
         const inscripcionFounded = await Inscripcion.findOne({
             where: {
@@ -103,20 +108,19 @@ const createInscripcion = async (req, res) => {
             await t.rollback();
             return res.status(400).json({ message: 'El estudiante ya está inscrito en esta materia con otro profesor' });
         }
+
         const inscripciones = await Inscripcion.findAll({
             where: {
                 ID_matricula: inscripcion.ID_matricula
             },
-            include:
-                [{
-                    model: Asignacion,
-
-                }]
-
-        })
+            include: [{
+                model: Asignacion,
+            }],
+            transaction: t
+        });
 
         const asignaciones = inscripciones.map((inscripcion) => {
-            const inscripcionPlain = inscripcion.get({ plain: true }); // Convertimos la inscripción a un objeto plano
+            const inscripcionPlain = inscripcion.get({ plain: true });
             return inscripcionPlain.Asignacion;
         });
 
@@ -133,7 +137,8 @@ const createInscripcion = async (req, res) => {
         });
 
         if (conflicto) {
-            return res.status(400).json({ message: "Inscripción no válida por cruze de horarios" })
+            await t.rollback(); // 👈 importante
+            return res.status(400).json({ message: "Inscripción no válida por cruce de horarios" });
         }
 
         // Crear inscripción
@@ -162,7 +167,6 @@ const createInscripcion = async (req, res) => {
             }
         }
 
-
         if (error.name === "SequelizeUniqueConstraintError") {
             const errEncontrado = error.errors.find(err =>
                 err.validatorKey === "not_unique"
@@ -175,6 +179,7 @@ const createInscripcion = async (req, res) => {
         return res.status(500).json({ message: `Error al crear inscripción en el servidor:` });
     }
 };
+
 
 const updateInscripcion = async (req, res) => {
     try {
