@@ -7,6 +7,8 @@ const Docente = require('../models/docente.model');
 const Fechas_procesos = require('../models/fechas_procesos.model');
 const { sequelize } = require('../config/sequelize.config');
 const { Op } = require('sequelize');
+require("dotenv").config();
+const jwt = require("jsonwebtoken");
 
 
 const tienenDiasSolapados = (dias1, dias2) => {
@@ -18,27 +20,29 @@ const tienenHorariosSolapados = (horaInicioA, horaFinA, horaInicioB, horaFinB) =
 const createInscripcion = async (req, res) => {
     const t = await sequelize.transaction();
     try {
-        // Verificar si el período de matrícula está activo
+        // Verificar si el período de matrícula está activo para profesor
         const hoy = new Date();
-
-        const procesoMatricula = await Fechas_procesos.findOne({
-            where: {
-                proceso: { [Op.like]: '%matricula%' },
-                fecha_inicio: { [Op.lte]: hoy },  // fecha_inicio <= hoy
-                fecha_fin:   { [Op.gte]: hoy }    // fecha_fin >= hoy
-            },
-            // Si hubiera más de un período activo, tomamos el más reciente
-            order: [['fecha_inicio', 'DESC']],
-            transaction: t
-        });
-
-        if (!procesoMatricula) {
-            await t.rollback();
-            return res.status(400).json({ 
-                message: 'No hay un período de matrícula ACTIVO. Contacte con la administración.' 
+        let token = req.headers.authorization.split(" ")[1];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        if (decoded.subRol == "Profesor" || decoded.rol == "representante") {
+            const procesoMatricula = await Fechas_procesos.findOne({
+                where: {
+                    proceso: { [Op.like]: '%matricula%' },
+                    fecha_inicio: { [Op.lte]: hoy },  // fecha_inicio <= hoy
+                    fecha_fin: { [Op.gte]: hoy }    // fecha_fin >= hoy
+                },
+                // Si hubiera más de un período activo, tomamos el más reciente
+                order: [['fecha_inicio', 'DESC']],
+                transaction: t
             });
-        }
 
+            if (!procesoMatricula) {
+                await t.rollback();
+                return res.status(400).json({
+                    message: 'No hay un período de matrícula ACTIVO. Contacte con la administración.'
+                });
+            }
+        
         const fechaInicio = new Date(procesoMatricula.fecha_inicio);
         const fechaFin = new Date(procesoMatricula.fecha_fin);
 
@@ -47,11 +51,11 @@ const createInscripcion = async (req, res) => {
 
         if (!periodoActivo) {
             await t.rollback();
-            return res.status(400).json({ 
-                message: `El período de matrícula no está activo. Período válido: ${fechaInicio.toLocaleDateString('es-ES')} - ${fechaFin.toLocaleDateString('es-ES')}` 
+            return res.status(400).json({
+                message: `El período de matrícula no está activo. Período válido: ${fechaInicio.toLocaleDateString('es-ES')} - ${fechaFin.toLocaleDateString('es-ES')}`
             });
         }
-
+    }
         const inscripcion = req.body;
         console.log("esto se recibió del front", inscripcion)
 
@@ -395,14 +399,14 @@ const getInscripcionesIndividualesDocente = async (req, res) => {
     try {
         console.log("estoy aca")
         const docente = req.params.docente
-        console.log("este es docente",docente)
+        console.log("este es docente", docente)
         const periodo = req.params.periodo
         let { page, limit } = req.query;
-        console.log("esto es todo",docente,periodo,page, limit)
+        console.log("esto es todo", docente, periodo, page, limit)
         page = parseInt(page)
         limit = parseInt(limit)
         console.log("este es el periodfgggo", periodo)
-        const { count, rows: inscripciones }= await Inscripcion.findAndCountAll({
+        const { count, rows: inscripciones } = await Inscripcion.findAndCountAll({
             limit,
             offset: (page - 1) * limit,
             include: [
@@ -411,7 +415,7 @@ const getInscripcionesIndividualesDocente = async (req, res) => {
                     include: [{
                         model: Materia,
                         as: "materiaDetalle",
-                        where:{
+                        where: {
                             tipo: "individual"
                         }
                     },
@@ -436,7 +440,7 @@ const getInscripcionesIndividualesDocente = async (req, res) => {
                 }
             ]
         })
-        console.log("estas son las inscripciones",inscripciones)
+        console.log("estas son las inscripciones", inscripciones)
         const inscripcionesFinal = inscripciones.map((inscripcion) => {
             const inscripcionPlain = inscripcion.get({ plain: true }); // Convertimos la inscripción a un objeto plano
 
@@ -457,11 +461,11 @@ const getInscripcionesIndividualesDocente = async (req, res) => {
             return inscripcionPlain;
         });
         return res.status(200).json({
-                data: inscripcionesFinal,
-                totalPages: Math.ceil(count / limit),
-                currentPage: page,
-                totalRows: count
-            });
+            data: inscripcionesFinal,
+            totalPages: Math.ceil(count / limit),
+            currentPage: page,
+            totalRows: count
+        });
     } catch (error) {
         console.error("Error al obtener las inscripciones", error)
         return res.status(500).json({ message: `Error al obtener las inscripciones en el servidor:` })
@@ -475,7 +479,7 @@ const getInscripcionesIndividualesByNivel = async (req, res) => {
         page = parseInt(page)
         limit = parseInt(limit)
         console.log("este es el periodo", periodo)
-        const { count, rows: inscripciones }= await Inscripcion.findAndCountAll({
+        const { count, rows: inscripciones } = await Inscripcion.findAndCountAll({
             include: [
                 {
                     model: Asignacion,
@@ -484,7 +488,7 @@ const getInscripcionesIndividualesByNivel = async (req, res) => {
                         as: "materiaDetalle",
                         where: {
                             nivel: nivel,
-                            tipo:"individual"
+                            tipo: "individual"
                         }
                     },
                     {
@@ -504,7 +508,7 @@ const getInscripcionesIndividualesByNivel = async (req, res) => {
                 }
             ]
         })
-        
+
         const inscripcionesFinal = inscripciones.map((inscripcion) => {
             const inscripcionPlain = inscripcion.get({ plain: true }); // Convertimos la inscripción a un objeto plano
 

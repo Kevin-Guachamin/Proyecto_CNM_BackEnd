@@ -81,7 +81,7 @@ const createAsignacion = async (req, res) => {
       horaFin: asignacion.horaFin,
       dias: asignacion.dias,
       cupos: parseInt(asignacion.cupos, 10),
-      cuposDisponibles: parseInt(asignacion.cupos, 10), // Inicialmente, cupos disponibles = cupos totales
+
       ID_periodo_academico: asignacion.ID_periodo_academico,
       nroCedula_docente: asignacion.nroCedula_docente,
       ID_materia: asignacion.ID_materia,
@@ -195,19 +195,7 @@ const updateAsignacion = async (req, res) => {
     console.log("esto es lo que viene", asignacion)
     const id = req.params.id
     
-    // Si se están cambiando los cupos, ajustar cuposDisponibles proporcionalmente
-    if (asignacion.cupos) {
-      const asignacionActual = await Asignacion.findByPk(id);
-      if (asignacionActual) {
-        const cuposActuales = asignacionActual.cupos;
-        const cuposDisponiblesActuales = asignacionActual.cuposDisponibles;
-        const nuevoCupos = parseInt(asignacion.cupos, 10);
-        
-        // Calcular la proporción y aplicarla
-        const proporcion = cuposDisponiblesActuales / cuposActuales;
-        asignacion.cuposDisponibles = Math.floor(nuevoCupos * proporcion);
-      }
-    }
+   
     
     const [updatedRows] = await Asignacion.update(asignacion, { where: { id } })
     if (updatedRows === 0) {
