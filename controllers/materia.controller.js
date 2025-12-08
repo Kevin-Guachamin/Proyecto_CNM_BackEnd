@@ -102,48 +102,52 @@ const getMateria = async (req, res) => {
 }
 const getMaterias = async (req, res) => {
   try {
-    let { page, limit } = req.query;
-    const search = req.query.search || '';
+    let { page, limit, search = "" } = req.query;
 
-    console.log("estos son page y limit", page, limit);
+    // Normalizar datos
+    page = page ? parseInt(page) : null;
+    limit = limit ? parseInt(limit) : null;
+    search = search.trim().toLowerCase();
 
+    // Declaración correcta
+    let where = {};
+
+    // Filtro de búsqueda
+    if (search !== "") {
+      where = {
+        [Op.and]: [
+          Sequelize.where(
+            Sequelize.fn("LOWER", Sequelize.col("nombre")),
+            {
+              [Op.like]: `%${search}%`
+            }
+          )
+        ]
+      };
+    }
+
+    // Orden estándar que usas en ambos sitios
+    const orderConfig = [
+      [
+        Sequelize.literal(`FIELD(nivel, 
+            '1ro BE', '2do BE', 
+            '1ro BM', '2do BM', '3ro BM', 
+            '1ro BS', '2do BS', '3ro BS', 
+            '1ro BCH', '2do BCH', '3ro BCH', 
+            'BCH', 'BM', 'BS', 'BS BCH')`),
+        'ASC'
+      ]
+    ];
+
+    // Con paginación
     if (page && limit) {
-      console.log("supongo estoy aca");
-      page = parseInt(page);
-      limit = parseInt(limit);
-
-
-
-      if (search.trim() !== '') {
-        where = {
-          [Op.and]: [
-            Sequelize.where(
-              Sequelize.fn("LOWER", Sequelize.col("nombre")),
-              {
-                [Op.like]: `%${search.toLowerCase()}%`
-              }
-            )
-          ]
-        };
-      }
 
       const { count, rows: materias } = await Materia.findAndCountAll({
+        where,
         limit,
         offset: (page - 1) * limit,
-        order: [
-          [
-            Sequelize.literal(`FIELD(nivel, 
-                '1ro BE', '2do BE', 
-                '1ro BM', '2do BM', '3ro BM', 
-                '1ro BS', '2do BS', '3ro BS', 
-                '1ro BCH', '2do BCH', '3ro BCH', 
-                'BCH', 'BM', 'BS', 'BS BCH')`),
-            'ASC'
-          ]
-        ]
+        order: orderConfig
       });
-
-      console.log("esto se envia", materias);
 
       return res.status(200).json({
         data: materias,
@@ -153,19 +157,10 @@ const getMaterias = async (req, res) => {
       });
     }
 
+    // Sin paginación
     const materias = await Materia.findAll({
-
-      order: [
-        [
-          Sequelize.literal(`FIELD(nivel, 
-              '1ro BE', '2do BE', 
-              '1ro BM', '2do BM', '3ro BM', 
-              '1ro BS', '2do BS', '3ro BS', 
-              '1ro BCH', '2do BCH', '3ro BCH', 
-              'BCH', 'BM', 'BS', 'BS BCH')`),
-          'ASC'
-        ]
-      ]
+      where,
+      order: orderConfig
     });
 
     return res.status(200).json(materias);
@@ -175,6 +170,7 @@ const getMaterias = async (req, res) => {
     return res.status(500).json({ message: `Error al obtener materias en el servidor:` });
   }
 };
+
 
 const getMateriasIndividuales = async (req, res) => {
   try {
