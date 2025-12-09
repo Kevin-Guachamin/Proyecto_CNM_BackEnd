@@ -659,6 +659,7 @@ const getAsignacionesPorAsignatura = async (req, res) => {
         },
       ]
     });
+    console.log("estas son las asignaciones encontradas", asignaciones)
 
     const asignacionesFinal = asignaciones.map((asignacion) => {
       const asignacionPlain = asignacion.get({ plain: true }); // Convertimos el resultado a un objeto plano

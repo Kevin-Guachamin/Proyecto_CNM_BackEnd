@@ -143,7 +143,7 @@ const getDocente = async (req, res) => {
 const getDocentes = async (req, res) => {
     try {
         let { page = 1, limit = 10, search = '' } = req.query;
-
+        console.log("Estos son los valores", page, limit, search);
         page = parseInt(page);
         limit = parseInt(limit);
 
