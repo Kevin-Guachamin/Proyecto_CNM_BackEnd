@@ -610,7 +610,7 @@ const getAsignacionesPorPeriodo = async (req, res) => {
 
 const getAsignacionesPorAsignatura = async (req, res) => {
   try {
-
+    console.log("llego a la consulta")
     const ID = req.params.periodo
     const asignatura = req.params.materia
     const nivelEstudiante = req.params.nivel
