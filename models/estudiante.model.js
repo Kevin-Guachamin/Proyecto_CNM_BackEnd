@@ -215,6 +215,10 @@ const Estudiante = sequelize.define('Estudiante', {
             notEmpty: { msg: "No se permiten valores vacíos" },
             notNull: { msg: "No se permiten valores nulos" },
 
+        },
+        nroCedula_representante: {
+            type: DataTypes.STRING(255),
+            allowNull: false
         }
     }
 
