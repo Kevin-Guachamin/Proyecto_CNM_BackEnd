@@ -24,7 +24,7 @@ const createInscripcion = async (req, res) => {
         const hoy = new Date();
         let token = req.headers.authorization.split(" ")[1];
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        if (decoded.subRol == "Profesor" || decoded.rol == "representante") {
+        if ( decoded.rol == "representante") { //AQUI HAY QUE VOLVER AÑADIR A PROFESOR CUANDO SE NORMALIZE
             const procesoMatricula = await Fechas_procesos.findOne({
                 where: {
                     proceso: { [Op.like]: '%matricula%' },

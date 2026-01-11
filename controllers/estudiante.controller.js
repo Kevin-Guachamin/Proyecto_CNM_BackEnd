@@ -228,6 +228,55 @@ const getAllEstudiantes = async (request, response) => {
         return response.status(500).json({ message: 'Error al obtener los estudiantes en el servidor' });
     }
 };
+const getEstudiantesByApellido = async (request, response) => {
+    try {
+        let { page = 1, limit = 10, search } = request.query;
+
+        // Si no viene search, NO devuelve nada
+        if (!search || search.trim() === '') {
+            return response.status(200).json({
+                estudiantes: [],
+                totalPages: 0,
+                currentPage: Number(page),
+                totalRows: 0
+            });
+        }
+
+        page = parseInt(page);
+        limit = parseInt(limit);
+
+        const apellido = search.trim().toLowerCase();
+
+        const whereConditions = {
+            [Op.and]: [
+                Sequelize.where(
+                    Sequelize.fn("LOWER", Sequelize.col("primer_apellido")),
+                    { [Op.like]: `%${apellido}%` }
+                )
+            ]
+        };
+
+        const { count, rows: estudiantes } = await Estudiante.findAndCountAll({
+            where: whereConditions,
+            limit,
+            offset: (page - 1) * limit
+        });
+
+        return response.status(200).json({
+            estudiantes,
+            totalPages: Math.ceil(count / limit),
+            currentPage: page,
+            totalRows: count
+        });
+
+    } catch (error) {
+        console.log('Error al buscar estudiantes:', error);
+        return response.status(500).json({
+            message: 'Error al obtener los estudiantes en el servidor'
+        });
+    }
+};
+
 
 const getEstudiantesByNivel = async (request, response) => {
     try {
@@ -441,5 +490,6 @@ module.exports = {
     getRepresentanteEstudiante,
     getEstudianteByCedula,
     getEstudiantesByNivel,
-    verificarMatriculaIER
+    verificarMatriculaIER,
+    getEstudiantesByApellido
 };
