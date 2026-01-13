@@ -707,7 +707,10 @@ const getAsignacionesSinMatriculaPorDocente = async (req, res) => {
           where: {
             tipo: "individual"
           }
-        }
+        },
+        {
+          model: Docente
+        },
         ]
 
     })
