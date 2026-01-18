@@ -150,9 +150,9 @@ const createAsignacion = async (req, res) => {
 }
 const updateAsignacion = async (req, res) => {
   try {
-    
+
     const asignacion = req.body
-    console.log("esto llega",asignacion)
+    console.log("esto llega", asignacion)
     const asignacionesDocente = await Asignacion.findAll({
       where: {
         nroCedula_docente: asignacion.nroCedula_docente,
@@ -182,7 +182,7 @@ const updateAsignacion = async (req, res) => {
         asig.horaFin
       );
       console.log("ffffff")
-      console.log("horas",hayHorarioSolapado)
+      console.log("horas", hayHorarioSolapado)
       return hayDiasSolapados && hayHorarioSolapado;
     });
     console.log("que paso")
@@ -194,9 +194,9 @@ const updateAsignacion = async (req, res) => {
 
     console.log("esto es lo que viene", asignacion)
     const id = req.params.id
-    
-   
-    
+
+
+
     const [updatedRows] = await Asignacion.update(asignacion, { where: { id } })
     if (updatedRows === 0) {
       return res.status(404).json({ message: "Asignación no encontrada" })
@@ -468,16 +468,16 @@ const getAsignaciones = async (req, res) => {
   try {
     const periodo = req.params.periodo
     let { page = 1, limit = 13 } = req.query;
-    const search =req.query.search || "";
-   
+    const search = req.query.search || "";
 
-    if(page && limit){
+
+    if (page && limit) {
       page = parseInt(page)
       limit = parseInt(limit)
-      const whereConditions={
+      const whereConditions = {
         ID_periodo_academico: periodo
       }
-    
+
       if (search.trim() !== '') {
         whereInclude[Op.and] = [
           Sequelize.where(
@@ -494,12 +494,12 @@ const getAsignaciones = async (req, res) => {
         offset: (page - 1) * limit,
         where: whereConditions,
         include: [
-  
+
           {
             model: Materia,
             where: {
               tipo: { [Op.ne]: "individual" }
-  
+
             },
             as: "materiaDetalle"
           },
@@ -521,7 +521,7 @@ const getAsignaciones = async (req, res) => {
           ]
         ]
       })
-  
+
       const asignacionesFinal = asignaciones.map((asignacion) => {
         const asignacionPlain = asignacion.get({ plain: true }); // Convertimos el resultado a un objeto plano
         // Eliminamos las contraseñas de los docentes
@@ -542,8 +542,8 @@ const getAsignaciones = async (req, res) => {
         totalRows: count
       });
     }
-    
-    return res.status(400).json({message: "No se ha definido limit ni page"})
+
+    return res.status(400).json({ message: "No se ha definido limit ni page" })
 
   } catch (error) {
     console.error("Error al obtener asignaciones", error)
@@ -638,7 +638,12 @@ const getAsignacionesPorAsignatura = async (req, res) => {
     // Solo agregar filtro de nombre si asignatura no está vacía
     if (asignatura && asignatura.trim() !== '' && asignatura !== 'all') {
       whereMateria[Op.and] = [
-        Sequelize.where(Sequelize.fn("LOWER", Sequelize.col("nombre")), "LIKE", `%${asignatura.toLowerCase()}%`)
+        Sequelize.where(
+          Sequelize.fn("LOWER", Sequelize.col("materiaDetalle.nombre")),
+          {
+            [Op.like]: `%${asignatura.toLowerCase()}%`
+          }
+        )
       ];
     }
 
@@ -686,7 +691,7 @@ const getAsignacionesSinMatriculaPorDocente = async (req, res) => {
   try {
     const docente = req.params.docente
     const periodo = req.params.periodo
-    console.log("estos son el preiodo y el docente",docente,periodo)
+    console.log("estos son el preiodo y el docente", docente, periodo)
     const asignaciones = await Asignacion.findAll({
       where: {
         nroCedula_docente: docente,
@@ -714,12 +719,12 @@ const getAsignacionesSinMatriculaPorDocente = async (req, res) => {
         ]
 
     })
-    console.log("estas son las asignaciones",asignaciones)
+    console.log("estas son las asignaciones", asignaciones)
     // Aplanamos los datos de las inscripciones
     const asignacionesFinal = asignaciones.map((asignacion) => {
       const asignacionPlain = asignacion.get({ plain: true }); // Convertimos el resultado a un objeto plano
       // Eliminamos las contraseñas de los docentes
-     
+
       // Renombramos Materium a Materia
       if (asignacionPlain.materiaDetalle) {
         asignacionPlain.Materia = asignacionPlain.materiaDetalle;
@@ -738,10 +743,10 @@ const getAsignacionesSinMatricula = async (req, res) => {
 
   try {
 
-    
-    
-    const  asignaciones  = await Asignacion.findAll({
-     
+
+
+    const asignaciones = await Asignacion.findAll({
+
       where: {
         '$Matriculas.id$': {
           [Op.is]: null, // <- filtramos donde no hay relación
@@ -769,7 +774,7 @@ const getAsignacionesSinMatricula = async (req, res) => {
     const asignacionesFinal = asignaciones.map((asignacion) => {
       const asignacionPlain = asignacion.get({ plain: true }); // Convertimos el resultado a un objeto plano
       // Eliminamos las contraseñas de los docentes
-     
+
       // Renombramos Materium a Materia
       if (asignacionPlain.materiaDetalle) {
         asignacionPlain.Materia = asignacionPlain.materiaDetalle;
@@ -778,7 +783,7 @@ const getAsignacionesSinMatricula = async (req, res) => {
       return asignacionPlain;
     });
     return res.status(200).json(
-       asignacionesFinal
+      asignacionesFinal
     );
 
 
