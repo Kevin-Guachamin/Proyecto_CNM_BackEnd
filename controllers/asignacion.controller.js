@@ -631,7 +631,7 @@ const getAsignacionesPorAsignatura = async (req, res) => {
     // Configurar condiciones de búsqueda para Materia
     let whereMateria = {
       nivel: {
-        [Op.in]: [nivelesMateria]
+        [Op.in]: nivelesMateria
       }
     };
 
