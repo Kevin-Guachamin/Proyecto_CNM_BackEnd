@@ -72,7 +72,7 @@ const createAsignacion = async (req, res) => {
     }
 
 
-
+    console.log("ESTO ES LO QUE VOY A CEAR", asignacion );
 
     // Crear la asignación si no existe
     const result1 = await Asignacion.create({

@@ -68,7 +68,7 @@ const Asignacion = sequelize.define("Asignacion", {
             }
         },
         get() {
-            const rawValue = this.getDataValue("horaInicio");
+            const rawValue = this.getDataValue("hora1");
             return rawValue ? rawValue.slice(0, 5) : null; // Extrae solo HH:MM
         }
     },
@@ -81,13 +81,13 @@ const Asignacion = sequelize.define("Asignacion", {
                 msg: "La hora de fin debe estar en formato HH:MM o HH:MM:SS"
             },
             validarOrden(value) {
-                if (this.horaInicio && value <= this.horaInicio) {
+                if (this.horaInicio && value <= this.hora1) {
                     throw new Error("La hora de fin debe ser mayor que la hora de inicio");
                 }
             }
         },
         get() {
-            const rawValue = this.getDataValue("horaFin");
+            const rawValue = this.getDataValue("hora2");
             return rawValue ? rawValue.slice(0, 5) : null; // Extrae solo HH:MM
         }
     },
