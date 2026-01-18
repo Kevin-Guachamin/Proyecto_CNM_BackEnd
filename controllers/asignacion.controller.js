@@ -81,7 +81,8 @@ const createAsignacion = async (req, res) => {
       horaFin: asignacion.horaFin,
       dias: asignacion.dias,
       cupos: parseInt(asignacion.cupos, 10),
-
+      hora1: asignacion?.hora1 ?? null,
+      hora2: asignacion?.hora2 ?? null,
       ID_periodo_academico: asignacion.ID_periodo_academico,
       nroCedula_docente: asignacion.nroCedula_docente,
       ID_materia: asignacion.ID_materia,

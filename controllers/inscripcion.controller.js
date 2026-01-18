@@ -24,7 +24,7 @@ const createInscripcion = async (req, res) => {
         const hoy = new Date();
         let token = req.headers.authorization.split(" ")[1];
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        if ( decoded.rol == "representante") { //AQUI HAY QUE VOLVER AÑADIR A PROFESOR CUANDO SE NORMALIZE
+        if (decoded.rol == "representante") { //AQUI HAY QUE VOLVER AÑADIR A PROFESOR CUANDO SE NORMALIZE
             const procesoMatricula = await Fechas_procesos.findOne({
                 where: {
                     proceso: { [Op.like]: '%matricula%' },
@@ -42,20 +42,20 @@ const createInscripcion = async (req, res) => {
                     message: 'No hay un período de matrícula ACTIVO. Contacte con la administración.'
                 });
             }
-        
-        const fechaInicio = new Date(procesoMatricula.fecha_inicio);
-        const fechaFin = new Date(procesoMatricula.fecha_fin);
 
-        // (Esta validación ya es casi redundante, pero la dejamos por seguridad)
-        const periodoActivo = hoy >= fechaInicio && hoy <= fechaFin;
+            const fechaInicio = new Date(procesoMatricula.fecha_inicio);
+            const fechaFin = new Date(procesoMatricula.fecha_fin);
 
-        if (!periodoActivo) {
-            await t.rollback();
-            return res.status(400).json({
-                message: `El período de matrícula no está activo. Período válido: ${fechaInicio.toLocaleDateString('es-ES')} - ${fechaFin.toLocaleDateString('es-ES')}`
-            });
+            // (Esta validación ya es casi redundante, pero la dejamos por seguridad)
+            const periodoActivo = hoy >= fechaInicio && hoy <= fechaFin;
+
+            if (!periodoActivo) {
+                await t.rollback();
+                return res.status(400).json({
+                    message: `El período de matrícula no está activo. Período válido: ${fechaInicio.toLocaleDateString('es-ES')} - ${fechaFin.toLocaleDateString('es-ES')}`
+                });
+            }
         }
-    }
         const inscripcion = req.body;
         console.log("esto se recibió del front", inscripcion)
 
@@ -480,34 +480,41 @@ const getInscripcionesIndividualesByNivel = async (req, res) => {
         limit = parseInt(limit)
         console.log("este es el periodo", periodo)
         const { count, rows: inscripciones } = await Inscripcion.findAndCountAll({
+            distinct: true, 
             include: [
                 {
                     model: Asignacion,
-                    include: [{
-                        model: Materia,
-                        as: "materiaDetalle",
-                        where: {
-                            nivel: nivel,
-                            tipo: "individual"
+                    required: true,
+                    include: [
+                        {
+                            model: Materia,
+                            as: "materiaDetalle",
+                            required: true,
+                            where: {
+                                nivel: nivel,
+                                tipo: "individual"
+                            }
+                        },
+                        {
+                            model: Docente,
+                            attributes: ["primer_nombre", "primer_apellido"]
                         }
-                    },
-                    {
-                        model: Docente,
-                        attributes: ["primer_nombre", "primer_apellido"]
-                    }
                     ]
                 },
                 {
                     model: Matricula,
+                    required: true,
                     where: {
                         ID_periodo_academico: periodo
                     },
-                    include: [{
-                        model: Estudiante,
-                    }]
+                    include: [
+                        {
+                            model: Estudiante
+                        }
+                    ]
                 }
             ]
-        })
+        });
 
         const inscripcionesFinal = inscripciones.map((inscripcion) => {
             const inscripcionPlain = inscripcion.get({ plain: true }); // Convertimos la inscripción a un objeto plano

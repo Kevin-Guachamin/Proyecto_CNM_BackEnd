@@ -58,6 +58,39 @@ const Asignacion = sequelize.define("Asignacion", {
             return rawValue ? rawValue.slice(0, 5) : null; // Extrae solo HH:MM
         }
     },
+    hora1: {
+        type: DataTypes.TIME,
+        allowNull: true,
+        validate: {
+            is: {
+                args: /^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/,
+                msg: "La hora de inicio debe estar en formato HH:MM o HH:MM:SS"
+            }
+        },
+        get() {
+            const rawValue = this.getDataValue("horaInicio");
+            return rawValue ? rawValue.slice(0, 5) : null; // Extrae solo HH:MM
+        }
+    },
+    hora2: {
+        type: DataTypes.TIME,
+        allowNull: true,
+        validate: {
+            is: {
+                args: /^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/,
+                msg: "La hora de fin debe estar en formato HH:MM o HH:MM:SS"
+            },
+            validarOrden(value) {
+                if (this.horaInicio && value <= this.horaInicio) {
+                    throw new Error("La hora de fin debe ser mayor que la hora de inicio");
+                }
+            }
+        },
+        get() {
+            const rawValue = this.getDataValue("horaFin");
+            return rawValue ? rawValue.slice(0, 5) : null; // Extrae solo HH:MM
+        }
+    },
     dias: {
         type: DataTypes.JSON, // Usa JSON para MySQL
         allowNull: false,
