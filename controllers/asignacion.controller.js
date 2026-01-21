@@ -660,6 +660,10 @@ const getAsignacionesPorAsignatura = async (req, res) => {
       inicio = "14:30:00"
       fin = "19:00:00"
     }
+    if(nivelEstudiante==='3ro Bachillerato'){
+      inicio = "07:00:00"
+      fin = "19:00:00"
+    }
 
     const nivelesMateria = mapearNivelEstudianteAMateria(nivelEstudiante);
 
