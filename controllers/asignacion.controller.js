@@ -402,7 +402,10 @@ const getAsignacionesPorDocente = async (req, res) => {
 
     // Si no hay asignaciones, retornar un 404
     if (!asignaciones.length) {
-      return res.status(404).json({ message: "No hay asignaciones para este docente" });
+      return res.status(200).json({
+        data: [],
+        message: "Aún no tienes asignaciones para el período activo."
+      });
     }
 
     // Construye el array de resultados con los campos que necesitas
@@ -445,7 +448,10 @@ const getAsignacionesPorDocente = async (req, res) => {
     });
 
     // Retornar el resultado
-    return res.status(200).json(resultado);
+    return res.status(200).json({
+  data: resultado,
+  message: "Asignaciones obtenidas correctamente."
+});
   } catch (error) {
     console.error("Error al obtener asignaciones", error);
     return res.status(500).json({ message: "Error al obtener las asignaciones en el servidor" });
@@ -658,10 +664,6 @@ const getAsignacionesPorAsignatura = async (req, res) => {
     }
     if (jornada === "Vespertina") {
       inicio = "14:30:00"
-      fin = "19:00:00"
-    }
-    if(nivelEstudiante==='3ro Bachillerato'){
-      inicio = "07:00:00"
       fin = "19:00:00"
     }
 
