@@ -172,7 +172,8 @@ const Representante = sequelize.define('Representante', {
 Representante.hasMany(Estudiante, {
     foreignKey: 'nroCedula_representante',
     sourceKey: 'nroCedula',
-    onUpdate: 'CASCADE'  // 🔁 Actualiza en cascada si cambia la cédula del representante
+    onUpdate: 'CASCADE',
+    onDelete: 'RESTRICT' // 🔁 Actualiza en cascada si cambia la cédula del representante
 });
 
 Estudiante.belongsTo(Representante, {
