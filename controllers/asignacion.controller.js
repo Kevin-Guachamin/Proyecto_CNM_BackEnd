@@ -390,7 +390,7 @@ const getAsignacionesPorDocente = async (req, res) => {
         },
         {
           model: Materia,
-          attributes: ["nombre", "nivel"],
+          attributes: ["nombre", "nivel", "tipo"],
           as: "materiaDetalle"
         },
         {
@@ -442,6 +442,7 @@ const getAsignacionesPorDocente = async (req, res) => {
         docente,                              // Nombre completo
         materia: asignacion.materiaDetalle?.nombre,
         nivel: asignacion.materiaDetalle?.nivel,
+        tipo: asignacion.materiaDetalle?.tipo,
         createdAt: asignacion.createdAt,
         updatedAt: asignacion.updatedAt
       };
