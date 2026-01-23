@@ -4,6 +4,7 @@ const { Op, Sequelize, where } = require("sequelize");
 const createMateria = async (req, res) => {
   try {
     const materia = req.body
+    console.log("Datos recibidos para crear materia:", materia);
     const materiaFound = await Materia.findOne({ where: { nombre: materia.nombre, nivel: materia.nivel } })
     if (materiaFound) {
       return res.status(409).json({ message: "La asignatura ya existe" })
@@ -11,7 +12,7 @@ const createMateria = async (req, res) => {
     const result = await Materia.create(materia)
     return res.status(201).json(result)
   } catch (error) {
-    console.log('Error al crear el estudiante:', error);
+    console.log('Error al crear asignatura:', error);
     if (error.name === "SequelizeValidationError") {
       console.log("Estos son los errores", error);
 
