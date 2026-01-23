@@ -127,17 +127,64 @@ const createInscripcion = async (req, res) => {
             const inscripcionPlain = inscripcion.get({ plain: true });
             return inscripcionPlain.Asignacion;
         });
+        console.log("estas son las asignaciones previas", asignaciones)
+        function toMin(hora) {
+            if (!hora) return null;
+            const [h, m] = hora.split(":").map(Number);
+            return h * 60 + m;
+        }
+        function obtenerRangoPorDia(asignacion, dia) {
+            const index = asignacion.dias.indexOf(dia);
+            if (index === -1) return null;
+
+            const tieneSegundoHorario =
+                asignacion.hora1 &&
+                asignacion.hora2;
+
+            // Caso 1: un solo horario para todos los días
+            if (!tieneSegundoHorario) {
+                return {
+                    inicio: toMin(asignacion.horaInicio),
+                    fin: toMin(asignacion.horaFin)
+                };
+            }
+
+            // Caso 2: dos días, dos horarios distintos
+            if (index === 0) {
+                return {
+                    inicio: toMin(asignacion.horaInicio),
+                    fin: toMin(asignacion.horaFin)
+                };
+            }
+
+            if (index === 1) {
+                return {
+                    inicio: toMin(asignacion.hora1),
+                    fin: toMin(asignacion.hora2)
+                };
+            }
+
+            return null;
+        }
+
+
+        function tienenHorariosSolapados(rangoA, rangoB) {
+            if (!rangoA || !rangoB) return false;
+            if (rangoA.inicio == null || rangoA.fin == null) return false;
+            if (rangoB.inicio == null || rangoB.fin == null) return false;
+
+            return rangoA.inicio < rangoB.fin && rangoA.fin > rangoB.inicio;
+        }
 
         const conflicto = asignaciones.some(asig => {
-            const hayDiasSolapados = tienenDiasSolapados(asig.dias, asignacionActual.dias);
-            const hayHorarioSolapado = tienenHorariosSolapados(
-                asignacionActual.horaInicio,
-                asignacionActual.horaFin,
-                asig.horaInicio,
-                asig.horaFin
-            );
+            return asignacionActual.dias.some(dia => {
+                if (!asig.dias.includes(dia)) return false;
 
-            return hayDiasSolapados && hayHorarioSolapado;
+                const rangoNueva = obtenerRangoPorDia(asignacionActual, dia);
+                const rangoExistente = obtenerRangoPorDia(asig, dia);
+
+                return tienenHorariosSolapados(rangoNueva, rangoExistente);
+            });
         });
 
         if (conflicto) {
@@ -480,7 +527,7 @@ const getInscripcionesIndividualesByNivel = async (req, res) => {
         limit = parseInt(limit)
         console.log("este es el periodo", periodo)
         const { count, rows: inscripciones } = await Inscripcion.findAndCountAll({
-            distinct: true, 
+            distinct: true,
             include: [
                 {
                     model: Asignacion,
