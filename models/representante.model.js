@@ -181,6 +181,7 @@ Estudiante.belongsTo(Representante, {
         allowNull: false
     },
     targetKey: 'nroCedula',
-    onUpdate: 'CASCADE'  // 🔁 También aquí se indica el comportamiento en cascada
+    onUpdate: 'CASCADE',
+    onDelete: 'RESTRICT'  
 });
 module.exports = Representante
