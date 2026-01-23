@@ -1,14 +1,22 @@
 const sequelize = require('./config/sequelize.config');
 const { reprogramarPeriodosPendientes } = require('./controllers/programarCierre.controller')
 
-require('./models/docente.model')
-require('./models/materia.model')
-require('./models/periodo_academico.model')
 require('./models/asignacion.model')
+require('./models/calificaciones_finales.model')
+require('./models/calificaciones_parciales_be.model')
+require('./models/calificaciones_parciales.model')
+require('./models/calificaciones_quimestrales_be.model')
+require('./models/calificaciones_quimestrales.model')
+require('./models/docente.model')
 require('./models/estudiante.model')
-
-require('./models/matricula.models')
 require('./models/fechas_notas.model')
+require('./models/fechas_procesos.model')
+require('./models/inscripcion.model')
+require('./models/materia.model')
+require('./models/matricula.models')
+require('./models/periodo_academico.model')
+require('./models/representante.model')
+require('./models/solicitudesPermiso.model')
 
 
 const express = require('express')
