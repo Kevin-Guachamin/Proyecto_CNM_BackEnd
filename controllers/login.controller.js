@@ -32,7 +32,7 @@ module.exports.login = async (req, res) => {
             console.log("caigo aca")
             return res.status(404).json({ message: 'Cédula  incorrecta' });
         }
-
+        console.log("este es el usuario que no puede ingresar", user)
         // Verificar la password
         let isMatch = false;
         if (user.password.startsWith("$2a$") || user.password.startsWith("$2b$")) {
