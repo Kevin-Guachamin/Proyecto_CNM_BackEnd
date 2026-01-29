@@ -205,7 +205,8 @@ const updateRepresentante = async (request, response) => {
             const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(usuario.password, salt);
             usuario.password=hashedPassword
-            enivarContrasenia(usuario.email,provicional)
+            enviarContrasenia(usuario.email,provicional)
+            
         }
 
         // Actualizar el representante

@@ -58,7 +58,7 @@ const createInscripcion = async (req, res) => {
         }
         const inscripcion = req.body;
         console.log("esto se recibió del front", inscripcion)
-
+        
         // Verificar si ya está inscrito en esta asignación
         const inscripcionFounded = await Inscripcion.findOne({
             where: {
