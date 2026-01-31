@@ -58,7 +58,7 @@ const createInscripcion = async (req, res) => {
         }
         const inscripcion = req.body;
         console.log("esto se recibió del front", inscripcion)
-        
+
         // Verificar si ya está inscrito en esta asignación
         const inscripcionFounded = await Inscripcion.findOne({
             where: {
@@ -522,12 +522,15 @@ const getInscripcionesIndividualesByNivel = async (req, res) => {
     try {
         const nivel = req.params.nivel
         const periodo = req.params.periodo
-        let { page, limit } = req.query;
-        page = parseInt(page)
-        limit = parseInt(limit)
-        console.log("este es el periodo", periodo)
+        let { page = 1, limit = 10 } = req.query;
+        page = parseInt(page);
+        limit = parseInt(limit);
+        const offset = (page - 1) * limit;
+
         const { count, rows: inscripciones } = await Inscripcion.findAndCountAll({
             distinct: true,
+            limit,
+            offset,
             include: [
                 {
                     model: Asignacion,
@@ -554,14 +557,11 @@ const getInscripcionesIndividualesByNivel = async (req, res) => {
                     where: {
                         ID_periodo_academico: periodo
                     },
-                    include: [
-                        {
-                            model: Estudiante
-                        }
-                    ]
+                    include: [{ model: Estudiante }]
                 }
             ]
         });
+
 
         const inscripcionesFinal = inscripciones.map((inscripcion) => {
             const inscripcionPlain = inscripcion.get({ plain: true }); // Convertimos la inscripción a un objeto plano
