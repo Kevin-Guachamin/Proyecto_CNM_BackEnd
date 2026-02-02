@@ -135,7 +135,7 @@ const getMaterias = async (req, res) => {
             '1ro BM', '2do BM', '3ro BM', 
             '1ro BS', '2do BS', '3ro BS', 
             '1ro BCH', '2do BCH', '3ro BCH', 
-            'BCH', 'BM', 'BS', 'BS BCH')`),
+            'BCH', 'BM', 'BS', 'BS BCH','BE','BM BS')`),
         'ASC'
       ]
     ];
@@ -192,7 +192,7 @@ const getMateriasIndividuales = async (req, res) => {
                         '1ro BM', '2do BM', '3ro BM', 
                         '1ro BS', '2do BS', '3ro BS', 
                         '1ro BCH', '2do BCH', '3ro BCH', 
-                        'BCH', 'BM', 'BS', 'BS BCH')`),
+                        'BCH', 'BM', 'BS', 'BS BCH','BE','BM BS')`),
             'ASC'
           ]
         ]
@@ -217,7 +217,7 @@ const getMateriasIndividuales = async (req, res) => {
                     '1ro BM', '2do BM', '3ro BM', 
                     '1ro BS', '2do BS', '3ro BS', 
                     '1ro BCH', '2do BCH', '3ro BCH', 
-                    'BCH', 'BM', 'BS', 'BS BCH')`),
+                    'BCH', 'BM', 'BS', 'BS BCH','BE','BM BS')`),
           'ASC'
         ]
       ]
