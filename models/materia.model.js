@@ -36,7 +36,7 @@ const Materia = sequelize.define('Materia', {
             "BS BCH",
             "BE",
             "BM BS",
-            "BM, BS, BCH",
+            "BM BS BCH",
         ),
         allowNull: false,
         validate: {
