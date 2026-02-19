@@ -9,7 +9,7 @@ const mapearNivelEstudianteAMateria = (nivelEstudiante) => {
   const mapeoNiveles = {
     "1ro Básico Elemental": ["1ro BE", "BE"],
     "2do Básico Elemental": ["2do BE", "BE"],
-    "1ro Básico Medio": ["1ro BM", "BM", "BM BS,", "BM BS BCH"],
+    "1ro Básico Medio": ["1ro BM", "BM", "BM BS", "BM BS BCH"],
     "2do Básico Medio": ["2do BM", "BM", "BM BS", "BM BS BCH"],
     "3ro Básico Medio": ["3ro BM", "BM", "BM BS", "BM BS BCH"],
     "1ro Básico Superior": ["1ro BS", "BS", "BS BCH", "BM BS", "BM BS BCH"],
