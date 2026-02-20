@@ -473,8 +473,7 @@ const getAsignacionesPorNivel = async (req, res) => {
         {
           model: Materia,
           where: {
-            nivel: nivel,
-            tipo: { [Op.ne]: "individual" }
+            nivel: nivel
           },
           as: "materiaDetalle"
 
@@ -539,10 +538,6 @@ const getAsignaciones = async (req, res) => {
 
           {
             model: Materia,
-            where: {
-              tipo: { [Op.ne]: "individual" }
-
-            },
             as: "materiaDetalle"
           },
           { model: Docente },
@@ -603,9 +598,6 @@ const getAsignacionesPorPeriodo = async (req, res) => {
       include: [
         {
           model: Materia,
-          where: {
-            tipo: { [Op.ne]: "individual" }
-          },
           as: "materiaDetalle"
         },
         { model: Docente },
