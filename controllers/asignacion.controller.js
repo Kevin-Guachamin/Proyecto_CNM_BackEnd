@@ -473,7 +473,8 @@ const getAsignacionesPorNivel = async (req, res) => {
         {
           model: Materia,
           where: {
-            nivel: nivel
+            nivel: nivel,
+            tipo: { [Op.ne]: "individual" }
           },
           as: "materiaDetalle"
 
